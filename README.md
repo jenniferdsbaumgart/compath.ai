@@ -1,3 +1,5 @@
+![Logo](./frontend/public/images/logo-full-white.png)
+
 # Compath
 
 Compath é uma plataforma projetada para ajudar empreendedores a encontrar o nicho ideal, explorar concorrentes e analisar potenciais clientes com base em regiões geográficas. A plataforma também inclui um sistema gamificado de moedas, onde os usuários podem ganhar e gastar moedas ao realizar pesquisas e acessar cursos valiosos.
