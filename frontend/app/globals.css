@@ -1,26 +1,129 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --foreground-rgb: 0, 0, 0;
+  --background-start-rgb: 214, 219, 220;
+  --background-end-rgb: 255, 255, 255;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --foreground-rgb: 255, 255, 255;
+    --background-start-rgb: 0, 0, 0;
+    --background-end-rgb: 0, 0, 0;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 3.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 3.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 3.9%;
+    
+    /* Compath colors */
+    --primary: 220 45% 20%;      /* #1E2749 */
+    --primary-foreground: 0 0% 98%;
+    --secondary: 225 51% 50%;    /* #495FBA */
+    --secondary-foreground: 0 0% 98%;
+    --accent: 159 74% 35%;      /* #199A6D */
+    --accent-foreground: 0 0% 98%;
+    --accent-hover: 159 74% 47%; /* #25C88F */
+    
+    --muted: 0 0% 96.1%;
+    --muted-foreground: 0 0% 45.1%;
+    --destructive: 0 84.2% 60.2%; /* #E42A2A */
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 89.8%;
+    --input: 0 0% 89.8%;
+    --ring: 220 45% 20%;
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 220 45% 10%;
+    --foreground: 0 0% 98%;
+    --card: 220 45% 15%;
+    --card-foreground: 0 0% 98%;
+    --popover: 220 45% 15%;
+    --popover-foreground: 0 0% 98%;
+    
+    /* Compath colors dark mode */
+    --primary: 220 45% 20%;      /* #1E2749 */
+    --primary-foreground: 0 0% 98%;
+    --secondary: 225 51% 60%;    /* #657FEE */
+    --secondary-foreground: 0 0% 98%;
+    --accent: 159 74% 35%;      /* #199A6D */
+    --accent-foreground: 0 0% 98%;
+    --accent-hover: 159 74% 47%; /* #25C88F */
+    
+    --muted: 0 0% 14.9%;
+    --muted-foreground: 0 0% 63.9%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 14.9%;
+    --input: 0 0% 14.9%;
+    --ring: 225 51% 50%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* Custom animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slideInUp {
+  animation: slideInUp 0.5s ease-out;
+}
+
+/* Form styling */
+.form-group {
+  @apply mb-6;
+}
+
+.form-label {
+  @apply block text-sm font-medium text-gray-700 mb-1;
+}
+
+.form-input {
+  @apply w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent;
+}
+
+/* Coin display */
+.coin-display {
+  @apply flex items-center justify-center bg-amber-100 text-amber-800 px-4 py-2 rounded-full font-medium border border-amber-200;
+}
+
+/* Card styling for components */
+.compath-card {
+  @apply bg-card text-card-foreground rounded-lg border border-border shadow-sm hover:shadow-md transition-shadow duration-200;
 }
