@@ -2,12 +2,12 @@
   "name": "compath-frontend",
   "version": "0.1.0",
   "private": true,
-  "type": "module",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "clean": "Remove-Item -Recurse -Force .next, node_modules; npm install"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",
