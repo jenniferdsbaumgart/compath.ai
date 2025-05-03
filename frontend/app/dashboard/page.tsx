@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Navbar } from '@/components/layout/navbar';
 import Link from 'next/link';
 import { 
   Compass, 
@@ -25,6 +24,8 @@ import { CoinDisplay } from '@/components/ui/coin-display';
 import { getCurrentUser, isAuthenticated } from '@/lib/auth';
 import { api } from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
+import { Footer } from '@/components/layout/footer';
+import { Navbar } from '@/components/layout/navbar';
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -268,6 +269,7 @@ export default function DashboardPage() {
           </div>
         </section>
       </main>
+      <Footer/>
     </>
   );
 }

@@ -1,10 +1,11 @@
 'use client';
 
 import { useState } from 'react';
-import { Navbar } from '@/components/layout/navbar';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Coins, Check, Sparkles } from 'lucide-react';
+import { Footer } from '@/components/layout/footer';
+import { Navbar } from '@/components/layout/navbar';
 
 const coinPackages = [
   {
@@ -88,8 +89,9 @@ export default function CoinsPage() {
   
   return (
     <>
+    <div className="flex flex-col min-h-screen">
       <Navbar />
-      <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="flex-grow max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex flex-col items-center mb-8 text-center">
           <h1 className="text-3xl font-bold">Compre Moedas ou Assine um Plano</h1>
           <p className="mt-2 text-gray-600 dark:text-gray-400 max-w-2xl">
@@ -212,6 +214,8 @@ export default function CoinsPage() {
           </div>
         )}
       </main>
+      <Footer/>
+      </div>
     </>
   );
 }
