@@ -524,7 +524,7 @@ export default function PerfilEmpreendedorPage() {
           <div
             className={`cursor-pointer px-2 py-1 rounded-md ${
               isSelected
-                ? 'bg-primary text-primary-foreground'
+                ? 'bg-accent text-primary-foreground'
                 : 'hover:bg-accent/10'
             }`}
             onClick={() => handleHobbySelect(node.id, node.label)}
