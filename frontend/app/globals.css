@@ -8,14 +8,6 @@
   --background-end-rgb: 255, 255, 255;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
-  }
-}
-
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -47,26 +39,26 @@
   .dark {
     --background: 220 45% 10%;
     --foreground: 0 0% 98%;
-    --card: 220 45% 15%;
+    --card: 220 45% 13%;
     --card-foreground: 0 0% 98%;
-    --popover: 220 45% 15%;
+    --popover: 220 45% 13%;
     --popover-foreground: 0 0% 98%;
     
     /* Compath colors dark mode */
-    --primary: 220 45% 20%;      /* #1E2749 */
+    --primary: 220 45% 30%;      /* Lighter primary for dark mode */
     --primary-foreground: 0 0% 98%;
     --secondary: 225 51% 60%;    /* #657FEE */
     --secondary-foreground: 0 0% 98%;
-    --accent: 159 74% 35%;      /* #199A6D */
+    --accent: 159 74% 45%;      /* Lighter accent for dark mode */
     --accent-foreground: 0 0% 98%;
-    --accent-hover: 159 74% 47%; /* #25C88F */
+    --accent-hover: 159 74% 57%; /* Even lighter for hover */
     
-    --muted: 0 0% 14.9%;
+    --muted: 220 45% 15%;
     --muted-foreground: 0 0% 63.9%;
-    --destructive: 0 62.8% 30.6%;
+    --destructive: 0 62.8% 40.6%;
     --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 14.9%;
-    --input: 0 0% 14.9%;
+    --border: 220 45% 20%;
+    --input: 220 45% 20%;
     --ring: 225 51% 50%;
   }
 }
@@ -76,7 +68,10 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground min-h-screen flex flex-col;
+  }
+  main {
+    @apply flex-grow;
   }
 }
 
@@ -111,16 +106,16 @@
 }
 
 .form-label {
-  @apply block text-sm font-medium text-gray-700 mb-1;
+  @apply block text-sm font-medium text-foreground mb-1;
 }
 
 .form-input {
-  @apply w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent;
+  @apply w-full px-3 py-2 border border-input rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent;
 }
 
 /* Coin display */
 .coin-display {
-  @apply flex items-center justify-center bg-amber-100 text-amber-800 px-4 py-2 rounded-full font-medium border border-amber-200;
+  @apply flex items-center justify-center bg-amber-100 text-amber-800 px-4 py-2 rounded-full font-medium border border-amber-200 dark:bg-amber-900 dark:text-amber-100 dark:border-amber-800;
 }
 
 /* Card styling for components */
