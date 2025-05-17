@@ -1,16 +1,13 @@
 "use client";
-import { Compass } from "lucide-react";
+import Image from 'next/image'
 
 export function Footer() {
   return (
-    <footer className="bg-gray-100 py-8 mt-3">
+    <footer className="bg-gray-200 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col md:flex-row justify-between items-center">
           <div className="flex items-center mb-4 md:mb-0">
-            <Compass className="h-6 w-6 text-primary" />
-            <span className="ml-2 text-lg font-medium text-primary">
-              Compath
-            </span>
+            <Image src="/logo-full-blue.svg" alt="Compath Logo" width={170} height={30} />
           </div>
           <div className="flex space-x-6">
             <a href="#" className="text-gray-600 hover:text-primary">
