@@ -15,12 +15,94 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Slider } from "@/components/ui/slider";
 import { Badge } from "@/components/ui/badge";
-import { Check, ArrowRight, ArrowLeft, Send, Atom, Microscope, BookUser, BriefcaseBusiness, Cpu, GraduationCap, Handshake, LetterText, Omega, Scale, Stethoscope, TreePine, Bike, Brain, Mic, WandSparkles, CodeXml, Database, MessageSquareCode, PanelsTopLeft, TabletSmartphone, Gamepad2, Joystick, FolderCode, FolderOutput, Wifi, SquareActivity, Dumbbell, PersonStanding, BicepsFlexed, Apple, Sprout, Leaf, FileText, Palette, Brush, Layout, Camera, Monitor, Music, Speaker, BookOpen, Book, Edit, Feather, Sunrise, MapPin, Backpack, Car, Globe, Hammer, CookingPot, PawPrint, Dog, Cat, Briefcase, Coffee, DollarSign, Megaphone, UserCheck, Guitar} from "lucide-react";
+import {
+  Check,
+  ArrowRight,
+  ArrowLeft,
+  Send,
+  Atom,
+  Microscope,
+  BookUser,
+  BriefcaseBusiness,
+  Cpu,
+  GraduationCap,
+  Handshake,
+  LetterText,
+  Omega,
+  Scale,
+  Stethoscope,
+  TreePine,
+  Bike,
+  Brain,
+  Mic,
+  WandSparkles,
+  CodeXml,
+  Database,
+  MessageSquareCode,
+  PanelsTopLeft,
+  TabletSmartphone,
+  Gamepad2,
+  Joystick,
+  FolderCode,
+  FolderOutput,
+  Wifi,
+  SquareActivity,
+  Dumbbell,
+  PersonStanding,
+  BicepsFlexed,
+  Apple,
+  Sprout,
+  Leaf,
+  FileText,
+  Palette,
+  Brush,
+  Layout,
+  Camera,
+  Monitor,
+  Music,
+  Speaker,
+  BookOpen,
+  Book,
+  Edit,
+  Feather,
+  Sunrise,
+  MapPin,
+  Backpack,
+  Car,
+  Globe,
+  Hammer,
+  CookingPot,
+  PawPrint,
+  Dog,
+  Cat,
+  Briefcase,
+  Coffee,
+  DollarSign,
+  Megaphone,
+  UserCheck,
+  Guitar,
+  Activity,
+  Award,
+  ChefHat,
+  Beer,
+  Cake,
+  Croissant,
+  FlaskConical,
+  GlassWater,
+  Heart,
+  Package,
+  Pizza,
+  Store,
+  Truck,
+  Utensils,
+  Wheat,
+} from "lucide-react";
 import { LuBriefcaseBusiness } from "react-icons/lu";
-import { GiDeliveryDrone, GiLotus, GiMusicalNotes } from "react-icons/gi";
+import { GiDeliveryDrone, GiLotus } from "react-icons/gi";
 import { FaDumbbell, FaMicrochip, FaRunning, FaSeedling } from "react-icons/fa";
 import { VscSnake } from "react-icons/vsc";
 import { RiMentalHealthLine } from "react-icons/ri";
+import { GiBrazil, GiSushis } from "react-icons/gi";
 import { TbMeat } from "react-icons/tb";
 import { isAuthenticated, getCurrentUser } from "@/lib/auth";
 import { api } from "@/lib/api";
@@ -53,20 +135,20 @@ type ProfileResponse = {
 };
 
 // Business areas tree structure
-const businessAreas = [
-  "Tecnologia",
-  "Saúde e Bem-estar",
-  "Educação",
-  "E-commerce",
-  "Serviços Profissionais",
-  "Alimentação",
-  "Moda e Beleza",
-  "Sustentabilidade",
-  "Finanças",
-  "Entretenimento",
-  "Pets",
-  "Esportes",
-];
+// const businessAreas = [
+//   "Tecnologia",
+//   "Saúde e Bem-estar",
+//   "Educação",
+//   "E-commerce",
+//   "Serviços Profissionais",
+//   "Alimentação",
+//   "Moda e Beleza",
+//   "Sustentabilidade",
+//   "Finanças",
+//   "Entretenimento",
+//   "Pets",
+//   "Esportes",
+// ];
 
 const educationLevels = [
   "Ensino Fundamental",
@@ -84,245 +166,506 @@ const educationAreas = [
     label: "Ciências Exatas",
     icon: <Atom className="h-3 w-3 text-green-500" />,
   },
-  { label: "Ciências Biológicas", icon: <Microscope className="h-3 w-3 text-green-500" /> },
-  { label: "Ciências da Saúde", icon: <Stethoscope className="h-3 w-3 text-green-500" /> },
+  {
+    label: "Ciências Biológicas",
+    icon: <Microscope className="h-3 w-3 text-green-500" />,
+  },
+  {
+    label: "Ciências da Saúde",
+    icon: <Stethoscope className="h-3 w-3 text-green-500" />,
+  },
   { label: "Engenharias", icon: <Omega className="h-3 w-3 text-green-500" /> },
-  { label: "Tecnologia da Informação", icon: <Cpu className="h-3 w-3 text-green-500" /> },
-  { label: "Ciências Humanas", icon: <BookUser className="h-3 w-3 text-green-500" /> },
-  { label: "Educação", icon: <GraduationCap className="h-3 w-3 text-green-500" /> },
-  { label: "Ciências Sociais Aplicadas", icon: <Handshake className="h-3 w-3 text-green-500" /> },
-  { label: "Linguística, Letras e Artes", icon: <LetterText className="h-3 w-3 text-green-500" /> },
-  { label: "Negócios e Administração", icon: <BriefcaseBusiness className="h-3 w-3 text-green-500" /> },
-  { label: "Meio Ambiente e Sustentabilidade", icon: <TreePine className="h-3 w-3 text-green-500" /> },
+  {
+    label: "Tecnologia da Informação",
+    icon: <Cpu className="h-3 w-3 text-green-500" />,
+  },
+  {
+    label: "Ciências Humanas",
+    icon: <BookUser className="h-3 w-3 text-green-500" />,
+  },
+  {
+    label: "Educação",
+    icon: <GraduationCap className="h-3 w-3 text-green-500" />,
+  },
+  {
+    label: "Ciências Sociais Aplicadas",
+    icon: <Handshake className="h-3 w-3 text-green-500" />,
+  },
+  {
+    label: "Linguística, Letras e Artes",
+    icon: <LetterText className="h-3 w-3 text-green-500" />,
+  },
+  {
+    label: "Negócios e Administração",
+    icon: <BriefcaseBusiness className="h-3 w-3 text-green-500" />,
+  },
+  {
+    label: "Meio Ambiente e Sustentabilidade",
+    icon: <TreePine className="h-3 w-3 text-green-500" />,
+  },
   { label: "Direito", icon: <Scale className="h-3 w-3 text-green-500" /> },
-  { label: "Comunicação e Mídias", icon: <Mic className="h-3 w-3 text-green-500" /> },
-  { label: "Design e Artes Visuais", icon: <WandSparkles className="h-3 w-3 text-green-500" /> },
-  { label: "Psicologia e Comportamento", icon: <Brain className="h-3 w-3 text-green-500" /> },
-  { label: "Esportes e Educação Física", icon: <Bike className="h-3 w-3 text-green-500" /> },
+  {
+    label: "Comunicação e Mídias",
+    icon: <Mic className="h-3 w-3 text-green-500" />,
+  },
+  {
+    label: "Design e Artes Visuais",
+    icon: <WandSparkles className="h-3 w-3 text-green-500" />,
+  },
+  {
+    label: "Psicologia e Comportamento",
+    icon: <Brain className="h-3 w-3 text-green-500" />,
+  },
+  {
+    label: "Esportes e Educação Física",
+    icon: <Bike className="h-3 w-3 text-green-500" />,
+  },
 ];
 
 // Hobbies and interests tree
 const hobbiesTree: TreeOption[] = [
   {
     id: "tech",
-    icon: <Cpu className="h-5 w-5 mr-1 text-green-600" />,
+    icon: <Cpu className="h-5 w-5" />,
     label: "Tecnologia",
     children: [
       {
         id: "programming",
-        icon: <CodeXml className="h-4 w-4 mr-1 text-green-600" />,
+        icon: <CodeXml className="h-4 w-4 " />,
         label: "Programação",
         children: [
-          { id: "web", icon: <PanelsTopLeft className="h-3 w-3 mr-1 text-green-600" />, label: "Desenvolvimento Web" },
-          { id: "mobile", icon: <TabletSmartphone className="h-3 w-3 mr-1 text-green-600" />, label: "Apps Mobile" },
-          { id: "ai", icon: <MessageSquareCode className="h-3 w-3 mr-1 text-green-600" />, label: "Inteligência Artificial" },
-          { id: "datasci", icon: <Database className="h-3 w-3 mr-1 text-green-600" />, label: "Ciência de Dados" },
+          {
+            id: "web",
+            icon: <PanelsTopLeft className="h-3 w-3 " />,
+            label: "Desenvolvimento Web",
+          },
+          {
+            id: "mobile",
+            icon: <TabletSmartphone className="h-3 w-3 " />,
+            label: "Apps Mobile",
+          },
+          {
+            id: "ai",
+            icon: <MessageSquareCode className="h-3 w-3 " />,
+            label: "Inteligência Artificial",
+          },
+          {
+            id: "datasci",
+            icon: <Database className="h-3 w-3 " />,
+            label: "Ciência de Dados",
+          },
         ],
       },
       {
         id: "gaming",
-        icon: <Joystick className="h-4 w-4 mr-1 text-green-600" />,
+        icon: <Joystick className="h-4 w-4 " />,
         label: "Games",
         children: [
-          { id: "esports", icon: <Gamepad2 className="h-3 w-3 mr-1 text-green-600" />, label: "E-Sports" },
-          { id: "gamedev", icon: <FolderCode className="h-3 w-3 mr-1 text-green-600" />, label: "Desenvolvimento de Jogos" },
-          { id: "retro", icon: <FolderOutput className="h-3 w-3 mr-1 text-green-600" />, label: "Jogos Retrô" },
+          {
+            id: "esports",
+            icon: <Gamepad2 className="h-3 w-3 " />,
+            label: "E-Sports",
+          },
+          {
+            id: "gamedev",
+            icon: <FolderCode className="h-3 w-3 " />,
+            label: "Desenvolvimento de Jogos",
+          },
+          {
+            id: "retro",
+            icon: <FolderOutput className="h-3 w-3 " />,
+            label: "Jogos Retrô",
+          },
         ],
       },
       {
         id: "gadgets",
-        icon: <FaMicrochip className="h-4 w-4 mr-1 text-green-600" />,
+        icon: <FaMicrochip className="h-4 w-4 " />,
         label: "Gadgets e Invenções",
         children: [
-          { id: "drones", icon: <GiDeliveryDrone className="h-3 w-3 mr-1 text-green-600" />, label: "Drones" },
-          { id: "iot", icon: <Wifi className="h-3 w-3 mr-1 text-green-600" />, label: "Internet das Coisas (IoT)" },
+          {
+            id: "drones",
+            icon: <GiDeliveryDrone className="h-3 w-3 " />,
+            label: "Drones",
+          },
+          {
+            id: "iot",
+            icon: <Wifi className="h-3 w-3 " />,
+            label: "Internet das Coisas (IoT)",
+          },
         ],
       },
     ],
   },
   {
     id: "health",
-    icon: <SquareActivity className="h-5 w-5 mr-1 text-green-600" />,
+    icon: <SquareActivity className="h-5 w-5 " />,
     label: "Saúde e Bem-estar",
     children: [
       {
         id: "fitness",
-        icon: <Dumbbell className="h-4 w-4 mr-1 text-green-600" />,
+        icon: <Dumbbell className="h-4 w-4 " />,
         label: "Fitness",
         children: [
-          { id: "yoga", icon: <PersonStanding className="h-3 w-3 mr-1 text-green-600" />,  label: "Yoga" },
-          { id: "crossfit", icon: <FaDumbbell className="h-3 w-3 mr-1 text-green-600" />, label: "CrossFit" },
-          { id: "running", icon: <FaRunning className="h-3 w-3 mr-1 text-green-600" />, label: "Corrida" },
-          { id: "gym", icon: <BicepsFlexed className="h-3 w-3 mr-1 text-green-600" />, label: "Musculação" },
+          {
+            id: "yoga",
+            icon: <PersonStanding className="h-3 w-3 " />,
+            label: "Yoga",
+          },
+          {
+            id: "crossfit",
+            icon: <FaDumbbell className="h-3 w-3 " />,
+            label: "CrossFit",
+          },
+          {
+            id: "running",
+            icon: <FaRunning className="h-3 w-3 " />,
+            label: "Corrida",
+          },
+          {
+            id: "gym",
+            icon: <BicepsFlexed className="h-3 w-3 " />,
+            label: "Musculação",
+          },
         ],
       },
       {
         id: "nutrition",
-        icon: <Apple className="h-4 w-4 mr-1 text-green-600" />,
+        icon: <Apple className="h-4 w-4 " />,
         label: "Nutrição",
         children: [
-          { id: "vegan", icon: <Sprout className="h-3 w-3 mr-1 text-green-600" />, label: "Veganismo" },
-          { id: "organic", icon: <Leaf className="h-3 w-3 mr-1 text-green-600" />, label: "Alimentação Orgânica" },
-          { id: "lowcarb", icon: <TbMeat className="h-3 w-3 mr-1 text-green-600" />, label: "Dieta Low Carb" },
+          {
+            id: "vegan",
+            icon: <Sprout className="h-3 w-3 " />,
+            label: "Veganismo",
+          },
+          {
+            id: "organic",
+            icon: <Leaf className="h-3 w-3 " />,
+            label: "Alimentação Orgânica",
+          },
+          {
+            id: "lowcarb",
+            icon: <TbMeat className="h-3 w-3 " />,
+            label: "Dieta Low Carb",
+          },
         ],
       },
       {
         id: "mental-health",
-        icon: <RiMentalHealthLine className="h-4 w-4 mr-1 text-green-600" />,
+        icon: <RiMentalHealthLine className="h-4 w-4 " />,
         label: "Saúde Mental",
         children: [
-          { id: "meditation", icon: <GiLotus className="h-3 w-3 mr-1 text-green-600" />, label: "Meditação" },
-          { id: "journaling", icon: <FileText className="h-3 w-3 mr-1 text-green-600" />, label: "Escrita Terapêutica" },
+          {
+            id: "meditation",
+            icon: <GiLotus className="h-3 w-3 " />,
+            label: "Meditação",
+          },
+          {
+            id: "journaling",
+            icon: <FileText className="h-3 w-3 " />,
+            label: "Escrita Terapêutica",
+          },
         ],
       },
     ],
   },
   {
     id: "arts",
-    icon: <Palette className="h-5 w-5 mr-1 text-green-600" />,
+    icon: <Palette className="h-5 w-5 " />,
     label: "Artes e Cultura",
     children: [
       {
         id: "visual-arts",
-        icon: <Monitor className="h-4 w-4 mr-1 text-green-600" />,
+        icon: <Monitor className="h-4 w-4 " />,
         label: "Artes Visuais",
         children: [
-          { id: "painting", icon: <Brush className="h-3 w-3 mr-1 text-green-600" />, label: "Pintura" },
-          { id: "photography", icon: <Camera className="h-3 w-3 mr-1 text-green-600" />, label: "Fotografia" },
-          { id: "design", icon: <Layout className="h-3 w-3 mr-1 text-green-600" />, label: "Design" },
+          {
+            id: "painting",
+            icon: <Brush className="h-3 w-3 " />,
+            label: "Pintura",
+          },
+          {
+            id: "photography",
+            icon: <Camera className="h-3 w-3 " />,
+            label: "Fotografia",
+          },
+          {
+            id: "design",
+            icon: <Layout className="h-3 w-3 " />,
+            label: "Design",
+          },
         ],
       },
       {
         id: "music",
-        icon: <Music className="h-4 w-4 mr-1 text-green-600" />,
+        icon: <Music className="h-4 w-4 " />,
         label: "Música",
         children: [
-          { id: "instruments", icon: <Guitar className="h-3 w-3 mr-1 text-green-600" />, label: "Instrumentos" },
-          { id: "production", icon: <Speaker className="h-3 w-3 mr-1 text-green-600" />, label: "Produção Musical" },
-          { id: "singing", icon: <Mic className="h-3 w-3 mr-1 text-green-600" />, label: "Canto" },
+          {
+            id: "instruments",
+            icon: <Guitar className="h-3 w-3 " />,
+            label: "Instrumentos",
+          },
+          {
+            id: "production",
+            icon: <Speaker className="h-3 w-3 " />,
+            label: "Produção Musical",
+          },
+          {
+            id: "singing",
+            icon: <Mic className="h-3 w-3 " />,
+            label: "Canto",
+          },
         ],
       },
       {
         id: "literature",
-        icon: <BookOpen className="h-4 w-4 mr-1 text-green-600" />,
+        icon: <BookOpen className="h-4 w-4 " />,
         label: "Literatura",
         children: [
-          { id: "reading", icon: <Book className="h-3 w-3 mr-1 text-green-600" />, label: "Leitura" },
-          { id: "writing", icon: <Edit className="h-3 w-3 mr-1 text-green-600" />, label: "Escrita Criativa" },
-          { id: "poetry", icon: <Feather className="h-3 w-3 mr-1 text-green-600" />, label: "Poesia" },
+          {
+            id: "reading",
+            icon: <Book className="h-3 w-3 " />,
+            label: "Leitura",
+          },
+          {
+            id: "writing",
+            icon: <Edit className="h-3 w-3 " />,
+            label: "Escrita Criativa",
+          },
+          {
+            id: "poetry",
+            icon: <Feather className="h-3 w-3 " />,
+            label: "Poesia",
+          },
         ],
       },
     ],
   },
   {
     id: "lifestyle",
-    icon: <Sunrise className="h-5 w-5 mr-1 text-green-600" />,
+    icon: <Sunrise className="h-5 w-5 " />,
     label: "Estilo de Vida",
     children: [
       {
         id: "travel",
-        icon: <MapPin className="h-4 w-4 mr-1 text-green-600" />,
+        icon: <MapPin className="h-4 w-4 " />,
         label: "Viagens",
         children: [
-          { id: "backpacking", icon: <Backpack className="h-3 w-3 mr-1 text-green-600" />, label: "Mochilão" },
-          { id: "roadtrips", icon: <Car className="h-3 w-3 mr-1 text-green-600" />, label: "Viagens de Carro" },
-          { id: "culture", icon: <Globe className="h-3 w-3 mr-1 text-green-600" />, label: "Turismo Cultural" },
+          {
+            id: "backpacking",
+            icon: <Backpack className="h-3 w-3 " />,
+            label: "Mochilão",
+          },
+          {
+            id: "roadtrips",
+            icon: <Car className="h-3 w-3 " />,
+            label: "Viagens de Carro",
+          },
+          {
+            id: "culture",
+            icon: <Globe className="h-3 w-3 " />,
+            label: "Turismo Cultural",
+          },
         ],
       },
       {
         id: "home",
-        icon: <Home className="h-4 w-4 mr-1 text-green-600" />,
+        icon: <Home className="h-4 w-4 " />,
         label: "Vida Doméstica",
         children: [
-          { id: "gardening", icon: <FaSeedling className="h-3 w-3 mr-1 text-green-600" />, label: "Jardinagem" },
-          { id: "diy", icon: <Hammer className="h-3 w-3 mr-1 text-green-600" />, label: "Faça Você Mesmo (DIY)" },
-          { id: "cooking", icon: <CookingPot className="h-3 w-3 mr-1 text-green-600" />, label: "Culinária" },
+          {
+            id: "gardening",
+            icon: <FaSeedling className="h-3 w-3 " />,
+            label: "Jardinagem",
+          },
+          {
+            id: "diy",
+            icon: <Hammer className="h-3 w-3 " />,
+            label: "Faça Você Mesmo (DIY)",
+          },
+          {
+            id: "cooking",
+            icon: <CookingPot className="h-3 w-3 " />,
+            label: "Culinária",
+          },
         ],
       },
       {
         id: "pets",
-        icon: <PawPrint className="h-4 w-4 mr-1 text-green-600" />,
+        icon: <PawPrint className="h-4 w-4 " />,
         label: "Animais de Estimação",
         children: [
-          { id: "dogs", icon: <Dog className="h-3 w-3 mr-1 text-green-600" />, label: "Cães" },
-          { id: "cats", icon: <Cat className="h-3 w-3 mr-1 text-green-600" />, label: "Gatos" },
-          { id: "exotics", icon: <VscSnake className="h-3 w-3 mr-1 text-green-600" />, label: "Animais Exóticos" },
+          {
+            id: "dogs",
+            icon: <Dog className="h-3 w-3 " />,
+            label: "Cães",
+          },
+          {
+            id: "cats",
+            icon: <Cat className="h-3 w-3 " />,
+            label: "Gatos",
+          },
+          {
+            id: "exotics",
+            icon: <VscSnake className="h-3 w-3 " />,
+            label: "Animais Exóticos",
+          },
         ],
       },
     ],
   },
   {
     id: "business",
-    icon: <Briefcase className="h-5 w-5 mr-1 text-green-600" />,
+    icon: <Briefcase className="h-5 w-5 " />,
     label: "Negócios e Carreira",
     children: [
       {
         id: "entrepreneurship",
-        icon: <LuBriefcaseBusiness className="h-4 w-4 mr-1 text-green-600" />,
+        icon: <LuBriefcaseBusiness className="h-4 w-4 " />,
         label: "Empreendedorismo",
         children: [
-          { id: "startups", icon: <Coffee className="h-3 w-3 mr-1 text-green-600" />, label: "Startups" },
-          { id: "marketing", icon: <Megaphone className="h-3 w-3 mr-1 text-green-600" />, label: "Marketing Digital" },
-          { id: "finance", icon: <DollarSign className="h-3 w-3 mr-1 text-green-600" />, label: "Finanças Pessoais" },
+          {
+            id: "startups",
+            icon: <Coffee className="h-3 w-3 " />,
+            label: "Startups",
+          },
+          {
+            id: "marketing",
+            icon: <Megaphone className="h-3 w-3 " />,
+            label: "Marketing Digital",
+          },
+          {
+            id: "finance",
+            icon: <DollarSign className="h-3 w-3 " />,
+            label: "Finanças Pessoais",
+          },
         ],
       },
       {
         id: "development",
-        icon: <UserCheck className="h-4 w-4 mr-1 text-green-600" />,
+        icon: <UserCheck className="h-4 w-4 " />,
         label: "Desenvolvimento Pessoal",
         children: [
-          { id: "leadership", icon: <Wifi className="h-3 w-3 mr-1 text-green-600" />, label: "Liderança" },
-          { id: "productivity", icon: <Wifi className="h-3 w-3 mr-1 text-green-600" />, label: "Produtividade" },
+          {
+            id: "leadership",
+            icon: <Award className="h-3 w-3 " />,
+            label: "Liderança",
+          },
+          {
+            id: "productivity",
+            icon: <Activity className="h-3 w-3 " />,
+            label: "Produtividade",
+          },
         ],
       },
     ],
   },
   {
     id: "cooking",
-    icon: <Cpu className="h-5 w-5 mr-1 text-green-600" />,
+    icon: <ChefHat className="h-5 w-5 " />,
     label: "Culinária e Gastronomia",
     children: [
       {
         id: "cuisine-types",
-        icon: <Joystick className="h-4 w-4 mr-1 text-green-600" />,
+        icon: <Globe className="h-4 w-4 " />,
         label: "Tipos de Culinária",
         children: [
-          { id: "brazilian", icon: <Wifi className="h-3 w-3 mr-1 text-green-600" />, label: "Comida Brasileira" },
-          { id: "italian", icon: <Wifi className="h-3 w-3 mr-1 text-green-600" />, label: "Culinária Italiana" },
-          { id: "japanese", icon: <Wifi className="h-3 w-3 mr-1 text-green-600" />, label: "Culinária Japonesa" },
-          { id: "arabic", icon: <Wifi className="h-3 w-3 mr-1 text-green-600" />, label: "Culinária Árabe" },
-          { id: "vegan-cuisine", icon: <Wifi className="h-3 w-3 mr-1 text-green-600" />, label: "Culinária Vegana" },
-          { id: "desserts", icon: <Wifi className="h-3 w-3 mr-1 text-green-600" />, label: "Sobremesas e Doces" },
+          {
+            id: "brazilian",
+            icon: <GiBrazil className="h-3 w-3 " />,
+            label: "Comida Brasileira",
+          },
+          {
+            id: "italian",
+            icon: <Pizza className="h-3 w-3 " />,
+            label: "Culinária Italiana",
+          },
+          {
+            id: "japanese",
+            icon: <GiSushis className="h-3 w-3 " />,
+            label: "Culinária Japonesa",
+          },
+          {
+            id: "arabic",
+            icon: <Croissant className="h-3 w-3 " />,
+            label: "Culinária Árabe",
+          },
+          {
+            id: "vegan-cuisine",
+            icon: <Leaf className="h-3 w-3 " />,
+            label: "Culinária Vegana",
+          },
+          {
+            id: "desserts",
+            icon: <Cake className="h-3 w-3 " />,
+            label: "Sobremesas e Doces",
+          },
         ],
       },
       {
         id: "food-business",
-        icon: <Joystick className="h-4 w-4 mr-1 text-green-600" />,
+        icon: <Store className="h-4 w-4 " />,
         label: "Negócios de Alimentação",
         children: [
-          { id: "restaurant", icon: <Wifi className="h-3 w-3 mr-1 text-green-600" />, label: "Restaurante" },
-          { id: "cafe", icon: <Wifi className="h-3 w-3 mr-1 text-green-600" />, label: "Cafeteria" },
-          { id: "foodtruck", icon: <Wifi className="h-3 w-3 mr-1 text-green-600" />, label: "Food Truck" },
-          { id: "homecooking", icon: <Wifi className="h-3 w-3 mr-1 text-green-600" />, label: "Comida Feita em Casa" },
           {
-            id: "artisanal", icon: <Wifi className="h-3 w-3 mr-1 text-green-600" />,
+            id: "restaurant",
+            icon: <Utensils className="h-3 w-3 " />,
+            label: "Restaurante",
+          },
+          {
+            id: "cafe",
+            icon: <Coffee className="h-3 w-3 " />,
+            label: "Cafeteria",
+          },
+          {
+            id: "foodtruck",
+            icon: <Truck className="h-3 w-3 " />,
+            label: "Food Truck",
+          },
+          {
+            id: "homecooking",
+            icon: <Home className="h-3 w-3 " />,
+            label: "Comida Feita em Casa",
+          },
+          {
+            id: "artisanal",
+            icon: <Wheat className="h-3 w-3 " />,
             label: "Produtos Artesanais (pães, queijos, geleias...)",
           },
-          { id: "brewery", icon: <Wifi className="h-3 w-3 mr-1 text-green-600" />, label: "Cervejaria Artesanal" },
+          {
+            id: "brewery",
+            icon: <Beer className="h-3 w-3 " />,
+            label: "Cervejaria Artesanal",
+          },
         ],
       },
       {
         id: "food-lifestyle",
-        icon: <Joystick className="h-4 w-4 mr-1 text-green-600" />,
+        icon: <Heart className="h-4 w-4 " />,
         label: "Estilo de Vida e Alimentação",
         children: [
-          { id: "gastronomy", icon: <Wifi className="h-3 w-3 mr-1 text-green-600" />, label: "Gastronomia" },
-          { id: "mealprep", icon: <Wifi className="h-3 w-3 mr-1 text-green-600" />, label: "Preparação de Marmitas" },
           {
-            id: "fermentation", icon: <Wifi className="h-3 w-3 mr-1 text-green-600" />,
+            id: "gastronomy",
+            icon: <GlassWater className="h-3 w-3 " />,
+            label: "Gastronomia",
+          },
+          {
+            id: "mealprep",
+            icon: <Package className="h-3 w-3 " />,
+            label: "Preparação de Marmitas",
+          },
+          {
+            id: "fermentation",
+            icon: <FlaskConical className="h-3 w-3 " />,
             label: "Fermentação Artesanal (pães, kombucha, etc)",
           },
-          { id: "craftbeer", icon: <Wifi className="h-3 w-3 mr-1 text-green-600" />, label: "Produção de Cerveja Artesanal" },
+          {
+            id: "craftbeer",
+            icon: <Beer className="h-3 w-3 " />,
+            label: "Produção de Cerveja Artesanal",
+          },
         ],
       },
     ],
@@ -371,10 +714,9 @@ const profileQuestions: ProfileQuestion[] = [
     type: "slider",
     min: 0,
     max: 50000,
-    step: 1000,
+    step: 10000,
     marks: [
       { value: 0, label: "Não sei" },
-      { value: 1000, label: "> R$1.000" },
       { value: 10000, label: "R$10.000" },
       { value: 20000, label: "R$20.000" },
       { value: 30000, label: "R$30.000" },
@@ -386,11 +728,11 @@ const profileQuestions: ProfileQuestion[] = [
     id: "time",
     question: "Quantas horas por semana você pode dedicar ao seu novo negócio?",
     type: "slider",
-    min: 5,
+    min: 0,
     max: 40,
-    step: 5,
+    step: 10,
     marks: [
-      { value: 5, label: "5h" },
+      { value: 0, label: "Não sei" },
       { value: 10, label: "10h" },
       { value: 20, label: "20h" },
       { value: 30, label: "30h" },
@@ -552,7 +894,11 @@ export default function PerfilEmpreendedorPage() {
     );
   };
 
-  const handleHobbySelect = (hobbyId: string, icon: unknown, hobbyLabel: string) => {
+  const handleHobbySelect = (
+    hobbyId: string,
+    icon: unknown,
+    hobbyLabel: string
+  ) => {
     setSelectedHobbies((prev) => {
       const newHobbies = prev.includes(hobbyId)
         ? prev.filter((h) => h !== hobbyId)
@@ -567,44 +913,47 @@ export default function PerfilEmpreendedorPage() {
     });
   };
 
-  //
-  const renderTreeNode = (node: TreeOption, level: number = 0) => {
-    const isExpanded = expandedNodes.includes(node.id);
-    const isSelected = selectedHobbies.includes(node.id);
-  
-    return (
-      <div key={node.id} className="whitespace-nowrap items-start space-x-1">
-        <div className="flex items-center">
-          {node.children && (
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-6 w-6 p-0"
-              onClick={() => toggleNode(node.id)}
-            >
-              {isExpanded ? "-" : "+"}
-            </Button>
-          )}
-          <div
-            className={`flex items-center cursor-pointer py-1 pl-1 pr-3 rounded-md ${
-              isSelected
-                ? "bg-accent text-primary-foreground"
-                : "hover:bg-accent/10"
-            }`}
-            onClick={() => handleHobbySelect(node.id, node.icon, node.label)}
+const renderTreeNode = (node: TreeOption, level: number = 0) => {
+  const isExpanded = expandedNodes.includes(node.id);
+  const isSelected = selectedHobbies.includes(node.id);
+
+  return (
+    <div key={node.id} className="h-18 whitespace-nowrap items-start space-x-1">
+      <div className="flex items-center">
+        {node.children && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-6 w-6 p-0"
+            onClick={() => toggleNode(node.id)}
           >
-            {node.icon && <span className="mr-1">{node.icon}</span>}
-            {node.label}
-          </div>
-        </div>
-        {isExpanded && node.children && (
-          <div>
-            {node.children.map((child) => renderTreeNode(child, level + 1))}
-          </div>
+            {isExpanded ? "-" : "+"}
+          </Button>
         )}
+        <div
+          className={`flex items-center cursor-pointer my-2 py-1 pl-1 pr-3 rounded-md ${
+            isSelected
+              ? "bg-accent text-primary-foreground"
+              : "hover:bg-accent/10"
+          }`}
+          onClick={() => handleHobbySelect(node.id, node.icon, node.label)}
+        >
+          {node.icon && (
+            <span className={`mr-1 ${isSelected ? "text-white" : "text-green-600"}`}>
+              {node.icon}
+            </span>
+          )}
+          {node.label}
+        </div>
       </div>
-    );
-  };
+      {isExpanded && node.children && (
+        <div>
+          {node.children.map((child) => renderTreeNode(child, level + 1))}
+        </div>
+      )}
+    </div>
+  );
+};
 
   const handleFinish = async () => {
     setIsLoading(true);
@@ -691,7 +1040,7 @@ export default function PerfilEmpreendedorPage() {
                 responses[currentQuestion.id] || currentQuestion.min || 0,
               ]} // Mantém o valor fixo
             />
-            <div className="flex justify-between text-sm text-muted-foreground">
+            <div className="flex justify-between text-sm text-muted-foreground dark:text-gray-200">
               {currentQuestion.marks?.map((mark) => (
                 <span key={mark.value}>{mark.label}</span>
               ))}
@@ -832,7 +1181,7 @@ export default function PerfilEmpreendedorPage() {
   return (
     <>
       <Navbar />
-      <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <main className="max-w-6xl min-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <Card className="mb-8">
           <CardHeader>
             <CardTitle>Perfil Empreendedor</CardTitle>
@@ -883,8 +1232,8 @@ export default function PerfilEmpreendedorPage() {
               <Send className="h-5 w-5 text-primary" />
             </div>
             <div>
-              <h3 className="font-medium">Dica</h3>
-              <p className="text-sm text-muted-foreground">
+              <h3 className="font-medium dark:text-gray-100">Dica</h3>
+              <p className="text-sm text-muted-foreground dark:text-gray-300">
                 Selecione todas as opções que se aplicam ao seu perfil. Quanto
                 mais informações você fornecer, melhores serão nossas
                 recomendações.

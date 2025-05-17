@@ -10,7 +10,7 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
+    --background: 225 51% 98%;
     --foreground: 0 0% 3.9%;
     --card: 0 0% 100%;
     --card-foreground: 0 0% 3.9%;
@@ -37,19 +37,19 @@
   }
 
   .dark {
-    --background: 220 45% 10%;
+    --background: 220 45% 05%;
     --foreground: 0 0% 98%;
-    --card: 220 45% 13%;
+    --card: 220 45% 16%;
     --card-foreground: 0 0% 98%;
     --popover: 220 45% 13%;
     --popover-foreground: 0 0% 98%;
     
     /* Compath colors dark mode */
-    --primary: 220 45% 30%;      /* Lighter primary for dark mode */
+    --primary: 220 45% 40%;      /* Lighter primary for dark mode */
     --primary-foreground: 0 0% 98%;
     --secondary: 225 51% 60%;    /* #657FEE */
     --secondary-foreground: 0 0% 98%;
-    --accent: 159 74% 45%;      /* Lighter accent for dark mode */
+    --accent: 159 74% 35%;      /* Lighter accent for dark mode */
     --accent-foreground: 0 0% 98%;
     --accent-hover: 159 74% 57%; /* Even lighter for hover */
     

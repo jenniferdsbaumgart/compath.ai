@@ -8,7 +8,7 @@ export type User = {
   avatar?: string;
   phone?: string;
   location?: string;
-  company?: string; // Add this line
+  company?: string;
   website?: string;
   bio?: string;
 };

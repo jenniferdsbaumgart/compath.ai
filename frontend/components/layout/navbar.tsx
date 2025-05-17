@@ -29,8 +29,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import Image from 'next/image';
+import { useTheme } from 'next-themes';
 
 export function Navbar() {
+  const { theme } = useTheme();
+  const logoSrc = theme === 'dark' ? '/logo-full-white.svg' : '/logo-full-blue.svg';
+
   const [isOpen, setIsOpen] = useState(false);
   const [user, setUser] = useState<{
     name: string;
@@ -61,15 +66,12 @@ export function Navbar() {
   }
 
   return (
-    <nav className="bg-background border-b border-border">
+    <nav className="bg-secondary/5 border-b border-border">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex items-center">
             <Link href="/dashboard" className="flex items-center">
-              <Compass className="h-8 w-8 text-primary" />
-              <span className="ml-2 text-xl font-bold text-primary">
-                Compath
-              </span>
+              <Image src={logoSrc} alt="Compath Logo" width={170} height={30} />
             </Link>
           </div>
 
