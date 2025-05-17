@@ -141,7 +141,7 @@ export default function ResultadosPesquisaPage() {
                     Demanda
                   </p>
 
-                  <p className="text-4xl font-bold">-3.49%</p>
+                  <p className="text-2xl font-bold">-3.49%</p>
                 </div>
                 <div className="p-2 mt-2 bg-red-100 dark:bg-red-900 rounded-full">
                   <TrendingDown className="h-8 w-8 text-red-600 dark:text-red-300" />
