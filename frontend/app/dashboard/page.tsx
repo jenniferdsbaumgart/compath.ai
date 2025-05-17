@@ -68,12 +68,12 @@ export default function DashboardPage() {
   return (
     <>
       <Navbar />
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 ">
         <section className="mb-8">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Olá, {user.name}!</h1>
-              <p className="text-gray-600 mt-1">Bem-vindo ao seu dashboard Compath</p>
+              <p className="text-gray-600 dark:text-gray-300 mt-1">Bem-vindo ao seu dashboard da sua plataforma Compath</p>
             </div>
             <div className="mt-4 sm:mt-0 flex items-center space-x-4">
               <CoinDisplay coins={user.coins} animate={true} />
@@ -91,7 +91,7 @@ export default function DashboardPage() {
             <CardHeader>
               <CardTitle className="flex items-center justify-between">
                 <span>Complete seu perfil empreendedor</span>
-                <span className="text-sm font-normal text-gray-500">{progress}% completo</span>
+                <span className="text-sm font-normal text-gray-500 dark:text-gray-400">{progress}% completo</span>
               </CardTitle>
               <CardDescription>
                 Responda algumas perguntas para que possamos recomendar os melhores nichos para você
@@ -102,7 +102,7 @@ export default function DashboardPage() {
               <div className="mt-2 flex flex-col sm:flex-row sm:justify-between">
                 <div className="flex items-center text-sm text-gray-600">
                   <Award className="h-4 w-4 mr-1.5 text-secondary" />
-                  <span>Ganhe 100 moedas ao completar seu perfil</span>
+                  <span className='dark:text-gray-400'>Ganhe 100 moedas ao completar seu perfil</span>
                 </div>
                 <Link href="/perfil-empreendedor">
                   <Button className="mt-4 sm:mt-0">
@@ -117,18 +117,18 @@ export default function DashboardPage() {
         
         {/* Quick actions */}
         <section className="mb-10">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Ações Rápidas</h2>
+          <h2 className="text-xl font-semibold text-gray-900 mb-4 dark:text-gray-300">Ações Rápidas</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Link href="/perfil-empreendedor">
               <Card className="cursor-pointer hover:shadow-md transition-shadow duration-200">
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-base flex items-center">
-                    <User className="h-5 w-5 mr-2 text-secondary" />
+                  <CardTitle className="text-base flex items-center ">
+                    <User className="h-5 w-5 mr-2 text-secondary " />
                     Completar Perfil
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
                     Complete seu perfil para receber recomendações personalizadas.
                   </p>
                 </CardContent>
@@ -144,7 +144,7 @@ export default function DashboardPage() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
                     Descubra oportunidades de mercado para seu negócio.
                   </p>
                 </CardContent>
@@ -160,7 +160,7 @@ export default function DashboardPage() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
                     Acesse cursos e materiais para desenvolver suas habilidades.
                   </p>
                 </CardContent>
@@ -171,37 +171,37 @@ export default function DashboardPage() {
         
         {/* Ways to earn coins */}
         <section className="mb-10">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Ganhe Moedas</h2>
+          <h2 className="text-xl font-semibold text-gray-900 mb-4 dark:text-gray-300">Ganhe Moedas</h2>
           <div className="bg-gradient-to-r from-secondary/10 to-accent/10 rounded-xl p-6 border border-secondary/20">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">Formas de ganhar moedas:</h3>
+            <h3 className="text-lg font-medium text-gray-900 dark:text-gray-200 mb-4">Formas de ganhar moedas:</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              <div className="bg-white p-4 rounded-lg shadow-sm flex items-start">
+              <div className="bg-white dark:bg-gray-900 p-4 rounded-lg shadow-sm flex items-start">
                 <div className="bg-secondary/20 rounded-full p-2 mr-3">
                   <User className="h-5 w-5 text-secondary" />
                 </div>
                 <div>
-                  <h4 className="font-medium text-gray-900">Complete seu perfil</h4>
-                  <p className="text-sm text-gray-600">Ganhe 100 moedas ao completar seu perfil empreendedor.</p>
+                  <h4 className="font-medium text-gray-900 dark:text-gray-300">Complete seu perfil</h4>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Ganhe 100 moedas ao completar seu perfil empreendedor.</p>
                 </div>
               </div>
               
-              <div className="bg-white p-4 rounded-lg shadow-sm flex items-start">
+              <div className="bg-white dark:bg-gray-900 p-4 rounded-lg shadow-sm flex items-start">
                 <div className="bg-accent/20 rounded-full p-2 mr-3">
                   <Share2 className="h-5 w-5 text-accent" />
                 </div>
                 <div>
-                  <h4 className="font-medium text-gray-900">Convide amigos</h4>
-                  <p className="text-sm text-gray-600">Ganhe 50 moedas para cada amigo que se cadastrar.</p>
+                  <h4 className="font-medium text-gray-900 dark:text-gray-300">Convide amigos</h4>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Ganhe 50 moedas para cada amigo que se cadastrar.</p>
                 </div>
               </div>
               
-              <div className="bg-white p-4 rounded-lg shadow-sm flex items-start">
+              <div className="bg-white dark:bg-gray-900 p-4 rounded-lg shadow-sm flex items-start">
                 <div className="bg-primary/20 rounded-full p-2 mr-3">
                   <PieChart className="h-5 w-5 text-primary" />
                 </div>
                 <div>
-                  <h4 className="font-medium text-gray-900">Complete pesquisas</h4>
-                  <p className="text-sm text-gray-600">Ganhe até 30 moedas respondendo pesquisas.</p>
+                  <h4 className="font-medium text-gray-900 dark:text-gray-300">Complete pesquisas</h4>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Ganhe até 30 moedas respondendo pesquisas.</p>
                 </div>
               </div>
             </div>
@@ -217,12 +217,12 @@ export default function DashboardPage() {
         
         {/* Stats summary */}
         <section>
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Resumo</h2>
+          <h2 className="text-xl font-semibold text-gray-900 mb-4 dark:text-gray-300">Resumo</h2>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
+            <div className="bg-white dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-600 shadow-sm">
               <div className="flex justify-between items-start">
                 <div>
-                  <p className="text-sm text-gray-500">Moedas Disponíveis</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-300">Moedas Disponíveis</p>
                   <p className="text-2xl font-bold">{user.coins}</p>
                 </div>
                 <div className="p-2 bg-amber-100 rounded-full">
@@ -231,10 +231,10 @@ export default function DashboardPage() {
               </div>
             </div>
             
-            <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
+            <div className="bg-white dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-600 shadow-sm">
               <div className="flex justify-between items-start">
                 <div>
-                  <p className="text-sm text-gray-500">Perfil Completado</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-300">Perfil Completado</p>
                   <p className="text-2xl font-bold">{progress}%</p>
                 </div>
                 <div className="p-2 bg-secondary/10 rounded-full">
@@ -243,10 +243,10 @@ export default function DashboardPage() {
               </div>
             </div>
             
-            <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
+            <div className="bg-white dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-600 shadow-sm">
               <div className="flex justify-between items-start">
                 <div>
-                  <p className="text-sm text-gray-500">Pesquisas Realizadas</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-300">Pesquisas Realizadas</p>
                   <p className="text-2xl font-bold">0</p>
                 </div>
                 <div className="p-2 bg-accent/10 rounded-full">
@@ -255,10 +255,10 @@ export default function DashboardPage() {
               </div>
             </div>
             
-            <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
+            <div className="bg-white dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-600 shadow-sm">
               <div className="flex justify-between items-start">
                 <div>
-                  <p className="text-sm text-gray-500">Amigos Convidados</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-300">Amigos Convidados</p>
                   <p className="text-2xl font-bold">0</p>
                 </div>
                 <div className="p-2 bg-primary/10 rounded-full">

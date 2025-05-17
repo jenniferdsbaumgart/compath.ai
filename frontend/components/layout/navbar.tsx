@@ -30,8 +30,12 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Image from 'next/image';
+import { useTheme } from 'next-themes';
 
 export function Navbar() {
+  const { theme } = useTheme();
+  const logoSrc = theme === 'dark' ? '/logo-full-white.svg' : '/logo-full-blue.svg';
+
   const [isOpen, setIsOpen] = useState(false);
   const [user, setUser] = useState<{
     name: string;
@@ -67,7 +71,7 @@ export function Navbar() {
         <div className="flex justify-between h-16">
           <div className="flex items-center">
             <Link href="/dashboard" className="flex items-center">
-              <Image src="/logo-full-blue.svg" alt="Compath Logo" width={170} height={30} />
+              <Image src={logoSrc} alt="Compath Logo" width={170} height={30} />
             </Link>
           </div>
 
