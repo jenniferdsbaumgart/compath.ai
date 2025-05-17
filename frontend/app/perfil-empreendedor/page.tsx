@@ -135,20 +135,20 @@ type ProfileResponse = {
 };
 
 // Business areas tree structure
-const businessAreas = [
-  "Tecnologia",
-  "Saúde e Bem-estar",
-  "Educação",
-  "E-commerce",
-  "Serviços Profissionais",
-  "Alimentação",
-  "Moda e Beleza",
-  "Sustentabilidade",
-  "Finanças",
-  "Entretenimento",
-  "Pets",
-  "Esportes",
-];
+// const businessAreas = [
+//   "Tecnologia",
+//   "Saúde e Bem-estar",
+//   "Educação",
+//   "E-commerce",
+//   "Serviços Profissionais",
+//   "Alimentação",
+//   "Moda e Beleza",
+//   "Sustentabilidade",
+//   "Finanças",
+//   "Entretenimento",
+//   "Pets",
+//   "Esportes",
+// ];
 
 const educationLevels = [
   "Ensino Fundamental",
@@ -714,10 +714,9 @@ const profileQuestions: ProfileQuestion[] = [
     type: "slider",
     min: 0,
     max: 50000,
-    step: 1000,
+    step: 10000,
     marks: [
       { value: 0, label: "Não sei" },
-      { value: 1000, label: "> R$1.000" },
       { value: 10000, label: "R$10.000" },
       { value: 20000, label: "R$20.000" },
       { value: 30000, label: "R$30.000" },
@@ -729,11 +728,11 @@ const profileQuestions: ProfileQuestion[] = [
     id: "time",
     question: "Quantas horas por semana você pode dedicar ao seu novo negócio?",
     type: "slider",
-    min: 5,
+    min: 0,
     max: 40,
-    step: 5,
+    step: 10,
     marks: [
-      { value: 5, label: "5h" },
+      { value: 0, label: "Não sei" },
       { value: 10, label: "10h" },
       { value: 20, label: "20h" },
       { value: 30, label: "30h" },
@@ -919,7 +918,7 @@ const renderTreeNode = (node: TreeOption, level: number = 0) => {
   const isSelected = selectedHobbies.includes(node.id);
 
   return (
-    <div key={node.id} className="whitespace-nowrap items-start space-x-1">
+    <div key={node.id} className="h-18 whitespace-nowrap items-start space-x-1">
       <div className="flex items-center">
         {node.children && (
           <Button
@@ -1041,7 +1040,7 @@ const renderTreeNode = (node: TreeOption, level: number = 0) => {
                 responses[currentQuestion.id] || currentQuestion.min || 0,
               ]} // Mantém o valor fixo
             />
-            <div className="flex justify-between text-sm text-muted-foreground">
+            <div className="flex justify-between text-sm text-muted-foreground dark:text-gray-200">
               {currentQuestion.marks?.map((mark) => (
                 <span key={mark.value}>{mark.label}</span>
               ))}
@@ -1182,7 +1181,7 @@ const renderTreeNode = (node: TreeOption, level: number = 0) => {
   return (
     <>
       <Navbar />
-      <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <main className="max-w-6xl min-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <Card className="mb-8">
           <CardHeader>
             <CardTitle>Perfil Empreendedor</CardTitle>
@@ -1233,8 +1232,8 @@ const renderTreeNode = (node: TreeOption, level: number = 0) => {
               <Send className="h-5 w-5 text-primary" />
             </div>
             <div>
-              <h3 className="font-medium">Dica</h3>
-              <p className="text-sm text-muted-foreground">
+              <h3 className="font-medium dark:text-gray-100">Dica</h3>
+              <p className="text-sm text-muted-foreground dark:text-gray-300">
                 Selecione todas as opções que se aplicam ao seu perfil. Quanto
                 mais informações você fornecer, melhores serão nossas
                 recomendações.

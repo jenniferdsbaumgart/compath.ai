@@ -15,7 +15,8 @@ import {
   Users,
   Share2,
   Gift,
-  PieChart
+  PieChart,
+  Star
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -155,14 +156,14 @@ export default function DashboardPage() {
               <Card className="cursor-pointer hover:shadow-md transition-shadow duration-200">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-base flex items-center">
-                    <BookOpen className="h-5 w-5 mr-2 text-primary" />
-                    Explorar Cursos
+                    <Star className="h-5 w-5 mr-2 text-primary" />
+                    Explorar Favoritos
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
-                    Acesse cursos e materiais para desenvolver suas habilidades.
-                  </p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                    Veja suas pesquisas favoritas salvas para acessar rapidamente oportunidades de nicho.
+                    </p>
                 </CardContent>
               </Card>
             </Link>
