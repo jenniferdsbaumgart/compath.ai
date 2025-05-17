@@ -979,6 +979,8 @@ const renderTreeNode = (node: TreeOption, level: number = 0) => {
 
       setShowRecommendations(true);
     } catch (error) {
+      console.error("Erro ao buscar recomendações:", error); // 👈 adicione isso
+
       toast({
         title: "Erro ao processar perfil",
         description:

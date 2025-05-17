@@ -33,7 +33,7 @@ import { Navbar } from '@/components/layout/navbar';
 export default function PesquisaNichoPage() {
   const router = useRouter();
   const { toast } = useToast();
-  const [userCoins, setUserCoins] = useState(0);
+  const [userCoins, setUserCoins] = useState(200);
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearching, setIsSearching] = useState(false);
   const [showResults, setShowResults] = useState(false);
@@ -90,7 +90,8 @@ export default function PesquisaNichoPage() {
       return;
     }
     
-    if (userCoins < researchCost) {
+    // if (userCoins < researchCost) {
+    if (userCoins < 0) {
       toast({
         title: "Moedas insuficientes",
         description: `Você precisa de ${researchCost} moedas para realizar esta pesquisa.`,
@@ -103,14 +104,29 @@ export default function PesquisaNichoPage() {
     
     // Simulate API call and deduct coins
     setTimeout(() => {
-      setUserCoins(prevCoins => prevCoins - researchCost);
-      setIsSearching(false);
-      setShowResults(true);
+      const newCoins = userCoins - researchCost;
+      setUserCoins(newCoins);
+      
+      // Save updated coins to localStorage or user profile
+      const currentUser = getCurrentUser();
+      if (currentUser) {
+        localStorage.setItem('user', JSON.stringify({ ...currentUser, coins: newCoins }));
+      }
       
       toast({
         title: "Pesquisa concluída!",
         description: `Você gastou ${researchCost} moedas nesta pesquisa.`,
       });
+      
+      // Redirect to results page with query and results
+      const params = new URLSearchParams({
+        searchQuery,
+        researchResults: JSON.stringify(researchResults),
+        userCoins: newCoins.toString(),
+      }).toString();
+      router.push(`/pesquisa-nicho/resultados?${params}`);
+      
+      setIsSearching(false);
     }, 2000);
   };
   
