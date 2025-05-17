@@ -26,7 +26,7 @@ export default function Home() {
 
       {/* Hero Section */}
       <main className="flex-grow">
-        <section className="bg-gradient-to-b from-secondary/40 to-white py-20">
+        <section className="bg-gradient-to-b from-secondary/40 to-gray-50 py-20">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="md:flex md:items-center md:justify-between">
               <div className="md:w-2/3 mb-10 md:mb-0 animate-slideInUp">
@@ -58,7 +58,7 @@ export default function Home() {
         </section>
 
         {/* Features Section */}
-        <section className="py-16 bg-white">
+        <section className="py-16 bg-gray-50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
               <h2 className="text-3xl font-bold text-primary mb-4">Como o Compath pode te ajudar</h2>
