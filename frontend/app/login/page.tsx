@@ -1,13 +1,13 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
-import { z } from 'zod';
-import { Compass, ArrowRight, Eye, EyeOff } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { Compass, ArrowRight, Eye, EyeOff } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -15,17 +15,18 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { login } from '@/lib/auth';
-import { useToast } from '@/hooks/use-toast';
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { login } from "@/lib/auth";
+import { useToast } from "@/hooks/use-toast";
+import Image from "next/image";
 
 const formSchema = z.object({
   email: z.string().email({
-    message: 'Por favor, insira um e-mail válido.',
+    message: "Por favor, insira um e-mail válido.",
   }),
   password: z.string().min(1, {
-    message: 'Por favor, insira sua senha.',
+    message: "Por favor, insira sua senha.",
   }),
 });
 
@@ -34,62 +35,69 @@ export default function LoginPage() {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      email: '',
-      password: '',
+      email: "",
+      password: "",
     },
   });
-  
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
-    
+
     try {
       const { user } = await login(values.email, values.password);
-      
+
       toast({
         title: "Login realizado com sucesso!",
         description: `Bem-vindo de volta, ${user.name}.`,
       });
-      
-      router.push('/dashboard');
+
+      router.push("/dashboard");
     } catch (error) {
       toast({
         title: "Erro ao fazer login",
         description: "E-mail ou senha incorretos. Por favor, tente novamente.",
         variant: "destructive",
       });
-      console.error('Login error:', error);
+      console.error("Login error:", error);
     } finally {
       setIsLoading(false);
     }
   }
-  
+
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-secondary/20 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="flex justify-center">
-          <Link href="/" className="flex items-center">
-            <Compass className="h-10 w-10 text-primary" />
-            <span className="ml-2 text-2xl font-bold text-primary">Compath</span>
-          </Link>
-        </div>
         <h2 className="mt-6 text-center text-3xl font-bold tracking-tight text-gray-900">
           Entre na sua conta
         </h2>
         <p className="mt-2 text-center text-sm text-gray-600">
-          Não tem uma conta?{' '}
-          <Link href="/register" className="font-medium text-secondary hover:text-secondary/80">
+          Não tem uma conta?{" "}
+          <Link
+            href="/register"
+            className="font-medium text-secondary hover:text-secondary/80"
+          >
             Cadastre-se
           </Link>
         </p>
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+        <div className="bg-gray-50 py-8 px-4 shadow sm:rounded-lg sm:px-10">
           <Form {...form}>
+            <div className="flex justify-center">
+              <Link href="/" className="flex items-center">
+                <Image
+                  src="/logo-full-blue.svg"
+                  alt="Compath Logo"
+                  width={200}
+                  height={30}
+                />
+              </Link>
+            </div>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               <FormField
                 control={form.control}
@@ -98,10 +106,10 @@ export default function LoginPage() {
                   <FormItem>
                     <FormLabel>E-mail</FormLabel>
                     <FormControl>
-                      <Input 
-                        type="email" 
-                        placeholder="seu.email@exemplo.com" 
-                        {...field} 
+                      <Input
+                        type="email"
+                        placeholder="seu.email@exemplo.com"
+                        {...field}
                         disabled={isLoading}
                       />
                     </FormControl>
@@ -109,7 +117,7 @@ export default function LoginPage() {
                   </FormItem>
                 )}
               />
-              
+
               <FormField
                 control={form.control}
                 name="password"
@@ -117,8 +125,8 @@ export default function LoginPage() {
                   <FormItem>
                     <div className="flex items-center justify-between">
                       <FormLabel>Senha</FormLabel>
-                      <Link 
-                        href="#" 
+                      <Link
+                        href="#"
                         className="text-sm font-medium text-secondary hover:text-secondary/80"
                       >
                         Esqueceu a senha?
@@ -126,9 +134,9 @@ export default function LoginPage() {
                     </div>
                     <FormControl>
                       <div className="relative">
-                        <Input 
-                          type={showPassword ? 'text' : 'password'} 
-                          {...field} 
+                        <Input
+                          type={showPassword ? "text" : "password"}
+                          {...field}
                           disabled={isLoading}
                         />
                         <Button
@@ -144,7 +152,7 @@ export default function LoginPage() {
                             <Eye className="h-4 w-4" />
                           )}
                           <span className="sr-only">
-                            {showPassword ? 'Hide password' : 'Show password'}
+                            {showPassword ? "Hide password" : "Show password"}
                           </span>
                         </Button>
                       </div>
@@ -159,7 +167,7 @@ export default function LoginPage() {
                 className="w-full flex items-center justify-center"
                 disabled={isLoading}
               >
-                {isLoading ? 'Entrando...' : 'Entrar'}
+                {isLoading ? "Entrando..." : "Entrar"}
                 {!isLoading && <ArrowRight className="ml-2 h-4 w-4" />}
               </Button>
             </form>
@@ -171,13 +179,15 @@ export default function LoginPage() {
                 <div className="w-full border-t border-gray-300" />
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">Ou continue com</span>
+                <span className="px-2 bg-white text-gray-500">
+                  Ou continue com
+                </span>
               </div>
             </div>
 
             <div className="mt-6 grid grid-cols-2 gap-3">
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 className="bg-white"
                 disabled={isLoading}
               >
@@ -203,15 +213,17 @@ export default function LoginPage() {
                 Google
               </Button>
 
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 className="bg-white"
                 disabled={isLoading}
               >
-                <svg className="w-5 h-5 mr-2 text-[#1877F2]" fill="currentColor" viewBox="0 0 24 24">
-                  <path
-                    d="M9.19795 21.5H13.198V13.4901H16.8021L17.198 9.50977H13.198V7.5C13.198 6.94772 13.6457 6.5 14.198 6.5H17.198V2.5H14.198C11.4365 2.5 9.19795 4.73858 9.19795 7.5V9.50977H7.19795L6.80206 13.4901H9.19795V21.5Z"
-                  />
+                <svg
+                  className="w-5 h-5 mr-2 text-[#1877F2]"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path d="M9.19795 21.5H13.198V13.4901H16.8021L17.198 9.50977H13.198V7.5C13.198 6.94772 13.6457 6.5 14.198 6.5H17.198V2.5H14.198C11.4365 2.5 9.19795 4.73858 9.19795 7.5V9.50977H7.19795L6.80206 13.4901H9.19795V21.5Z" />
                 </svg>
                 Facebook
               </Button>

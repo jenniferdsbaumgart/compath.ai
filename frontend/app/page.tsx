@@ -2,16 +2,16 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Compass, ArrowRight, Users, BookOpen, Lightbulb, BarChart } from 'lucide-react';
 import { Footer } from '@/components/layout/footer';
+import Image from 'next/image';
 
 export default function Home() {
   return (
     <div className="flex flex-col min-h-screen">
       {/* Navigation */}
-      <header className="w-full py-4 px-6 bg-white border-b border-gray-200">
+      <header className="w-full py-5 px-6 bg-secondary/40">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
           <div className="flex items-center">
-            <Compass className="h-8 w-8 text-primary" />
-            <span className="ml-2 text-xl font-bold text-primary">Compath</span>
+            <Image src="/logo-full-blue.svg" alt="Compath Logo" width={170} height={30} />
           </div>
           <div className="flex space-x-4">
             <Link href="/login">
@@ -26,15 +26,15 @@ export default function Home() {
 
       {/* Hero Section */}
       <main className="flex-grow">
-        <section className="bg-gradient-to-b from-white to-secondary/10 py-20">
+        <section className="bg-gradient-to-b from-secondary/40 to-gray-50 py-20">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="md:flex md:items-center md:justify-between">
-              <div className="md:w-1/2 mb-10 md:mb-0 animate-slideInUp">
-                <h1 className="text-4xl md:text-5xl font-bold text-primary mb-4">
-                  Encontre seu caminho como empreendedor
+              <div className="md:w-2/3 mb-10 md:mb-0 animate-slideInUp">
+                <h1 className="text-4xl md:text-6xl font-bold text-primary mb-4">
+                  Encontre seu <span className="text-teal-500">caminho</span> como empreendedor
                 </h1>
                 <p className="text-lg text-gray-600 mb-8">
-                  O Compath é uma plataforma inteligente que utiliza IA para ajudar empreendedores a identificar nichos de mercado, analisar concorrência e encontrar oportunidades de negócio.
+                  O <span className="text-teal-500 font-bold">Compath</span> é uma plataforma inteligente que utiliza IA para ajudar empreendedores a identificar nichos de mercado, analisar concorrência e encontrar oportunidades de negócio.
                 </p>
                 <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
                   <Link href="/register">
@@ -51,50 +51,14 @@ export default function Home() {
                 </div>
               </div>
               <div className="md:w-1/2 flex justify-center">
-                <div className="relative w-full max-w-lg">
-                  <div className="absolute top-0 -left-4 w-72 h-72 bg-accent/30 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
-                  <div className="absolute top-0 -right-4 w-72 h-72 bg-secondary/30 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
-                  <div className="absolute -bottom-8 left-20 w-72 h-72 bg-primary/30 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
-                  <div className="relative">
-                    <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
-                      <div className="flex items-center justify-between mb-8">
-                        <h3 className="text-lg font-medium text-gray-800">Seu perfil empreendedor</h3>
-                        <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">Novo</span>
-                      </div>
-                      <div className="space-y-4">
-                        <div className="p-4 bg-gray-50 rounded-lg">
-                          <p className="text-sm text-gray-600">Qual área de negócio mais te interessa?</p>
-                          <div className="mt-2 flex flex-wrap gap-2">
-                            <span className="px-3 py-1 bg-secondary text-white rounded-full text-xs">Tecnologia</span>
-                            <span className="px-3 py-1 bg-gray-200 text-gray-700 rounded-full text-xs">Educação</span>
-                            <span className="px-3 py-1 bg-gray-200 text-gray-700 rounded-full text-xs">Saúde</span>
-                            <span className="px-3 py-1 bg-gray-200 text-gray-700 rounded-full text-xs">Sustentabilidade</span>
-                          </div>
-                        </div>
-                        <div className="p-4 bg-gray-50 rounded-lg">
-                          <p className="text-sm text-gray-600">Quanto tempo você pode dedicar?</p>
-                          <div className="mt-2">
-                            <div className="w-full bg-gray-200 rounded-full h-2.5">
-                              <div className="bg-accent h-2.5 rounded-full w-2/4"></div>
-                            </div>
-                            <div className="mt-1 flex justify-between text-xs text-gray-500">
-                              <span>5h</span>
-                              <span>20h</span>
-                              <span>40h</span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                <Image src="/compath-hero.png" alt="hero image"width={600} height={400} className='rounded-lg'/>
               </div>
             </div>
           </div>
         </section>
 
         {/* Features Section */}
-        <section className="py-16 bg-white">
+        <section className="py-16 bg-gray-50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
               <h2 className="text-3xl font-bold text-primary mb-4">Como o Compath pode te ajudar</h2>
