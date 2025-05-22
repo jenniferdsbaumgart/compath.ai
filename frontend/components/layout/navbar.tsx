@@ -18,7 +18,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { CoinDisplay } from "@/components/ui/coin-display";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { getCurrentUser, logout } from "@/lib/auth";
+import { getCurrentUser, isAuthenticated, logout } from "@/lib/auth";
+import { api } from "@/lib/api";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -29,12 +30,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import Image from 'next/image';
-import { useTheme } from 'next-themes';
+import Image from "next/image";
+import { useTheme } from "next-themes";
 
 export function Navbar() {
   const { theme } = useTheme();
-  const logoSrc = theme === 'dark' ? '/logo-full-white.svg' : '/logo-full-blue.svg';
+  const logoSrc = theme === "dark" ? "/logo-full-white.svg" : "/logo-full-blue.svg";
 
   const [isOpen, setIsOpen] = useState(false);
   const [user, setUser] = useState<{
@@ -45,22 +46,71 @@ export function Navbar() {
   } | null>(null);
   const pathname = usePathname();
 
+  // Inicializa o usuário e busca os dados do usuário
   useEffect(() => {
-    const currentUser = getCurrentUser();
-    if (currentUser) {
-      setUser({
-        name: currentUser.name,
-        email: currentUser.email,
-        coins: currentUser.coins,
-        avatar: currentUser.avatar,
-      });
-    }
+    const initializeUser = async () => {
+      if (!isAuthenticated()) {
+        console.log("Navbar: User not authenticated");
+        setUser(null);
+        return;
+      }
+
+      const currentUser = getCurrentUser();
+      if (currentUser) {
+        console.log("Navbar: Initial user:", currentUser);
+        setUser({
+          name: currentUser.name,
+          email: currentUser.email,
+          coins: currentUser.coins,
+          avatar: currentUser.avatar,
+        });
+
+        // Busca as moedas da API
+        try {
+          const response = await api.getUserCoins();
+          console.log("Navbar: Fetched coins:", response.coins);
+          setUser((prev) =>
+            prev
+              ? { ...prev, coins: response.coins }
+              : {
+                  name: currentUser.name,
+                  email: currentUser.email,
+                  coins: response.coins,
+                  avatar: currentUser.avatar,
+                }
+          );
+        } catch (error) {
+          console.error("Navbar: Failed to fetch coins:", error);
+        }
+      } else {
+        console.log("Navbar: No current user");
+        setUser(null);
+      }
+    };
+
+    initializeUser();
+
+    // Atualiza as moedas a cada 30 segundos
+    const interval = setInterval(async () => {
+      if (isAuthenticated()) {
+        try {
+          const response = await api.getUserCoins();
+          console.log("Navbar: Polled coins:", response.coins);
+          setUser((prev) => (prev ? { ...prev, coins: response.coins } : null));
+        } catch (error) {
+          console.error("Navbar: Failed to poll coins:", error);
+        }
+      }
+    }, 30000);
+
+    return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
     setIsOpen(false);
   }, [pathname]);
 
+  // Esconde a navbar nas páginas de login/cadastro
   if (pathname === "/login" || pathname === "/register") {
     return null;
   }

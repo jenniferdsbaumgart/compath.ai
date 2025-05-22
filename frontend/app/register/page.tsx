@@ -56,26 +56,30 @@ export default function RegisterPage() {
     },
   });
 
+  // Cadastro do usuário
+  // Função para lidar com o envio do formulário
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
 
     try {
-      await signUp(values.name, values.email, values.password);
+      const response = await signUp(values.name, values.email, values.password);
 
       toast({
-        title: "Conta criada com sucesso!",
-        description: "Seja bem-vindo ao Compath.",
+        title: 'Conta criada com sucesso!',
+        description: 'Bem-vindo ao Compath.',
       });
 
-      router.push("/dashboard");
-    } catch (error) {
+      setTimeout(() => {
+        router.push('/dashboard');
+        window.location.href = '/dashboard'; // Fallback
+      }, 500);
+    } catch (error: any) {
       toast({
-        title: "Erro ao criar conta",
-        description:
-          "Ocorreu um erro ao criar sua conta. Por favor, tente novamente.",
-        variant: "destructive",
+        title: 'Erro ao criar conta',
+        description: error.message || 'Ocorreu um erro ao criar a conta. Tente novamente.',
+        variant: 'destructive',
       });
-      console.error("Signup error:", error);
+      console.error('SignUp error:', error);
     } finally {
       setIsLoading(false);
     }

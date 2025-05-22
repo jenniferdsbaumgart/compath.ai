@@ -1,5 +1,6 @@
 import { jwtDecode } from 'jwt-decode';
 
+// Definição do tipo User
 export type User = {
   id: string;
   name: string;
@@ -13,13 +14,18 @@ export type User = {
   bio?: string;
 };
 
-
+// Definição do tipo JwtPayload
 export type JwtPayload = {
-  id: string;
-  name: string;
-  email: string};
+  user: {
+    id: string;
+    name: string;
+    email: string;
+    coins: number;
+  };
+  exp: number;
+};
 
-// Token management
+// GERENCIAMENTO TOKEN
 export const setToken = (token: string) => {
   if (typeof window !== 'undefined') {
     localStorage.setItem('compath_token', token);
@@ -36,68 +42,81 @@ export const getToken = (): string | null => {
 export const removeToken = () => {
   if (typeof window !== 'undefined') {
     localStorage.removeItem('compath_token');
+    localStorage.removeItem('compath_user');
   }
 };
 
-// Current user
+// USUÁRIO ATUAL
 export const getCurrentUser = (): User | null => {
   const token = getToken();
+  if (!token) {
+    console.log('getCurrentUser: No token found');
+    return null;
+  }
 
   try {
-  
-    if (!token) {
+    const decoded = jwtDecode<JwtPayload>(token);
+    if (decoded.exp && decoded.exp * 1000 < Date.now()) {
+      console.log('getCurrentUser: Token expired');
+      removeToken();
       return null;
     }
-    const decoded = jwtDecode<JwtPayload>(token);
-    // Você pode adicionar uma verificação de expiração do token aqui, se o payload incluir 'exp'
-    // if (decoded.exp && decoded.exp * 1000 < Date.now()) {
-    //   removeToken();
-    //   return null;
-    // }
     return {
-      id: decoded.id,
-      name: decoded.name,
-      email: decoded.email,
-      // Adicionado para satisfazer o tipo User, já que 'coins' é obrigatório.
-      // O valor real de 'coins' pode precisar ser carregado separadamente 
-      // (ex: via API) se não estiver incluído no JWT payload.
-      coins: 0, // Você pode usar 0 ou outro valor padrão apropriado.
-      // Outros campos opcionais do tipo User (avatar, phone, etc.)
-      // serão undefined se não estiverem no JwtPayload.
+      id: decoded.user.id,
+      name: decoded.user.name,
+      email: decoded.user.email,
+      coins: decoded.user.coins,
     };
   } catch (error) {
-    console.error('Falha ao decodificar o token ou token inválido:', error);
+    console.error('getCurrentUser: Invalid token:', error);
     removeToken();
     return null;
   }
 };
 
-// Check if the user is authenticated
+// VERIFICAÇÃO DE AUTENTICAÇÃO
+// Verifica se o usuário está autenticado
 export const isAuthenticated = (): boolean => {
-  return !!getToken();
-};
+  const token = getToken();
+  if (!token) {
+    console.log('isAuthenticated: No token found');
+    return false;
+  }
 
-
-// Logout function
-export const logout = () => {
-  removeToken();
-  if (typeof window !== 'undefined') {
-    window.location.href = '/login';
+  try {
+    const decoded = jwtDecode<JwtPayload>(token);
+    const isValid = decoded.exp && decoded.exp * 1000 > Date.now();
+    console.log('isAuthenticated: Token valid?', isValid, 'Expiration:', new Date(decoded.exp * 1000));
+    return !!isValid;
+  } catch (error) {
+    console.error('isAuthenticated: Invalid token:', error);
+    return false;
   }
 };
 
-// function add Adriel
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/auth';
+// LOGOUT
+export const logout = () => {
+  removeToken();
+  if (typeof window !== 'undefined') {
+    window.location.href = '/';
+  }
+};
 
-// AuthResponse agora usará o tipo User principal definido no início do arquivo.
-interface AuthResponse {
+// SIGN UP E LOGIN
+interface SignUpResponse {
   message: string;
-  user: User;
   token: string;
+  user: {
+    id: string;
+    name: string;
+    email: string;
+    coins: number;
+  };
 }
 
-export async function signUp(name: string, email: string, password: string): Promise<AuthResponse> {
-  const response = await fetch(`${API_URL}/register`, {
+// Função para criar uma nova conta
+export async function signUp(name: string, email: string, password: string): Promise<SignUpResponse> {
+  const response = await fetch('http://localhost:5000/api/users/register', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -105,20 +124,37 @@ export async function signUp(name: string, email: string, password: string): Pro
     body: JSON.stringify({ name, email, password }),
   });
 
-  const data = await response.json();
+  const data: SignUpResponse = await response.json();
 
   if (!response.ok) {
-    throw new Error(data.message || 'Erro ao criar conta.');
+    throw new Error(data.message || 'Erro ao criar conta');
   }
-  
-  if (data.token) {
-    setToken(data.token);
-  }
+
+  setToken(data.token);
+  localStorage.setItem('compath_user', JSON.stringify(data.user));
+
   return data;
 }
 
-export async function login(email: string, password: string): Promise<AuthResponse> {
-  const response = await fetch(`${API_URL}/login`, {
+interface SignInData {
+  email: string;
+  password: string;
+}
+
+interface SignInResponse {
+  message: string;
+  token: string;
+  user: {
+    id: string;
+    name: string;
+    email: string;
+    coins: number;
+  };
+}
+
+// Função para fazer login
+export async function signIn(email: string, password: string): Promise<SignInResponse> {
+  const response = await fetch('http://localhost:5000/api/users/login', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -126,14 +162,15 @@ export async function login(email: string, password: string): Promise<AuthRespon
     body: JSON.stringify({ email, password }),
   });
 
-  const data = await response.json();
+  const data: SignInResponse = await response.json();
 
   if (!response.ok) {
-    throw new Error(data.message || 'Erro ao fazer login.');
+    throw new Error(data.message || 'Erro ao fazer login');
   }
 
-  if (data.token) {
-    setToken(data.token);
-  }
+  console.log('signIn: Saving to localStorage:', { token: data.token, user: data.user });
+  setToken(data.token);
+  localStorage.setItem('compath_user', JSON.stringify(data.user));
+
   return data;
 }

@@ -117,8 +117,7 @@ export default function PaymentsPage() {
         description: "Você será redirecionado para a página de pagamento.",
       });
 
-      // Here you would redirect to Stripe checkout
-      console.log("Purchase coins:", packageId);
+      // TODO: Aqui você redirecionaria para o checkout do Stripe
     } catch (error) {
       toast({
         title: "Erro no processamento",
@@ -141,8 +140,7 @@ export default function PaymentsPage() {
         description: "Você será redirecionado para a página de pagamento.",
       });
 
-      // Here you would redirect to Stripe checkout
-      console.log("Subscribe to plan:", planId);
+      // TODO: Aqu você redirecionaria para o checkout do Stripe
     } catch (error) {
       toast({
         title: "Erro no processamento",
