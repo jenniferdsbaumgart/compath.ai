@@ -26,6 +26,7 @@ export type JwtPayload = {
 };
 
 // GERENCIAMENTO TOKEN
+
 export const setToken = (token: string) => {
   if (typeof window !== 'undefined') {
     localStorage.setItem('compath_token', token);

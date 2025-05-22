@@ -19,6 +19,7 @@ async function request<T>(endpoint: string, options: RequestOptions = {}): Promi
 
   const headers = {
     'Content-Type': 'application/json',
+    'Cache-Control': 'no-cache',
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
     ...customConfig.headers,
   };
@@ -81,4 +82,61 @@ export const api = {
     }>('/profile/recommendations'),
   listCourses: () => request<{ courses: any[] }>('/courses'),
   getCourseDetails: (courseId: string) => request<{ course: any }>(`/courses/${courseId}`),
+  listUsers: () =>
+    request<{
+      users: Array<{
+        id: string;
+        name: string;
+        email: string;
+        coins: number;
+        createdAt: string;
+        phone?: string;
+        location?: string;
+        company?: string;
+        website?: string;
+        bio?: string;
+      }>;
+    }>('/users/list'),
+  getUserById: (id: string) =>
+    request<{
+      user: {
+        id: string;
+        name: string;
+        email: string;
+        coins: number;
+        createdAt: string;
+        phone?: string;
+        location?: string;
+        company?: string;
+        website?: string;
+        bio?: string;
+      };
+    }>(`/users/${id}`),
+  updateUser: (id: string, data: {
+    name?: string;
+    email?: string;
+    phone?: string;
+    location?: string;
+    company?: string;
+    website?: string;
+    bio?: string;
+  }) =>
+    request<{
+      user: {
+        id: string;
+        name: string;
+        email: string;
+        coins: number;
+        createdAt: string;
+        phone?: string;
+        location?: string;
+        company?: string;
+        website?: string;
+        bio?: string;
+      };
+      message: string;
+    }>(`/users/${id}`, {
+      method: 'PUT',
+      data,
+    }),
 };

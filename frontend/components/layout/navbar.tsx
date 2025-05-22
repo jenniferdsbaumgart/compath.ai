@@ -39,6 +39,7 @@ export function Navbar() {
 
   const [isOpen, setIsOpen] = useState(false);
   const [user, setUser] = useState<{
+    id: string;
     name: string;
     coins: number;
     email: string;
@@ -59,6 +60,7 @@ export function Navbar() {
       if (currentUser) {
         console.log("Navbar: Initial user:", currentUser);
         setUser({
+          id: currentUser.id,
           name: currentUser.name,
           email: currentUser.email,
           coins: currentUser.coins,
@@ -73,6 +75,7 @@ export function Navbar() {
             prev
               ? { ...prev, coins: response.coins }
               : {
+                  id: currentUser.id,
                   name: currentUser.name,
                   email: currentUser.email,
                   coins: response.coins,
@@ -205,7 +208,7 @@ export function Navbar() {
                       </DropdownMenuLabel>
                       <DropdownMenuSeparator />
                       <DropdownMenuGroup>
-                        <Link href="/profile" passHref>
+                        <Link href={`/profile/${user.id}`} passHref>
                           <DropdownMenuItem asChild>
                             <div>
                               <User className="mr-2 h-4 w-4" />
