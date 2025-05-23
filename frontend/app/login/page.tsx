@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { Compass, ArrowRight, Eye, EyeOff } from "lucide-react";
+import { ArrowRight, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -17,7 +17,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { login } from "@/lib/auth";
+import { signIn } from "@/lib/auth";
 import { useToast } from "@/hooks/use-toast";
 import Image from "next/image";
 
@@ -44,22 +44,27 @@ export default function LoginPage() {
     },
   });
 
+  // Função para lidar com o envio do formulário
+  // Faz a chamada para a API de login
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
 
     try {
-      const { user } = await login(values.email, values.password);
+      const response = await signIn(values.email, values.password);
 
       toast({
-        title: "Login realizado com sucesso!",
-        description: `Bem-vindo de volta, ${user.name}.`,
+        title: "Login bem-sucedido!",
+        description: "Bem-vindo de volta ao Compath.",
       });
 
-      router.push("/dashboard");
-    } catch (error) {
+      setTimeout(() => {
+        router.push('/dashboard');
+        window.location.href = '/dashboard';
+      }, 500);
+    } catch (error: any) {
       toast({
         title: "Erro ao fazer login",
-        description: "E-mail ou senha incorretos. Por favor, tente novamente.",
+        description: error.message || "Ocorreu um erro ao fazer login. Tente novamente.",
         variant: "destructive",
       });
       console.error("Login error:", error);

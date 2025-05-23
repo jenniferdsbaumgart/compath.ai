@@ -78,13 +78,11 @@ export default function CoinsPage() {
   const [selectedTab, setSelectedTab] = useState<'coins' | 'subscription'>('coins');
   
   const handlePurchaseCoins = async (packageId: string) => {
-    // Implement Stripe checkout
-    console.log('Purchase coins:', packageId);
+    // TODO: Implementar Stripe checkout
   };
   
   const handleSubscribe = async (planId: string) => {
-    // Implement Stripe subscription
-    console.log('Subscribe to plan:', planId);
+    // TODO: Implementar Stripe subscription  
   };
   
   return (

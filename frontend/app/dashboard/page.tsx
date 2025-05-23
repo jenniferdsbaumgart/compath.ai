@@ -6,10 +6,7 @@ import Link from 'next/link';
 import { 
   Compass, 
   User, 
-  BookOpen, 
   Award, 
-  Lightbulb, 
-  TrendingUp, 
   PlusCircle,
   ArrowRight,
   Users,
@@ -32,37 +29,71 @@ export default function DashboardPage() {
   const router = useRouter();
   const { toast } = useToast();
   const [user, setUser] = useState<{ name: string; coins: number } | null>(null);
-  const [progress, setProgress] = useState(20); // Profile completion percentage
-  
+  const [progress, setProgress] = useState(20);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // validação de autenticação do usuário
   useEffect(() => {
-    if (!isAuthenticated()) {
-      router.push('/login');
-      return;
-    }
-    
-    const currentUser = getCurrentUser();
-    if (currentUser) {
-      setUser({
-        name: currentUser.name,
-        coins: currentUser.coins
-      });
-    }
-  }, [router]);
-  
-  const handleInviteFriend = () => {
-    // Simulate earning coins
+    const checkAuth = async () => {
+      const isAuth = isAuthenticated();
+
+      if (!isAuth) {
+        router.push('/login');
+        return;
+      }
+
+      try {
+        const currentUser = getCurrentUser();
+        if (currentUser) {
+          let coins = currentUser.coins;
+          try {
+            const response = await api.getUserCoins();
+            coins = response.coins;
+          } catch (apiError) {
+            console.error('Erro ao obter moedas do usuário:', apiError);
+          }
+          setUser({
+            name: currentUser.name,
+            coins,
+          });
+        } else {
+          router.push('/login');
+        }
+      } catch (error) {
+        toast({
+          title: 'Erro ao carregar dados do usuário',
+          description: 'Não foi possível carregar os dados. Tente novamente.',
+          variant: 'destructive',
+        });
+        router.push('/login');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    setTimeout(() => checkAuth(), 500);
+  }, [router, toast]);
+
+  const handleInviteFriend = async () => {
     if (user) {
-      const newCoins = user.coins + 50;
-      setUser({ ...user, coins: newCoins });
-      
-      toast({
-        title: "Moedas ganhas!",
-        description: "Você ganhou 50 moedas por convidar um amigo.",
-      });
+      try {
+        const { coins } = await api.earnCoins(50);
+        setUser({ ...user, coins });
+        toast({
+          title: 'Moedas ganhas!',
+          description: 'Você ganhou 50 moedas por convidar um amigo.',
+        });
+      } catch (error) {
+        toast({
+          title: 'Erro ao ganhar moedas',
+          description: 'Não foi possível adicionar moedas. Tente novamente.',
+          variant: 'destructive',
+        });
+      }
     }
   };
-  
-  if (!user) {
+
+  if (isLoading || !user) {
     return <div className="flex justify-center items-center min-h-screen">Carregando...</div>;
   }
   

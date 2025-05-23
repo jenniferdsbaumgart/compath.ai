@@ -1,17 +1,25 @@
 import { getToken } from './auth';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
+// ENDPOINTS
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
 
 interface RequestOptions extends RequestInit {
   token?: string;
   data?: any;
 }
 
+/**
+ * Função para fazer requisições à API
+ * @param endpoint - O endpoint da API
+ * @param options - Opções adicionais para a requisição
+ * @returns A resposta da API
+ */
 async function request<T>(endpoint: string, options: RequestOptions = {}): Promise<T> {
   const { token = getToken(), data, ...customConfig } = options;
-  
+
   const headers = {
     'Content-Type': 'application/json',
+    'Cache-Control': 'no-cache',
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
     ...customConfig.headers,
   };
@@ -28,83 +36,107 @@ async function request<T>(endpoint: string, options: RequestOptions = {}): Promi
 
   try {
     const response = await fetch(`${API_URL}${endpoint}`, config);
-    
+
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
+      console.error('API Error:', errorData);
       return Promise.reject(new Error(errorData.message || 'Ocorreu um erro na requisição'));
     }
-    
-    // For 204 No Content responses
+
     if (response.status === 204) {
       return {} as T;
     }
-    
-    return await response.json();
+
+    const responseData = await response.json();
+    return responseData;
   } catch (error) {
-    // For API unavailable, mock the response for demo purposes
-    if (endpoint === '/profile/recommendations') {
-      return {
-        recommendations: [
-          {
-            niche: 'Cursos Online de Produtividade',
-            description: 'Criar cursos e conteúdos digitais para pessoas que querem aumentar sua produtividade e organização.',
-            potential: 'Alto',
-            investmentRange: 'R$500 - R$1.000',
-            timeCommitment: '10-20 horas por semana'
-          },
-          {
-            niche: 'Consultoria em Marketing Digital',
-            description: 'Oferecer serviços de consultoria para pequenas empresas que desejam melhorar sua presença online.',
-            potential: 'Médio-Alto',
-            investmentRange: 'R$1.000 - R$5.000',
-            timeCommitment: '20-40 horas por semana'
-          },
-          {
-            niche: 'Produtos Sustentáveis para Casa',
-            description: 'Criar uma loja online com produtos ecológicos e sustentáveis para uso doméstico.',
-            potential: 'Médio',
-            investmentRange: 'R$5.000 - R$10.000',
-            timeCommitment: '20-30 horas por semana'
-          }
-        ]
-      } as T;
-    }
+    console.error('API Fetch Error:', error);
     return Promise.reject(error);
   }
 }
 
-// Mock APIs for the Compath platform
 export const api = {
-  // User coins
-  getUserCoins: () => request<{ coins: number }>('/user/coins'),
-  spendCoins: (amount: number) => request<{ coins: number }>('/user/coins/spend', { 
-    method: 'POST', 
-    data: { amount } 
+  getUserCoins: () => request<{ coins: number }>('/users/coins'),
+  spendCoins: (amount: number) => request<{ coins: number }>('/users/coins/spend', {
+    method: 'POST',
+    data: { amount },
   }),
-  earnCoins: (amount: number) => request<{ coins: number }>('/user/coins/earn', { 
-    method: 'POST', 
-    data: { amount } 
+  earnCoins: (amount: number) => request<{ coins: number }>('/users/coins/earn', {
+    method: 'POST',
+    data: { amount },
   }),
-  
-  // Profile wizard
-  saveProfileResponse: (questionId: string, response: any) => 
-    request<{ success: boolean }>('/profile/response', { 
-      method: 'POST', 
-      data: { questionId, response } 
+  saveProfileResponse: (questionId: string, response: any) =>
+    request<{ success: boolean }>('/profile', {
+      method: 'POST',
+      data: { questionId, response },
     }),
-  
-  getProfileRecommendations: () => 
-    request<{ 
+  getProfileRecommendations: () =>
+    request<{
       recommendations: Array<{
         niche: string;
         description: string;
         potential: string;
         investmentRange: string;
         timeCommitment: string;
-      }> 
+      }>;
     }>('/profile/recommendations'),
-  
-  // Courses
   listCourses: () => request<{ courses: any[] }>('/courses'),
   getCourseDetails: (courseId: string) => request<{ course: any }>(`/courses/${courseId}`),
+  listUsers: () =>
+    request<{
+      users: Array<{
+        id: string;
+        name: string;
+        email: string;
+        coins: number;
+        createdAt: string;
+        phone?: string;
+        location?: string;
+        company?: string;
+        website?: string;
+        bio?: string;
+      }>;
+    }>('/users/list'),
+  getUserById: (id: string) =>
+    request<{
+      user: {
+        id: string;
+        name: string;
+        email: string;
+        coins: number;
+        createdAt: string;
+        phone?: string;
+        location?: string;
+        company?: string;
+        website?: string;
+        bio?: string;
+      };
+    }>(`/users/${id}`),
+  updateUser: (id: string, data: {
+    name?: string;
+    email?: string;
+    phone?: string;
+    location?: string;
+    company?: string;
+    website?: string;
+    bio?: string;
+  }) =>
+    request<{
+      user: {
+        id: string;
+        name: string;
+        email: string;
+        coins: number;
+        createdAt: string;
+        phone?: string;
+        location?: string;
+        company?: string;
+        website?: string;
+        bio?: string;
+      };
+      message: string;
+    }>(`/users/${id}`, {
+      method: 'PUT',
+      data,
+    }),
 };
