@@ -1,4 +1,5 @@
-import { Schema, model, Document } from 'mongoose';
+import { Schema, model, Document } from "mongoose";
+import { title } from "process";
 
 interface IUser extends Document {
   id: string;
@@ -12,6 +13,13 @@ interface IUser extends Document {
   company?: string;
   website?: string;
   bio?: string;
+  favourites?: {
+    title: string;
+    description?: string;
+    tags?: string[];
+    url?: string;
+    savedAt?: Date;
+  }[];
 }
 
 const userSchema: Schema = new Schema<IUser>({
@@ -36,6 +44,19 @@ const userSchema: Schema = new Schema<IUser>({
     type: Number,
     default: 200,
   },
+  favourites: [
+    {
+      title: {
+        type: String,
+        required: true,
+        trim: true,
+      },
+      description: String,
+      tags: [String],
+      url: String,
+      savedAt: { type: Date, default: Date.now },
+    },
+  ],
   createdAt: {
     type: Date,
     default: Date.now,
@@ -62,7 +83,7 @@ const userSchema: Schema = new Schema<IUser>({
   },
 });
 
-userSchema.set('toJSON', {
+userSchema.set("toJSON", {
   transform: (doc, ret) => {
     ret.id = ret._id.toString();
     delete ret._id;
@@ -72,4 +93,4 @@ userSchema.set('toJSON', {
   },
 });
 
-export default model<IUser>('User', userSchema);
+export default model<IUser>("User", userSchema);
