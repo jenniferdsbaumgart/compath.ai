@@ -99,7 +99,7 @@ interface DashboardMetrics {
   totalUsers: number;
   totalCourses: number;
   totalSearches: number;
-  profileCompletion?: number; // Adicionado para progresso dinâmico
+  profileCompletion?: number;
   userActivity: {
     invitedFriends: number;
   };

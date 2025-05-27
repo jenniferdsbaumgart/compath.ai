@@ -1,7 +1,6 @@
 import { Schema, model, Document } from "mongoose";
-import { title } from "process";
 
-interface IUser extends Document {
+export interface IUser extends Document {
   id: string;
   name: string;
   email: string;
