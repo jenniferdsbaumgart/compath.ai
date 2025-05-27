@@ -13,6 +13,7 @@ interface IUser extends Document {
   company?: string;
   website?: string;
   bio?: string;
+  invitedFriends: string[];
   favourites?: {
     title: string;
     description?: string;
@@ -81,6 +82,7 @@ const userSchema: Schema = new Schema<IUser>({
     type: String,
     trim: true,
   },
+  invitedFriends: [{ type: Schema.Types.ObjectId, ref: 'User' }],
 });
 
 userSchema.set("toJSON", {

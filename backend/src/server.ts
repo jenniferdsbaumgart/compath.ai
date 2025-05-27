@@ -27,7 +27,7 @@ app.use('/api/coins', coinRoutes);
 // Rota de administração
 app.use('/api/admin', adminRoutes);
 // Rota de favoritos
-app.use('/api/favorites', favouriteRoutes);
+app.use('/api/favourites', favouriteRoutes);
 
 const PORT = process.env.PORT || 5000;
 const MONGODB_URI = process.env.MONGODB_URI || '';
