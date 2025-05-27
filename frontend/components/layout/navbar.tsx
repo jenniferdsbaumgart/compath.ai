@@ -120,10 +120,10 @@ export function Navbar() {
 
   return (
     <nav className="bg-secondary/5 border-b border-border">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-0 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex items-center">
-            <Link href="/dashboard" className="flex items-center">
+            <Link href="/dashboard" className="flex items-center px-2">
               <Image src={logoSrc} alt="Compath Logo" width={170} height={30} />
             </Link>
           </div>
