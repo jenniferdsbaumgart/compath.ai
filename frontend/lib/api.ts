@@ -8,12 +8,6 @@ interface RequestOptions extends RequestInit {
   data?: any;
 }
 
-/**
- * Função para fazer requisições à API
- * @param endpoint - O endpoint da API
- * @param options - Opções adicionais para a requisição
- * @returns A resposta da API
- */
 async function request<T>(endpoint: string, options: RequestOptions = {}): Promise<T> {
   const { token = getToken(), data, ...customConfig } = options;
 
@@ -40,7 +34,7 @@ async function request<T>(endpoint: string, options: RequestOptions = {}): Promi
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       console.error('API Error:', errorData);
-      return Promise.reject(new Error(errorData.message || 'Ocorreu um erro na requisição'));
+      return Promise.reject(new Error(errorData.message || `HTTP ${response.status}: ${response.statusText}`));
     }
 
     if (response.status === 204) {
@@ -55,7 +49,7 @@ async function request<T>(endpoint: string, options: RequestOptions = {}): Promi
   }
 }
 
-// Tipagens para as respostas da API
+// Updated User interface to match backend User.ts
 interface User {
   id: string;
   name: string;
@@ -67,58 +61,75 @@ interface User {
   company?: string;
   website?: string;
   bio?: string;
+  profileCompletion: number;
+  invitedFriends: string[];
+  favourites?: Array<{
+    title: string;
+    description?: string;
+    tags?: string[];
+    url?: string;
+    savedAt?: string;
+  }>;
 }
 
+// Added CoinTransaction interface
+interface CoinTransaction {
+  id: string;
+  amount: number;
+  date: string;
+  type: 'purchase' | 'spend' | 'earn';
+}
+
+// Added Recommendation interface
 interface Recommendation {
-  niche: string;
+  id: string;
+  title: string;
   description: string;
-  potential: string;
-  investmentRange: string;
-  timeCommitment: string;
+  tags?: string[];
+  createdAt: string;
 }
 
+// Added Course interface
 interface Course {
   id: string;
   title: string;
   description: string;
-  coinCost?: number;
-  duration?: string;
-  category?: string;
+  tags?: string[];
+  createdAt: string;
+  updatedAt?: string;
+  duration?: number;
+  instructor?: string;
 }
 
+// Added DashboardMetrics interface
+interface DashboardMetrics {
+  totalUsers: number;
+  activeUsers: number;
+  totalCourses: number;
+  completedCourses: number;
+  totalRevenue: number;
+}
+
+// Added SearchResult interface
 interface SearchResult {
   id: string;
   title: string;
-  type: 'course' | 'user' | 'other';
+  description?: string;
+  tags?: string[];
+  url?: string;
 }
 
-interface DashboardMetrics {
-  coins: number;
-  searchCount: number;
-  activeCourses: Course[];
-  totalUsers: number;
-  totalCourses: number;
-  totalSearches: number;
-  profileCompletion?: number;
-  userActivity: {
-    invitedFriends: number;
-  };
-}
-
-interface Favorite {
+// Added Favourite interface
+interface Favourite {
   id: string;
-  courseId: string;
-  userId: string;
-  createdAt: string;
+  title: string;
+  description?: string;
+  tags?: string[];
+  url?: string;
+  savedAt?: string;
 }
 
-interface CoinTransaction {
-  id: string;
-  userId: string;
-  amount: number;
-  type: 'purchase' | 'spend' | 'earn';
-  createdAt: string;
-}
+// ... (other interfaces like Course, etc., unchanged)
 
 export const api = {
   // Autenticação (/api/users)
@@ -177,7 +188,7 @@ export const api = {
       method: 'POST',
       data: { courseId },
     }),
-
+  // Removed duplicate getDashboardData property
   // Pesquisa (/api/search)
   search: (query: string) =>
     request<{ results: SearchResult[] }>('/search', {
@@ -191,24 +202,24 @@ export const api = {
   // Administração (/api/admin)
   listUsers: () => request<{ users: User[] }>('/admin/users'),
 
-  getUserById: (id: string) => request<{ user: User }>(`/admin/users/${id}`),
+  getUserById: (id: string) => request<{ user: User }>(`/users/${id}`), // Changed from /admin/users/:id
 
   updateUser: (
-    id: string,
-    data: {
-      name?: string;
-      email?: string;
-      phone?: string;
-      location?: string;
-      company?: string;
-      website?: string;
-      bio?: string;
-    }
-  ) =>
-    request<{ user: User; message: string }>(`/admin/users/${id}`, {
-      method: 'PUT',
-      data,
-    }),
+      id: string,
+      data: {
+        name?: string;
+        email?: string;
+        phone?: string;
+        location?: string;
+        company?: string;
+        website?: string;
+        bio?: string;
+      }
+    ) =>
+      request<{ user: User; message: string }>(`/users/${id}`, { // Changed from /admin/users/:id
+        method: 'PUT',
+        data,
+      }),
 
   deleteUser: (id: string) =>
     request<{ message: string }>(`/admin/users/${id}`, {
@@ -216,16 +227,16 @@ export const api = {
     }),
 
   // Favoritos (/api/favourites)
-  addFavorite: (courseId: string) =>
-    request<{ success: boolean; favorite: Favorite }>('/favourites', {
+  addfavourite: (courseId: string) =>
+    request<{ success: boolean; favourite: Favourite }>('/favourites', {
       method: 'POST',
       data: { courseId },
     }),
 
-  removeFavorite: (courseId: string) =>
+  removefavourite: (courseId: string) =>
     request<{ success: boolean }>(`/favourites/${courseId}`, {
       method: 'DELETE',
     }),
 
-  listFavorites: () => request<{ favorites: Favorite[] }>('/favourites'),
+  listfavourites: () => request<{ favourites: Favourite[] }>('/favourites'),
 };

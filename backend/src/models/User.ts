@@ -13,6 +13,7 @@ export interface IUser extends Document {
   website?: string;
   bio?: string;
   invitedFriends: string[];
+  profileCompletion: number;
   favourites?: {
     title: string;
     description?: string;
@@ -43,6 +44,10 @@ const userSchema: Schema = new Schema<IUser>({
   coins: {
     type: Number,
     default: 200,
+  },
+  profileCompletion: {
+    type: Number,
+    default: 0,
   },
   favourites: [
     {

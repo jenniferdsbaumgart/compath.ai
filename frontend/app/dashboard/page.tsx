@@ -41,38 +41,71 @@ export default function DashboardPage() {
   const [dashboardData, setDashboardData] = useState<DashboardMetrics | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Validação de autenticação e carregamento dos dados do dashboard
   useEffect(() => {
     const checkAuth = async () => {
-      const isAuth = isAuthenticated();
-
-      if (!isAuth) {
+      if (!isAuthenticated()) {
+        console.log('Not authenticated, redirecting to login');
         router.push('/login');
+        setIsLoading(false);
         return;
       }
 
       try {
         const currentUser = getCurrentUser();
-        if (currentUser) {
-          const [userCoins, dashboardResponse] = await Promise.all([
-            api.getUserCoins(),
-            api.getDashboardData(currentUser.id),
-          ]);
-          setUser({
-            name: currentUser.name,
-            coins: userCoins.coins,
-          });
-          setDashboardData(dashboardResponse.metrics);
-        } else {
+        if (!currentUser) {
+          console.log('No current user, redirecting to login');
           router.push('/login');
+          setIsLoading(false);
+          return;
         }
+
+        console.log('Fetching dashboard data for user:', currentUser.id);
+        const [userCoins, dashboardResponse] = await Promise.all([
+          api.getUserCoins().catch((err) => {
+            console.error('Error fetching user coins:', err);
+            return { coins: 0 };
+          }),
+          api.getDashboardData(currentUser.id).catch((err) => {
+            console.error('Error fetching dashboard data:', err);
+            return {
+              metrics: {
+                coins: 0,
+                searchCount: 0,
+                activeCourses: [],
+                totalUsers: 0,
+                totalCourses: 0,
+                totalSearches: 0,
+                profileCompletion: 0,
+                userActivity: { invitedFriends: 0 },
+              },
+            };
+          }),
+        ]);
+
+        console.log('Dashboard response:', dashboardResponse);
+
+        setUser({
+          name: currentUser.name,
+          coins: userCoins.coins ?? 0,
+        });
+
+        setDashboardData({
+          coins: (dashboardResponse.metrics as DashboardMetrics).coins ?? 0,
+          searchCount: (dashboardResponse.metrics as DashboardMetrics).searchCount ?? 0,
+          activeCourses: (dashboardResponse.metrics as DashboardMetrics).activeCourses ?? [],
+          totalUsers: (dashboardResponse.metrics as DashboardMetrics).totalUsers ?? 0,
+          totalCourses: (dashboardResponse.metrics as DashboardMetrics).totalCourses ?? 0,
+          totalSearches: (dashboardResponse.metrics as DashboardMetrics).totalSearches ?? 0,
+          profileCompletion: (dashboardResponse.metrics as DashboardMetrics).profileCompletion ?? 0,
+          userActivity: (dashboardResponse.metrics as DashboardMetrics).userActivity ?? { invitedFriends: 0 },
+        });
       } catch (error) {
+        console.error('Unexpected error loading dashboard:', error);
         toast({
           title: 'Erro ao carregar dados do dashboard',
           description: 'Não foi possível carregar os dados. Tente novamente.',
           variant: 'destructive',
         });
-        router.push('/login');
       } finally {
         setIsLoading(false);
       }
@@ -82,30 +115,43 @@ export default function DashboardPage() {
   }, [router, toast]);
 
   const handleInviteFriend = async () => {
-    if (user) {
-      try {
-        const { coins } = await api.earnCoins(50);
-        setUser({ ...user, coins });
-        setDashboardData((prev) =>
-          prev ? { ...prev, userActivity: { ...prev.userActivity, invitedFriends: prev.userActivity.invitedFriends + 1 } } : prev
-        );
-        toast({
-          title: 'Moedas ganhas!',
-          description: 'Você ganhou 50 moedas por convidar um amigo.',
-        });
-      } catch (error) {
-        toast({
-          title: 'Erro ao ganhar moedas',
-          description: 'Não foi possível adicionar moedas. Tente novamente.',
-          variant: 'destructive',
-        });
-      }
+    if (!user) return;
+
+    try {
+      const { coins } = await api.earnCoins(50);
+      setUser({ ...user, coins });
+      setDashboardData((prev) =>
+        prev
+          ? { ...prev, userActivity: { ...prev.userActivity, invitedFriends: prev.userActivity.invitedFriends + 1 } }
+          : prev
+      );
+      toast({
+        title: 'Moedas ganhas!',
+        description: 'Você ganhou 50 moedas por convidar um amigo.',
+      });
+    } catch (error) {
+      toast({
+        title: 'Erro ao ganhar moedas',
+        description: 'Não foi possível adicionar moedas. Tente novamente.',
+        variant: 'destructive',
+      });
     }
   };
 
-  if (isLoading || !user || !dashboardData) {
+  if (isLoading || !user) {
     return <div className="flex justify-center items-center min-h-screen">Carregando...</div>;
   }
+
+  const metrics = dashboardData ?? {
+    coins: 0,
+    searchCount: 0,
+    activeCourses: [],
+    totalUsers: 0,
+    totalCourses: 0,
+    totalSearches: 0,
+    profileCompletion: 0,
+    userActivity: { invitedFriends: 0 },
+  };
 
   return (
     <>
@@ -134,7 +180,7 @@ export default function DashboardPage() {
               <CardTitle className="flex items-center justify-between">
                 <span>Complete seu perfil empreendedor</span>
                 <span className="text-sm font-normal text-gray-500 dark:text-gray-400">
-                  {dashboardData.profileCompletion ?? 0}% completo
+                  {metrics.profileCompletion}% completo
                 </span>
               </CardTitle>
               <CardDescription>
@@ -142,7 +188,7 @@ export default function DashboardPage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Progress value={dashboardData.profileCompletion ?? 0} className="h-2 mb-4" />
+              <Progress value={metrics.profileCompletion} className="h-2 mb-4" />
               <div className="mt-2 flex flex-col sm:flex-row sm:justify-between">
                 <div className="flex items-center text-sm text-gray-600">
                   <Award className="h-4 w-4 mr-1.5 text-secondary" />
@@ -273,7 +319,7 @@ export default function DashboardPage() {
               <div className="flex justify-between items-start">
                 <div>
                   <p className="text-sm text-gray-500 dark:text-gray-300">Moedas Disponíveis</p>
-                  <p className="text-2xl font-bold">{dashboardData.coins}</p>
+                  <p className="text-2xl font-bold">{metrics.coins}</p>
                 </div>
                 <div className="p-2 bg-amber-100 rounded-full">
                   <Coins className="h-5 w-5 text-amber-600" />
@@ -285,7 +331,7 @@ export default function DashboardPage() {
               <div className="flex justify-between items-start">
                 <div>
                   <p className="text-sm text-gray-500 dark:text-gray-300">Perfil Completado</p>
-                  <p className="text-2xl font-bold">{dashboardData.profileCompletion ?? 0}%</p>
+                  <p className="text-2xl font-bold">{metrics.profileCompletion}%</p>
                 </div>
                 <div className="p-2 bg-secondary/10 rounded-full">
                   <User className="h-5 w-5 text-secondary" />
@@ -297,7 +343,7 @@ export default function DashboardPage() {
               <div className="flex justify-between items-start">
                 <div>
                   <p className="text-sm text-gray-500 dark:text-gray-300">Pesquisas Realizadas</p>
-                  <p className="text-2xl font-bold">{dashboardData.searchCount}</p>
+                  <p className="text-2xl font-bold">{metrics.searchCount}</p>
                 </div>
                 <div className="p-2 bg-accent/10 rounded-full">
                   <Compass className="h-5 w-5 text-accent" />
@@ -309,7 +355,7 @@ export default function DashboardPage() {
               <div className="flex justify-between items-start">
                 <div>
                   <p className="text-sm text-gray-500 dark:text-gray-300">Amigos Convidados</p>
-                  <p className="text-2xl font-bold">{dashboardData.userActivity.invitedFriends}</p>
+                  <p className="text-2xl font-bold">{metrics.userActivity.invitedFriends}</p>
                 </div>
                 <div className="p-2 bg-primary/10 rounded-full">
                   <Users className="h-5 w-5 text-primary" />
@@ -321,9 +367,9 @@ export default function DashboardPage() {
           {/* Active Courses */}
           <div className="mt-6">
             <h3 className="text-lg font-medium text-gray-900 dark:text-gray-200 mb-4">Cursos Ativos</h3>
-            {dashboardData.activeCourses.length > 0 ? (
+            {metrics.activeCourses.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {dashboardData.activeCourses.map((course) => (
+                {metrics.activeCourses.map((course) => (
                   <Card key={course.id}>
                     <CardHeader>
                       <CardTitle>{course.title}</CardTitle>
