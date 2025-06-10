@@ -1,95 +1,52 @@
-import { Schema, model, Document } from "mongoose";
+import mongoose, { Schema, HydratedDocument, model } from 'mongoose';
 
-export interface IUser extends Document {
-  id: string;
+// Define the User interface
+interface IUser {
+  _id: mongoose.Types.ObjectId;
   name: string;
   email: string;
   password: string;
   coins: number;
-  createdAt: Date;
-  phone?: string;
-  location?: string;
-  company?: string;
-  website?: string;
-  bio?: string;
-  invitedFriends: string[];
-  profileCompletion: number;
-  favourites?: {
+  invitedFriends: mongoose.Types.ObjectId[];
+  favourites: Array<{
     title: string;
     description?: string;
     tags?: string[];
     url?: string;
     savedAt?: Date;
-  }[];
+  }>;
+  phone?: string;
+  location?: string;
+  company?: string;
+  website?: string;
+  bio?: string;
+  profileCompletion: number;
+  createdAt: Date;
 }
 
-const userSchema: Schema = new Schema<IUser>({
-  name: {
-    type: String,
-    required: true,
-    unique: true,
-    trim: true,
-  },
-  email: {
-    type: String,
-    required: true,
-    unique: true,
-    trim: true,
-    lowercase: true,
-  },
-  password: {
-    type: String,
-    required: true,
-  },
-  coins: {
-    type: Number,
-    default: 200,
-  },
-  profileCompletion: {
-    type: Number,
-    default: 0,
-  },
-  favourites: [
-    {
-      title: {
-        type: String,
-        required: true,
-        trim: true,
-      },
-      description: String,
-      tags: [String],
-      url: String,
-      savedAt: { type: Date, default: Date.now },
-    },
-  ],
-  createdAt: {
-    type: Date,
-    default: Date.now,
-  },
-  phone: {
-    type: String,
-    trim: true,
-  },
-  location: {
-    type: String,
-    trim: true,
-  },
-  company: {
-    type: String,
-    trim: true,
-  },
-  website: {
-    type: String,
-    trim: true,
-  },
-  bio: {
-    type: String,
-    trim: true,
-  },
+const userSchema = new Schema<IUser>({
+  name: { type: String, required: true, trim: true },
+  email: { type: String, required: true, unique: true, lowercase: true },
+  password: { type: String, required: true },
+  coins: { type: Number, default: 50 },
   invitedFriends: [{ type: Schema.Types.ObjectId, ref: 'User' }],
+  favourites: [{
+    title: { type: String, required: true },
+    description: String,
+    tags: [String],
+    url: String,
+    savedAt: Date,
+  }],
+  phone: { type: String, trim: true },
+  location: { type: String, trim: true },
+  company: { type: String, trim: true },
+  website: { type: String, trim: true },
+  bio: { type: String, trim: true },
+  profileCompletion: { type: Number, default: 0 },
+  createdAt: { type: Date, default: Date.now },
 });
 
-userSchema.set("toJSON", {
+userSchema.set('toJSON', {
   transform: (doc, ret) => {
     ret.id = ret._id.toString();
     delete ret._id;
@@ -99,4 +56,5 @@ userSchema.set("toJSON", {
   },
 });
 
-export default model<IUser>("User", userSchema);
+export type UserDocument = HydratedDocument<IUser>;
+export default model<IUser>('User', userSchema);

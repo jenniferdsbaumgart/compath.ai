@@ -17,9 +17,10 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { signIn } from "@/lib/auth";
+import { setCurrentUser, setToken  } from "@/lib/auth";
 import { useToast } from "@/hooks/use-toast";
 import Image from "next/image";
+import { api } from "@/lib/api";
 
 const formSchema = z.object({
   email: z.string().email({
@@ -33,6 +34,8 @@ const formSchema = z.object({
 export default function LoginPage() {
   const router = useRouter();
   const { toast } = useToast();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
@@ -44,34 +47,31 @@ export default function LoginPage() {
     },
   });
 
-  // Função para lidar com o envio do formulário
+  // Função para lidar com o envio do formulário via react-hook-form
   // Faz a chamada para a API de login
-  async function onSubmit(values: z.infer<typeof formSchema>) {
+  const onSubmit = async (data: z.infer<typeof formSchema>) => {
     setIsLoading(true);
 
     try {
-      const response = await signIn(values.email, values.password);
-
+      const response = await api.login(data.email, data.password);
+      setToken(response.token);
+      setCurrentUser(response.user);
       toast({
-        title: "Login bem-sucedido!",
-        description: "Bem-vindo de volta ao Compath.",
+        title: "Login bem-sucedido",
+        description: "Bem-vindo de volta!",
       });
-
-      setTimeout(() => {
-        router.push('/dashboard');
-        window.location.href = '/dashboard';
-      }, 500);
+      router.push("/dashboard");
     } catch (error: any) {
+      console.error("Login error:", error);
       toast({
-        title: "Erro ao fazer login",
-        description: error.message || "Ocorreu um erro ao fazer login. Tente novamente.",
+        title: "Erro no login",
+        description: error.message || "Credenciais inválidas. Tente novamente.",
         variant: "destructive",
       });
-      console.error("Login error:", error);
     } finally {
       setIsLoading(false);
     }
-  }
+  };
 
   return (
     <div className="min-h-screen bg-secondary/20 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
@@ -107,7 +107,7 @@ export default function LoginPage() {
               <FormField
                 control={form.control}
                 name="email"
-                render={({ field }) => (
+                render={({ field }: { field: any }) => (
                   <FormItem>
                     <FormLabel>E-mail</FormLabel>
                     <FormControl>

@@ -132,14 +132,19 @@ interface ProfileResponse {
   [key: string]: any;
 }
 
+interface Answer {
+  questionId: string;
+  response: any;
+}
+
 interface Recommendation {
   profile: string;
   niche: string;
-  description?: string;
-  potential?: string;
-  investmentRange?: string;
-  timeCommitment?: string;
-  actionButton?: string;
+  description: string;
+  potential: string;
+  investmentRange: string;
+  timeCommitment: string;
+  actionButton: string;
 }
 
 // Education levels
@@ -962,14 +967,23 @@ export default function PerfilEmpreendedorPage() {
       const currentUser = getCurrentUser();
       if (!currentUser) throw new Error("Usuário não encontrado.");
 
-      await api.earnCoins(100);
-      setUserCoins(userCoins + 100);
+      // Earn coins
+      const coinResponse = await api.earnCoins(100);
+      setUserCoins(coinResponse.coins);
       localStorage.setItem("profileCompleted", "true");
+
+      // Update user in localStorage
+      const updatedUser = { ...currentUser, coins: coinResponse.coins };
+      localStorage.setItem("currentUser", JSON.stringify(updatedUser));
 
       // Get recommendations
       const result = await api.getProfileRecommendations();
       setRecommendations((result.recommendations as unknown as Recommendation[]) || []);
       setShowRecommendations(true);
+
+      // Clear saved responses
+      localStorage.removeItem("entrepreneurProfile");
+      localStorage.removeItem("entrepreneurProfileStep");
 
       toast({
         title: "Perfil concluído!",
@@ -1072,7 +1086,7 @@ export default function PerfilEmpreendedorPage() {
     );
   };
 
-  if (showRecommendations && recommendations.length > 0) {
+  if (showRecommendations) {
     return (
       <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-gray-900">
         <Navbar />
@@ -1088,39 +1102,49 @@ export default function PerfilEmpreendedorPage() {
           </div>
 
           <div className="space-y-6 mb-8">
-            {recommendations.map((rec, index) => (
-              <Card key={index} className="overflow-hidden">
-                <CardHeader className="bg-gradient-to-r from-secondary/10 to-accent/10">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <CardTitle className="flex items-center">
-                        <Send className="h-5 w-5 mr-2 text-secondary" />
-                        {rec.niche} ({rec.profile})
-                      </CardTitle>
-                      <CardDescription className="mt-1 text-sm">
-                        Potencial: <span className="font-semibold">{rec.potential}</span>
-                      </CardDescription>
+            {recommendations.length > 0 ? (
+              recommendations.map((rec, index) => (
+                <Card key={index} className="overflow-hidden">
+                  <CardHeader className="bg-gradient-to-r from-secondary/10 to-accent/10">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <CardTitle className="flex items-center mr-4">
+                          <Send className="h-5 w-5 mr-2 text-secondary" />
+                          {rec.niche} ({rec.profile})
+                        </CardTitle>
+                        <CardDescription className="mt-1 text-sm">
+                          Potencial: <span className="font-semibold">{rec.potential}</span>
+                        </CardDescription>
+                      </div>
+                      <Button variant="secondary" size="sm">
+                        {rec.actionButton}
+                      </Button>
                     </div>
-                    <Button variant="secondary" size="sm">
-                      {rec.actionButton}
-                    </Button>
-                  </div>
-                </CardHeader>
-                <CardContent className="pt-4">
-                  <p className="text-card-foreground mb-4">{rec.description}</p>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                    <div className="bg-muted p-3 rounded-md">
-                      <span className="block text-muted-foreground mb-1">Investimento Aproximado</span>
-                      <span className="font-medium">{rec.investmentRange}</span>
+                  </CardHeader>
+                  <CardContent className="pt-4">
+                    <p className="text-card-foreground mb-4">{rec.description}</p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                      <div className="bg-muted p-3 rounded-md">
+                        <span className="block text-muted-foreground mb-1">Investimento Aproximado</span>
+                        <span className="font-medium">{rec.investmentRange}</span>
+                      </div>
+                      <div className="bg-muted p-3 rounded-md">
+                        <span className="block text-muted-foreground mb-1">Tempo Necessário</span>
+                        <span className="font-medium">{rec.timeCommitment}</span>
+                      </div>
                     </div>
-                    <div className="bg-muted p-3 rounded-md">
-                      <span className="block text-muted-foreground mb-1">Tempo Necessário</span>
-                      <span className="font-medium">{rec.timeCommitment}</span>
-                    </div>
-                  </div>
+                  </CardContent>
+                </Card>
+              ))
+            ) : (
+              <Card>
+                <CardContent className="pt-6 text-center">
+                  <p className="text-muted-foreground">
+                    Nenhuma recomendação disponível no momento. Tente ajustar suas respostas ou entre em contato com o suporte.
+                  </p>
                 </CardContent>
               </Card>
-            ))}
+            )}
           </div>
 
           <div className="flex justify-between">

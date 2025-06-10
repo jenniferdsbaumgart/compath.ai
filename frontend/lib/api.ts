@@ -49,7 +49,6 @@ async function request<T>(endpoint: string, options: RequestOptions = {}): Promi
   }
 }
 
-// Updated User interface to match backend User.ts
 interface User {
   id: string;
   name: string;
@@ -72,7 +71,6 @@ interface User {
   }>;
 }
 
-// Added CoinTransaction interface
 interface CoinTransaction {
   id: string;
   amount: number;
@@ -80,16 +78,16 @@ interface CoinTransaction {
   type: 'purchase' | 'spend' | 'earn';
 }
 
-// Added Recommendation interface
 interface Recommendation {
-  id: string;
-  title: string;
+  profile: string;
+  niche: string;
   description: string;
-  tags?: string[];
-  createdAt: string;
+  potential: string;
+  investmentRange: string;
+  timeCommitment: string;
+  actionButton: string;
 }
 
-// Added Course interface
 interface Course {
   id: string;
   title: string;
@@ -101,7 +99,6 @@ interface Course {
   instructor?: string;
 }
 
-// Added DashboardMetrics interface
 interface DashboardMetrics {
   totalUsers: number;
   activeUsers: number;
@@ -110,7 +107,6 @@ interface DashboardMetrics {
   totalRevenue: number;
 }
 
-// Added SearchResult interface
 interface SearchResult {
   id: string;
   title: string;
@@ -119,7 +115,6 @@ interface SearchResult {
   url?: string;
 }
 
-// Added Favourite interface
 interface Favourite {
   id: string;
   title: string;
@@ -129,10 +124,7 @@ interface Favourite {
   savedAt?: string;
 }
 
-// ... (other interfaces like Course, etc., unchanged)
-
 export const api = {
-  // Autenticação (/api/users)
   login: (email: string, password: string) =>
     request<{ token: string; user: User }>('/users/login', {
       method: 'POST',
@@ -160,7 +152,7 @@ export const api = {
     }),
 
   saveProfileResponse: (questionId: string, response: any) =>
-    request<{ success: boolean }>('/users/profile', {
+    request<{ success: boolean; profileCompletion: number }>('/users/profile', {
       method: 'POST',
       data: { questionId, response },
     }),
@@ -168,7 +160,6 @@ export const api = {
   getProfileRecommendations: () =>
     request<{ recommendations: Recommendation[] }>('/users/profile/recommendations'),
 
-  // Moedas (/api/coins)
   purchaseCoins: (amount: number) =>
     request<{ transaction: CoinTransaction; coins: number }>('/coins/purchase', {
       method: 'POST',
@@ -178,7 +169,6 @@ export const api = {
   getCoinHistory: () =>
     request<{ transactions: CoinTransaction[] }>('/coins/history'),
 
-  // Cursos (/api/courses)
   listCourses: () => request<{ courses: Course[] }>('/courses'),
 
   getCourseDetails: (courseId: string) => request<{ course: Course }>(`/courses/${courseId}`),
@@ -188,45 +178,41 @@ export const api = {
       method: 'POST',
       data: { courseId },
     }),
-  // Removed duplicate getDashboardData property
-  // Pesquisa (/api/search)
+
   search: (query: string) =>
     request<{ results: SearchResult[] }>('/search', {
-      method: 'GET',
+      method: 'POST',
       data: { query },
     }),
 
-  // Dashboard (/api/dashboard)
   getDashboardData: (userId: string) => request<{ metrics: DashboardMetrics }>(`/dashboard/${userId}`),
 
-  // Administração (/api/admin)
   listUsers: () => request<{ users: User[] }>('/admin/users'),
 
-  getUserById: (id: string) => request<{ user: User }>(`/users/${id}`), // Changed from /admin/users/:id
+  getUserById: (id: string) => request<{ user: User }>(`/users/${id}`),
 
   updateUser: (
-      id: string,
-      data: {
-        name?: string;
-        email?: string;
-        phone?: string;
-        location?: string;
-        company?: string;
-        website?: string;
-        bio?: string;
-      }
-    ) =>
-      request<{ user: User; message: string }>(`/users/${id}`, { // Changed from /admin/users/:id
-        method: 'PUT',
-        data,
-      }),
+    id: string,
+    data: {
+      name?: string;
+      email?: string;
+      phone?: string;
+      location?: string;
+      company?: string;
+      website?: string;
+      bio?: string;
+    }
+  ) =>
+    request<{ user: User; message: string }>(`/users/${id}`, {
+      method: 'POST',
+      data,
+    }),
 
   deleteUser: (id: string) =>
     request<{ message: string }>(`/admin/users/${id}`, {
       method: 'DELETE',
     }),
 
-  // Favoritos (/api/favourites)
   addfavourite: (courseId: string) =>
     request<{ success: boolean; favourite: Favourite }>('/favourites', {
       method: 'POST',
