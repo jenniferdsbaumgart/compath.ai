@@ -977,7 +977,7 @@ export default function PerfilEmpreendedorPage() {
       localStorage.setItem("currentUser", JSON.stringify(updatedUser));
 
       // Get recommendations
-      const result = await api.getProfileRecommendations();
+      const result = await api.getProfileRecommendations(responses);
       setRecommendations((result.recommendations as unknown as Recommendation[]) || []);
       setShowRecommendations(true);
 

@@ -157,8 +157,11 @@ export const api = {
       data: { questionId, response },
     }),
 
-  getProfileRecommendations: () =>
-    request<{ recommendations: Recommendation[] }>('/users/profile/recommendations'),
+  getProfileRecommendations: (data: any) =>
+  request<{ recommendations: Recommendation[] }>('/users/profile/recommendations', {
+    method: 'POST',
+    data,
+  }),
 
   purchaseCoins: (amount: number) =>
     request<{ transaction: CoinTransaction; coins: number }>('/coins/purchase', {
@@ -225,4 +228,21 @@ export const api = {
     }),
 
   listfavourites: () => request<{ favourites: Favourite[] }>('/favourites'),
+
+  saveUserProfile: (data: {
+    userId: string;
+    education: string[];
+    areas: string[];
+    investment: number;
+    time: number;
+    hobbies: string[];
+    audience: string[];
+  }) =>
+    request<{ message: string }>('/profile/save', {
+      method: 'POST',
+      data,
+    }),
+
+  retrainModelKNN: () =>
+    request<{ accuracy: number }>('/admin/retrain', { method: 'POST' })
 };
