@@ -1,0 +1,67 @@
+version: "3.9"
+
+services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: compath-frontend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:5000/api
+      - NEXT_PUBLIC_KNN_URL=http://localhost:8000
+    depends_on:
+      - backend
+    networks:
+      - compath-network
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: compath-backend
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    environment:
+      - MONGODB_URI=mongodb://mongo:27017/compath
+      - KNN_API_URL=http://compath-knn:8000
+    depends_on:
+      - mongo
+      - compath-knn
+    networks:
+      - compath-network
+
+  mongo:
+    image: mongo
+    container_name: compath-mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - compath-network
+
+  compath-knn:
+    build:
+      context: ./knn-service
+      dockerfile: Dockerfile
+    container_name: compath-knn
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./knn-service:/app
+    networks:
+      - compath-network
+
+volumes:
+  mongo-data:
+
+networks:
+  compath-network:
