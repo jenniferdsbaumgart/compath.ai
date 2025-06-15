@@ -52,7 +52,7 @@ y = [
 try:
     # === 2. Conecta no Mongo e atualiza a base ===
     print("📦 Conectando ao MongoDB...")
-    client = pymongo.MongoClient("mongodb+srv://jenniferdsbaumgart:RdsJcCSEfPYlfpSB@compath.b3ixylf.mongodb.net/compath?retryWrites=true&w=majority&appName=Compath")  # ou "mongodb://mongo:27017" se estiver em container
+    client = pymongo.MongoClient()  # ou se estiver em container
     db = client["compath"]
     collection = db["training_data"]
 
