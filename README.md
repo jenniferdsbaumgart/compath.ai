@@ -1,4 +1,5 @@
 ![Logo](./frontend/public/images/logo-full-white.png)
+
 Compath is a platform designed to help entrepreneurs find their ideal niche, explore competitors, and analyze potential customers based on geographic regions and AI insights. The platform also includes a gamified coin system, where users can earn and spend coins to incentivize engagement and exploration and also being able to access valuable courses.
 
 ## Tech Stack
