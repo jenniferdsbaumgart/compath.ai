@@ -2,7 +2,6 @@ import os
 import joblib
 import numpy as np
 from sklearn.neighbors import KNeighborsClassifier
-from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 
 MODEL_PATH = "knn_model.joblib"
@@ -35,4 +34,13 @@ class KNNService:
 
     def evaluate(self, X: np.ndarray, y: np.ndarray):
         preds = self.model.predict(X)
-        return accuracy_score(y, preds)
+        acc = accuracy_score(y, preds)
+        return acc
+
+# Instancia global aqui se precisar em outros arquivos
+knn_service = KNNService()
+
+try:
+    knn_service.load_model()
+except FileNotFoundError:
+    print("Modelo KNN não encontrado. Treine antes de usar o serviço.")

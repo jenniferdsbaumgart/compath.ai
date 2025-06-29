@@ -1,10 +1,20 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
-from knn_service import knn, scaler, target_names
 import numpy as np
 import uvicorn
+from knn_service import knn_service
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
+
+# CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # ou especifique seus domínios
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 class FeatureInput(BaseModel):
     features: list[float]
@@ -12,34 +22,38 @@ class FeatureInput(BaseModel):
 @app.post("/predict")
 async def predict_niche(input_data: FeatureInput):
     try:
-        # Convertendo para numpy e validando
         features = np.array(input_data.features, dtype=float)
 
-        if features.ndim != 1 or len(features) != scaler.mean_.shape[0]:
-            raise ValueError("Número de features inválido.")
+        if features.ndim == 1:
+            features = features.reshape(1, -1)
 
-        # Reformatando para 2D e escalando
-        features_scaled = scaler.transform([features])
+        # Carrega o modelo se necessário
+        if knn_service.model is None:
+            knn_service.load_model()
 
-        # Fazendo a predição
-        prediction = knn.predict(features_scaled)[0]
+        # Predição de probabilidades
+        probs = knn_service.model.predict_proba(features)[0]
 
-        return {"recommendation": target_names[prediction]}
+        top5_indices = np.argsort(probs)[-5:][::-1]
+
+        recommendations = []
+        for idx in top5_indices:
+            recommendations.append({
+                "niche": knn_service.model.classes_[idx],
+                "probability": float(probs[idx])
+            })
+
+        return {"recommendations": recommendations}
 
     except Exception as e:
         raise HTTPException(status_code=422, detail=str(e))
-
 
 @app.post("/retrain")
 async def retrain_model():
     from train_from_db import train_model_from_db
     try:
-        model, new_scaler, accuracy, labels = train_model_from_db()
-        # atualiza objetos globais
-        global knn, scaler, target_names
-        knn = model
-        scaler = new_scaler
-        target_names = labels
+        X, y = train_model_from_db()
+        accuracy = knn_service.train(X, y)
         return {"message": "Modelo treinado com sucesso!", "accuracy": accuracy}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erro ao treinar modelo: {e}")
