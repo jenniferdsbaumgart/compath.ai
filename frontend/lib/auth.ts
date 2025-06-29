@@ -12,6 +12,7 @@ interface User {
   company?: string;
   website?: string;
   bio?: string;
+  avatar?: string;
   profileCompletion: number;
   invitedFriends: string[];
   favourites?: Array<{

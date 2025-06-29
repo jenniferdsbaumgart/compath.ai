@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { fetchRecommendationsFromPython } from '../services/knnService';
-import { transformProfileToFeatures } from '../utils/transformprofile';
+import { transformProfileToFeatures } from '../utils/transformProfile';
 
 export async function getRecommendations(req: Request, res: Response) {
   try {

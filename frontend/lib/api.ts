@@ -50,6 +50,7 @@ async function request<T>(endpoint: string, options: RequestOptions = {}): Promi
 }
 
 interface User {
+  avatar: string;
   id: string;
   name: string;
   email: string;
@@ -204,6 +205,15 @@ export const api = {
       company?: string;
       website?: string;
       bio?: string;
+      avatar?: string;
+      profileCompletion?: number;
+      favourites?: Array<{
+        title: string;
+        description?: string;
+        tags?: string[];
+        url?: string;
+        savedAt?: string;
+      }>;
     }
   ) =>
     request<{ user: User; message: string }>(`/users/${id}`, {
