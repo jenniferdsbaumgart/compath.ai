@@ -1,7 +1,7 @@
 import mongoose, { Schema, HydratedDocument, model } from 'mongoose';
 
 // Define the User interface
-interface IUser {
+export interface IUser {
   _id: mongoose.Types.ObjectId;
   name: string;
   email: string;
@@ -20,6 +20,7 @@ interface IUser {
   company?: string;
   website?: string;
   bio?: string;
+  avatar?: string;
   profileCompletion: number;
   createdAt: Date;
 }
@@ -42,6 +43,7 @@ const userSchema = new Schema<IUser>({
   company: { type: String, trim: true },
   website: { type: String, trim: true },
   bio: { type: String, trim: true },
+  avatar: { type: String, trim: true },
   profileCompletion: { type: Number, default: 0 },
   createdAt: { type: Date, default: Date.now },
 });

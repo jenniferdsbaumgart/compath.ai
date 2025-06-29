@@ -7,6 +7,10 @@ import OpenAI from 'openai';
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 import dotenv from 'dotenv';
+import { upload } from '../middleware/uploadMiddleware';
+import { updateAvatar } from '../controllers/userController';
+import { authMiddleware } from '../middleware/authMiddleware';
+
 dotenv.config();
 
 const router = Router();
@@ -70,6 +74,7 @@ router.post('/register', async (req, res) => {
         company: user.company,
         website: user.website,
         bio: user.bio,
+        avatar: user.avatar,
         profileCompletion: user.profileCompletion,
         invitedFriends: user.invitedFriends,
         favourites: user.favourites,
@@ -117,6 +122,7 @@ router.post('/login', async (req, res) => {
         company: user.company,
         website: user.website,
         bio: user.bio,
+        avatar: user.avatar,
         profileCompletion: user.profileCompletion || 0,
         invitedFriends: user.invitedFriends || [],
         favourites: user.favourites || [],
@@ -336,5 +342,7 @@ router.post('/:id', authenticateToken, async (req: any, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 });
+
+router.post('/avatar', authMiddleware, upload.single('avatar'), updateAvatar);
 
 export default router;
