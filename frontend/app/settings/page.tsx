@@ -13,9 +13,11 @@ import { useTheme } from 'next-themes';
 import { useToast } from '@/hooks/use-toast';
 import { Footer } from '@/components/layout/footer';
 import { Navbar } from '@/components/layout/navbar';
+import { useProtectedRoute } from '@/hooks/protected-route';
 
 export default function SettingsPage() {
   const router = useRouter();
+  useProtectedRoute();
   const { theme, setTheme } = useTheme();
   const { toast } = useToast();
   const [settings, setSettings] = useState({

@@ -107,6 +107,7 @@ import { RiMentalHealthLine } from "react-icons/ri";
 import { GiBrazil, GiDeliveryDrone, GiLotus, GiSushis, GiSnake } from "react-icons/gi";
 import { FaDumbbell, FaMicrochip, FaRunning, FaSeedling } from "react-icons/fa";
 import { TbMeat } from "react-icons/tb";
+import { useProtectedRoute } from "@/hooks/protected-route";
 
 // Types
 interface ProfileQuestion {
@@ -747,6 +748,7 @@ const profileQuestions: ProfileQuestion[] = [
 
 export default function PerfilEmpreendedorPage() {
   const router = useRouter();
+  useProtectedRoute();
   const { toast } = useToast();
   const [currentStep, setCurrentStep] = useState(0);
   const [responses, setResponses] = useState<ProfileResponse>({});

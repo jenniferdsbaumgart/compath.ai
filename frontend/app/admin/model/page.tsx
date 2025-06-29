@@ -1,9 +1,10 @@
 "use client";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { api } from "@/lib/api";
+import { useProtectedRoute } from "@/hooks/protected-route";
 
 export default function TrainModelPage() {
+  useProtectedRoute();
   const [status, setStatus] = useState<
     "idle" | "loading" | "success" | "error"
   >("idle");
@@ -42,6 +43,7 @@ export default function TrainModelPage() {
     <div className="max-w-xl mx-auto mt-10 space-y-6">
       <h1 className="text-2xl font-bold">Re-treinar Modelo de Recomendação</h1>
       <Button onClick={handleRetrain} disabled={status === "loading"}>
+        <span>Re-treinar</span>
         {status === "loading" && (
           <p className="text-blue-500">Treinando modelo...</p>
         )}

@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Coins, Check, Sparkles } from 'lucide-react';
 import { Footer } from '@/components/layout/footer';
 import { Navbar } from '@/components/layout/navbar';
+import { useProtectedRoute } from '@/hooks/protected-route';
 
 const coinPackages = [
   {
@@ -75,6 +76,7 @@ const subscriptionPlans = [
 ];
 
 export default function CoinsPage() {
+  useProtectedRoute();
   const [selectedTab, setSelectedTab] = useState<'coins' | 'subscription'>('coins');
   
   const handlePurchaseCoins = async (packageId: string) => {

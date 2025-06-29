@@ -13,6 +13,7 @@ import { api } from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
 import { Footer } from '@/components/layout/footer';
 import { Navbar } from '@/components/layout/navbar';
+import { useProtectedRoute } from '@/hooks/protected-route';
 
 interface DashboardMetrics {
   coins: number;
@@ -36,6 +37,7 @@ interface DashboardMetrics {
 
 export default function DashboardPage() {
   const router = useRouter();
+  useProtectedRoute();
   const { toast } = useToast();
   const [user, setUser] = useState<{ name: string; coins: number } | null>(null);
   const [dashboardData, setDashboardData] = useState<DashboardMetrics | null>(null);
