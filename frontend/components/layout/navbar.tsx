@@ -35,7 +35,8 @@ import { useTheme } from "next-themes";
 
 export function Navbar() {
   const { theme } = useTheme();
-  const logoSrc = theme === "dark" ? "/logo-full-white.svg" : "/logo-full-blue.svg";
+  const logoSrc =
+    theme === "dark" ? "/logo-full-white.svg" : "/logo-full-blue.svg";
 
   const [isOpen, setIsOpen] = useState(false);
   const [user, setUser] = useState<{
@@ -64,7 +65,7 @@ export function Navbar() {
           name: currentUser.name,
           email: currentUser.email,
           coins: currentUser.coins,
-          avatar: currentUser.avatar,
+          avatar: (currentUser as any).avatar ?? "",
         });
 
         // Busca as moedas da API
@@ -79,7 +80,7 @@ export function Navbar() {
                   name: currentUser.name,
                   email: currentUser.email,
                   coins: response.coins,
-                  avatar: currentUser.avatar,
+                  avatar: (currentUser as any).avatar ?? "",
                 }
           );
         } catch (error) {
@@ -240,6 +241,17 @@ export function Navbar() {
                             </div>
                           </DropdownMenuItem>
                         </Link>
+                        {/* ADMIN ONLY */}
+                        {user.email === "admin@compath.com" && (
+                          <Link href="/admin/model" passHref>
+                            <DropdownMenuItem asChild>
+                              <div>
+                                <Settings className="mr-2 h-4 w-4" />
+                                <span>Admin Panel</span>
+                              </div>
+                            </DropdownMenuItem>
+                          </Link>
+                        )}
                       </DropdownMenuGroup>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem onClick={logout}>

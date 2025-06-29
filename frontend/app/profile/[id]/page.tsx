@@ -7,20 +7,55 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { User, Mail, Phone, MapPin, Building, Globe } from "lucide-react";
+import {
+  User as LucideUser,
+  Mail,
+  Phone,
+  MapPin,
+  Building,
+  Globe,
+  User,
+} from "lucide-react";
 import { getCurrentUser, isAuthenticated, getToken } from "@/lib/auth";
 import { useToast } from "@/hooks/use-toast";
 import { api } from "@/lib/api";
 import { Footer } from "@/components/layout/footer";
 import { Navbar } from "@/components/layout/navbar";
+import Image from "next/image";
+import { useProtectedRoute } from "@/hooks/protected-route";
+
+// Extend the User type to include 'avatar'
+interface User {
+  id: string;
+  name: string;
+  email: string;
+  phone?: string;
+  location?: string;
+  company?: string;
+  website?: string;
+  bio?: string;
+  avatar?: string;
+}
+
+interface FormData {
+  name: string;
+  email: string;
+  phone: string;
+  location: string;
+  company: string;
+  website: string;
+  bio: string;
+  avatar: string;
+}
 
 export default function ProfilePage() {
   const router = useRouter();
+  useProtectedRoute();
   const { id } = useParams();
   const { toast } = useToast();
   const [isEditing, setIsEditing] = useState(false);
-  const [user, setUser] = useState<any>(null); // Use 'any' temporarily; update if api.ts typing is confirmed
-  const [formData, setFormData] = useState({
+  const [user, setUser] = useState<User | null>(null);
+  const [formData, setFormData] = useState<FormData>({
     name: "",
     email: "",
     phone: "",
@@ -28,8 +63,80 @@ export default function ProfilePage() {
     company: "",
     website: "",
     bio: "",
+    avatar: "",
   });
   const [isLoading, setIsLoading] = useState(true);
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(
+    user?.avatar || null
+  );
+  const [isUploading, setIsUploading] = useState(false);
+
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setAvatarFile(file);
+      setAvatarPreview(URL.createObjectURL(file));
+    }
+  };
+
+  const handleAvatarUpload = async () => {
+    if (!avatarFile) return;
+
+    const formData = new FormData();
+    formData.append("avatar", avatarFile);
+
+    setIsUploading(true);
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/users/avatar`,
+        {
+          method: "POST",
+          body: formData,
+          headers: {
+            Authorization: `Bearer ${getToken()}`,
+          },
+        }
+      );
+
+      if (!response.ok) throw new Error("Erro ao enviar avatar.");
+
+      const data = await response.json();
+      console.log("Avatar atualizado:", data);
+
+      // Atualiza localStorage
+      const updatedUser: User = {
+        ...user!,
+        avatar: data.avatar,
+      };
+      setUser(updatedUser);
+      localStorage.setItem("compath_user", JSON.stringify(updatedUser));
+
+      // Atualiza navbar (reload for simplicity)
+      router.refresh?.();
+      toast({
+        title: "Avatar atualizado",
+        description: "Seu avatar foi atualizado com sucesso.",
+      });
+
+      setAvatarFile(null);
+      setAvatarPreview(null);
+    } catch (err: any) {
+      console.error(err);
+      toast({
+        title: "Erro",
+        description: err.message || "Falha ao atualizar avatar.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const cancelAvatarChange = () => {
+    setAvatarFile(null);
+    setAvatarPreview(null);
+  };
 
   const fetchUserData = async () => {
     setIsLoading(true);
@@ -47,6 +154,7 @@ export default function ProfilePage() {
         company: response.user.company || "",
         website: response.user.website || "",
         bio: response.user.bio || "",
+        avatar: response.user.avatar || "",
       });
       localStorage.setItem(
         "compath_user",
@@ -57,6 +165,7 @@ export default function ProfilePage() {
           coins: response.user.coins,
           phone: response.user.phone || "",
           location: response.user.location || "",
+          avatar: response.user.avatar || "",
           company: response.user.company || "",
           website: response.user.website || "",
           bio: response.user.bio || "",
@@ -195,6 +304,7 @@ export default function ProfilePage() {
           company: response.user.company || "",
           website: response.user.website || "",
           bio: response.user.bio || "",
+          avatar: response.user.avatar || "",
         })
       );
 
@@ -261,13 +371,45 @@ export default function ProfilePage() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-4 relative">
                 <Avatar className="h-20 w-20">
-                  <AvatarImage src={user.avatar} alt={user.name} />
+                  <AvatarImage
+                    src={avatarPreview || user.avatar}
+                    alt={user.name}
+                  />
                   <AvatarFallback className="bg-blue-100 text-blue-900 dark:bg-gray-600 dark:text-white">
                     {user.name?.charAt(0) || "?"}
                   </AvatarFallback>
                 </Avatar>
+
+                {/* Ícone de lápis sobreposto */}
+                <label
+                  htmlFor="avatar-upload"
+                  className="absolute bottom-0 left-16 bg-gray-200 dark:bg-gray-700 rounded-full p-1 cursor-pointer hover:bg-gray-300 dark:hover:bg-gray-600"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-4 w-4 text-gray-700 dark:text-gray-200"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M15.232 5.232l3.536 3.536M9 13h3l7-7a1.414 1.414 0 00-2-2l-7 7v3z"
+                    />
+                  </svg>
+                  <input
+                    id="avatar-upload"
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleAvatarChange}
+                  />
+                </label>
+
                 <div>
                   <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
                     {user.name}
@@ -275,6 +417,49 @@ export default function ProfilePage() {
                   <p className="text-gray-500 dark:text-gray-400">
                     {user.email}
                   </p>
+                </div>
+              </div>
+
+              {avatarFile && (
+                <div className="mt-4 flex space-x-2">
+                  <Button onClick={handleAvatarUpload} disabled={isUploading}>
+                    {isUploading ? "Enviando..." : "Salvar Avatar"}
+                  </Button>
+                  <Button variant="outline" onClick={cancelAvatarChange}>
+                    Cancelar
+                  </Button>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
+            <CardHeader>
+              <CardTitle className="text-blue-900 dark:text-white">
+                Avatar
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center space-x-4">
+                <Avatar className="h-20 w-20">
+                  {avatarPreview ? (
+                    <AvatarImage src={avatarPreview} alt={user.name} />
+                  ) : (
+                    <AvatarFallback className="bg-blue-100 text-blue-900 dark:bg-gray-600 dark:text-white">
+                      {user.name?.charAt(0) || "?"}
+                    </AvatarFallback>
+                  )}
+                </Avatar>
+
+                <div className="space-y-2">
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleAvatarChange}
+                  />
+                  <Button onClick={handleAvatarUpload} disabled={isUploading}>
+                    {isUploading ? "Enviando..." : "Atualizar Avatar"}
+                  </Button>
                 </div>
               </div>
             </CardContent>
@@ -455,6 +640,7 @@ export default function ProfilePage() {
                           company: user.company || "",
                           website: user.website || "",
                           bio: user.bio || "",
+                          avatar: user.avatar || "",
                         });
                       }}
                       className="border-gray-300 dark:border-gray-600 text-gray-700 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
