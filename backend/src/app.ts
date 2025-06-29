@@ -2,6 +2,7 @@
 import express from 'express';
 import cors from 'cors';
 import * as dotenv from 'dotenv';
+import path from 'path';
 
 import userRoutes from './routes/userRoutes';
 import searchRoutes from './routes/searchRoutes';
@@ -16,7 +17,9 @@ dotenv.config();
 
 const app = express();
 
-app.use(cors());
+app.use(cors({
+  origin: "http://localhost:3000",
+}));
 app.use(express.json());
 
 // Rotas existentes
@@ -26,6 +29,7 @@ app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/coins', coinRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/favourites', favouriteRoutes);
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // Nova rota para recomendações com KNN
 app.use('/api/users/profile/recommendations', recommendationRoutes);
