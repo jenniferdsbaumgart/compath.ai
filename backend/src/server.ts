@@ -15,16 +15,23 @@ app.use(express.json());
 app.use('/api/users', userRoutes);
 
 const PORT = process.env.PORT || 5000;
-const MONGODB_URI = process.env.MONGODB_URI || '';
+const MONGODB_URI = process.env.MONGODB_URI;
 
-// Conexão com o MongoDB
-mongoose.connect(MONGODB_URI)
-  .then(() => {
+const startServer = async () => {
+  try {
+    if (!MONGODB_URI) {
+      throw new Error('MONGODB_URI não foi definida no arquivo .env');
+    }
+    await mongoose.connect(MONGODB_URI);
     console.log('Conectado ao MongoDB');
+
     app.listen(PORT, () => {
       console.log(`Servidor rodando na porta ${PORT}`);
     });
-  })
-  .catch((error) => {
-    console.error('Erro de conexão com o MongoDB:', error);
-  });
+  } catch (error) {
+    console.error('Falha ao iniciar o servidor:', error);
+    process.exit(1); // Encerra o processo com código de falha
+  }
+};
+
+startServer();
