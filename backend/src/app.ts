@@ -12,6 +12,7 @@ import coinRoutes from './routes/coinRoutes';
 import favouriteRoutes from './routes/favouriteRoutes';
 import recommendationRoutes from './routes/recommendationRoutes';
 import profileRoutes from './routes/profileRoutes';
+import aiReportRoutes from './routes/aiReportRoutes';
 
 dotenv.config();
 
@@ -30,6 +31,7 @@ app.use('/api/coins', coinRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/favourites', favouriteRoutes);
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+app.use("/api/ai", aiReportRoutes);
 
 // Nova rota para recomendações com KNN
 app.use('/api/users/profile/recommendations', recommendationRoutes);
