@@ -197,3 +197,8 @@ export async function signIn(email: string, password: string): Promise<SignInRes
 
   return data;
 }
+
+export function getUserCoins(): number {
+  const currentUser = getCurrentUser();
+  return currentUser?.coins ?? 0;
+}

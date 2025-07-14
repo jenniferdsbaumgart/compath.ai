@@ -256,3 +256,46 @@ export const api = {
   retrainModelKNN: () =>
     request<{ accuracy: number }>('/admin/retrain', { method: 'POST' })
 };
+
+export const fetchMarketReport = async (input: string) => {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/ai/generate-report`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ userInput: input }),
+  });
+
+  if (!res.ok) throw new Error("Erro ao gerar relatório");
+
+  return res.json();
+};
+
+export async function saveAiReport(payload: {
+  userId: string;
+  searchQuery: string;
+  report: any;
+}) {
+  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/ai/`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.message || "Erro ao salvar relatório");
+  }
+
+  const data = await response.json();
+  return { id: data.reportId };
+}
+
+export const getAiReportById = async (id: string) => {
+  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/ai/${id}`);
+  
+  if (!response.ok) {
+    throw new Error('Erro ao buscar relatório');
+  }
+  
+  const data = await response.json();
+  return data.report;
+};

@@ -4,21 +4,41 @@ const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 export const generateMarketReport = async (userInput: string) => {
   const prompt = `
-Você é uma IA especializada em análise de mercado. Com base na ideia de negócio descrita abaixo, gere um relatório detalhado com os seguintes tópicos:
+Você é uma IA especializada em análise de mercado. Com base na ideia de negócio descrita abaixo, gere um relatório detalhado com as seguintes seções — e retorne tudo em **português** (conteúdo, descrições e listas), mas mantenha os nomes das **chaves em inglês**, conforme o formato especificado.
 
-1. Tamanho do mercado e taxa de crescimento.
-2. Nível de competição e barreiras de entrada.
-3. Público-alvo.
-4. Principais concorrentes e participação de mercado (pode ser estimado).
-5. Oportunidades de negócio.
-6. Desafios para novos entrantes.
-7. Recomendações estratégicas para iniciar nesse nicho.
-8. Pontos fortes e fracos do nicho, considerando localização e tendências.
+Inclua as seguintes informações:
+
+1. Título do relatório: uma frase curta combinando o nicho e a localização (ex: "Consultórios odontológicos em Belo Horizonte").
+2. Tamanho do mercado e taxa de crescimento.
+3. Nível de competição e barreiras de entrada.
+4. Público-alvo.
+5. Principais concorrentes e participação de mercado (pode ser estimado).
+6. Oportunidades de negócio.
+7. Desafios para novos entrantes.
+8. Recomendações estratégicas.
+9. Pontos fortes e fracos do nicho, considerando localização e tendências.
+
+O output deve ser um **JSON** com as seguintes chaves (sem alterar os nomes):
+
+{
+  "title": "string",
+  "marketSize": "string",
+  "growthRate": "string",
+  "competitionLevel": "string",
+  "entryBarriers": "string",
+  "targetAudience": "string",
+  "keyPlayers": [ { "name": "string", "marketShare": "string" } ],
+  "opportunities": ["string", ...],
+  "challenges": ["string", ...],
+  "recommendations": ["string", ...],
+  "strengths": ["string", ...],
+  "weaknesses": ["string", ...]
+}
 
 Entrada do usuário:
 "${userInput}"
 
-Seu output deve ser em formato JSON com as chaves: marketSize, growthRate, competitionLevel, entryBarriers, targetAudience, keyPlayers (array com nome e marketShare), opportunities (array), challenges (array), recommendations (array), strengths (array), weaknesses (array).
+Retorne apenas o JSON, sem explicações adicionais.
 `;
 
   const completion = await openai.chat.completions.create({
@@ -27,7 +47,13 @@ Seu output deve ser em formato JSON com as chaves: marketSize, growthRate, compe
     temperature: 0.7,
   });
 
-  const text = completion.choices[0].message.content;
+  const text = completion.choices[0].message.content?.trim();
 
-  return JSON.parse(text || "{}");
+  try {
+    const parsed = JSON.parse(text!);
+    return parsed;
+  } catch (error) {
+    console.error("Erro ao fazer parse do JSON da OpenAI:", text);
+    throw new Error("Resposta da IA não está em formato JSON válido.");
+  }
 };
