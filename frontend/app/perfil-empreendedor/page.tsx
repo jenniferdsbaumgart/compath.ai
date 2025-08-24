@@ -22,96 +22,95 @@ import {
   Send,
   Atom,
   Microscope,
-  BookUser,
-  BriefcaseBusiness,
+  Stethoscope,
+  Omega,
   Cpu,
+  BookUser,
   GraduationCap,
   Handshake,
   LetterText,
-  Omega,
-  Scale,
-  Stethoscope,
+  BriefcaseBusiness,
   TreePine,
-  Bike,
-  Brain,
+  Scale,
   Mic,
   WandSparkles,
-  CodeXml,
-  Database,
-  MessageSquareCode,
-  PanelsTopLeft,
-  TabletSmartphone,
-  Gamepad2,
-  Joystick,
-  FolderCode,
-  FolderOutput,
-  Wifi,
-  SquareActivity,
-  Dumbbell,
-  PersonStanding,
-  BicepsFlexed,
-  Apple,
-  Sprout,
-  Leaf,
-  FileText,
-  Palette,
+  Brain,
+  Bike,
+  Code,
   Brush,
-  Layout,
-  Camera,
-  Monitor,
-  Music,
-  Speaker,
-  BookOpen,
+  Activity,
+  Apple,
+  Award,
+  Backpack,
+  Beer,
+  BicepsFlexed,
   Book,
+  BookOpen,
+  Briefcase,
+  Cake,
+  Camera,
+  Car,
+  Cat,
+  ChefHat,
+  CodeXml,
+  Coffee,
+  CookingPot,
+  Croissant,
+  Database,
+  Dog,
+  DollarSign,
+  Dumbbell,
   Edit,
   Feather,
-  Sunrise,
-  MapPin,
-  Backpack,
-  Car,
-  Globe,
-  Hammer,
-  CookingPot,
-  PawPrint,
-  Dog,
-  Cat,
-  Briefcase,
-  Coffee,
-  DollarSign,
-  Megaphone,
-  UserCheck,
-  Guitar,
-  Activity,
-  Award,
-  ChefHat,
-  Beer,
-  Cake,
-  Croissant,
+  FileText,
   FlaskConical,
+  FolderCode,
+  FolderOutput,
+  Gamepad2,
   GlassWater,
+  Globe,
+  Guitar,
+  Hammer,
   Heart,
+  Home,
+  Joystick,
+  Layout,
+  Leaf,
+  MapPin,
+  Megaphone,
+  MessageSquareCode,
+  Monitor,
+  Music,
   Package,
+  Palette,
+  PanelsTopLeft,
+  PawPrint,
+  PersonStanding,
   Pizza,
+  Speaker,
+  Sprout,
+  SquareActivity,
   Store,
+  Sunrise,
+  TabletSmartphone,
   Truck,
+  UserCheck,
   Utensils,
   Wheat,
+  Wifi,
 } from "lucide-react";
-import { LuBriefcaseBusiness } from "react-icons/lu";
-import { GiDeliveryDrone, GiLotus } from "react-icons/gi";
-import { FaDumbbell, FaMicrochip, FaRunning, FaSeedling } from "react-icons/fa";
-import { VscSnake } from "react-icons/vsc";
-import { RiMentalHealthLine } from "react-icons/ri";
-import { GiBrazil, GiSushis } from "react-icons/gi";
-import { TbMeat } from "react-icons/tb";
 import { isAuthenticated, getCurrentUser } from "@/lib/auth";
 import { api } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import { Footer } from "@/components/layout/footer";
-import { Home } from "lucide-react";
+import { RiMentalHealthLine } from "react-icons/ri";
+import { GiBrazil, GiDeliveryDrone, GiLotus, GiSushis, GiSnake } from "react-icons/gi";
+import { FaDumbbell, FaMicrochip, FaRunning, FaSeedling } from "react-icons/fa";
+import { TbMeat } from "react-icons/tb";
+import { useProtectedRoute } from "@/hooks/protected-route";
 
 // Types
-type ProfileQuestion = {
+interface ProfileQuestion {
   id: string;
   question: string;
   type: "tags" | "slider" | "tree" | "audience-tags";
@@ -121,35 +120,35 @@ type ProfileQuestion = {
   step?: number;
   marks?: { value: number; label: string }[];
   treeOptions?: TreeOption[];
-};
+}
 
-type TreeOption = {
+interface TreeOption {
   id: string;
   label: string;
   icon?: React.ReactNode;
   children?: TreeOption[];
-};
+}
 
-type ProfileResponse = {
+interface ProfileResponse {
   [key: string]: any;
-};
+}
 
-// Business areas tree structure
-// const businessAreas = [
-//   "Tecnologia",
-//   "Saúde e Bem-estar",
-//   "Educação",
-//   "E-commerce",
-//   "Serviços Profissionais",
-//   "Alimentação",
-//   "Moda e Beleza",
-//   "Sustentabilidade",
-//   "Finanças",
-//   "Entretenimento",
-//   "Pets",
-//   "Esportes",
-// ];
+interface Answer {
+  questionId: string;
+  response: any;
+}
 
+interface Recommendation {
+  profile: string;
+  niche: string;
+  description: string;
+  potential: string;
+  investmentRange: string;
+  timeCommitment: string;
+  actionButton: string;
+}
+
+// Education levels
 const educationLevels = [
   "Ensino Fundamental",
   "Ensino Médio",
@@ -159,6 +158,22 @@ const educationLevels = [
   "Doutorado",
   "Técnico",
   "Cursos Livres",
+];
+
+// Target audience options
+const audienceOptions = [
+  "Jovens (18-25)",
+  "Adultos (26-35)",
+  "Profissionais (36-50)",
+  "Seniors (50+)",
+  "Estudantes",
+  "Profissionais Liberais",
+  "Empresários",
+  "Famílias",
+  "Crianças",
+  "Adolescentes",
+  "Atletas",
+  "Artistas",
 ];
 
 const educationAreas = [
@@ -509,7 +524,7 @@ const hobbiesTree: TreeOption[] = [
           },
           {
             id: "exotics",
-            icon: <VscSnake className="h-3 w-3 " />,
+            icon: <GiSnake className="h-3 w-3 " />,
             label: "Animais Exóticos",
           },
         ],
@@ -523,7 +538,7 @@ const hobbiesTree: TreeOption[] = [
     children: [
       {
         id: "entrepreneurship",
-        icon: <LuBriefcaseBusiness className="h-4 w-4 " />,
+        icon: <BriefcaseBusiness className="h-4 w-4 " />,
         label: "Empreendedorismo",
         children: [
           {
@@ -672,33 +687,11 @@ const hobbiesTree: TreeOption[] = [
   },
 ];
 
-// Target audience options
-const audienceOptions = [
-  "Jovens (18-25)",
-  "Adultos (26-35)",
-  "Profissionais (36-50)",
-  "Seniors (50+)",
-  "Estudantes",
-  "Profissionais Liberais",
-  "Empresários",
-  "Famílias",
-  "Crianças",
-  "Adolescentes",
-  "Atletas",
-  "Artistas",
-];
-
 // Define questions
 const profileQuestions: ProfileQuestion[] = [
-  // {
-  //   id: 'areas',
-  //   question: 'Quais áreas de negócio mais te interessam?',
-  //   type: 'tags',
-  //   options: businessAreas,
-  // },
   {
     id: "education",
-    question: "Qual o seu nível de formação?",
+    question: "Qual é o seu nível de educação?",
     type: "tags",
     options: educationLevels,
   },
@@ -747,8 +740,7 @@ const profileQuestions: ProfileQuestion[] = [
   },
   {
     id: "audience",
-    question:
-      "Qual público-alvo você gostaria de atingir com seu produto ou serviço?",
+    question: "Qual público-alvo você gostaria de atingir com seu produto ou serviço?",
     type: "audience-tags",
     options: audienceOptions,
   },
@@ -756,12 +748,13 @@ const profileQuestions: ProfileQuestion[] = [
 
 export default function PerfilEmpreendedorPage() {
   const router = useRouter();
+  useProtectedRoute();
   const { toast } = useToast();
   const [currentStep, setCurrentStep] = useState(0);
   const [responses, setResponses] = useState<ProfileResponse>({});
   const [isLoading, setIsLoading] = useState(false);
   const [showRecommendations, setShowRecommendations] = useState(false);
-  const [recommendations, setRecommendations] = useState<any[]>([]);
+  const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
   const [userCoins, setUserCoins] = useState(0);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [selectedHobbies, setSelectedHobbies] = useState<string[]>([]);
@@ -769,14 +762,27 @@ export default function PerfilEmpreendedorPage() {
 
   useEffect(() => {
     if (!isAuthenticated()) {
+      toast({
+        title: "Sessão expirada",
+        description: "Por favor, faça login novamente.",
+        variant: "destructive",
+      });
       router.push("/login");
       return;
     }
 
     const currentUser = getCurrentUser();
-    if (currentUser) {
-      setUserCoins(currentUser.coins);
+    if (!currentUser) {
+      toast({
+        title: "Erro de autenticação",
+        description: "Usuário não encontrado.",
+        variant: "destructive",
+      });
+      router.push("/login");
+      return;
     }
+
+    setUserCoins(currentUser.coins || 0);
 
     // Load saved responses from localStorage
     const savedResponses = localStorage.getItem("entrepreneurProfile");
@@ -785,14 +791,9 @@ export default function PerfilEmpreendedorPage() {
     if (savedResponses) {
       const parsedResponses = JSON.parse(savedResponses);
       setResponses(parsedResponses);
-
-      // Restore selected tags if they exist
-      if (parsedResponses.areas) {
-        setSelectedTags(parsedResponses.areas);
-      }
-      if (parsedResponses.hobbies) {
-        setSelectedHobbies(parsedResponses.hobbies);
-      }
+      if (parsedResponses.education) setSelectedTags(parsedResponses.education);
+      if (parsedResponses.audience) setSelectedTags(parsedResponses.audience);
+      if (parsedResponses.hobbies) setSelectedHobbies(parsedResponses.hobbies);
     }
 
     if (savedStep) {
@@ -804,25 +805,44 @@ export default function PerfilEmpreendedorPage() {
         localStorage.setItem("entrepreneurProfileStep", "0");
       }
     }
-  }, [router]);
+  }, [router, toast]);
 
   const handleNext = async () => {
     const currentQuestion = profileQuestions[currentStep];
     const response = responses[currentQuestion.id];
 
-    // Validation based on question type
-    if (currentQuestion.type === "tags" && !selectedTags.length) {
+    // Validation
+    if (currentQuestion.type === "tags" && (!response || response.length === 0)) {
       toast({
         title: "Seleção necessária",
-        description:
-          "Por favor, selecione pelo menos uma opção para continuar.",
+        description: "Por favor, selecione pelo menos uma opção.",
+        variant: "destructive",
+      });
+      return;
+    }
+    if (currentQuestion.type === "tree" && (!response || response.length === 0)) {
+      toast({
+        title: "Seleção necessária",
+        description: "Por favor, selecione pelo menos um hobby.",
+        variant: "destructive",
+      });
+      return;
+    }
+    if (currentQuestion.type === "slider" && (response === undefined || response === null)) {
+      toast({
+        title: "Seleção necessária",
+        description: "Por favor, ajuste o valor do slider.",
         variant: "destructive",
       });
       return;
     }
 
     try {
-      // Save to localStorage
+      setIsLoading(true);
+      // Save response to backend
+      await api.saveProfileResponse(currentQuestion.id, response);
+
+      // Update localStorage
       localStorage.setItem("entrepreneurProfile", JSON.stringify(responses));
 
       // Move to next question or finish
@@ -831,15 +851,17 @@ export default function PerfilEmpreendedorPage() {
         setCurrentStep(nextStep);
         localStorage.setItem("entrepreneurProfileStep", nextStep.toString());
       } else {
-        handleFinish();
+        await handleFinish();
       }
-    } catch (error) {
+    } catch (error: any) {
+      console.error("Error saving response:", error);
       toast({
         title: "Erro ao salvar resposta",
-        description:
-          "Ocorreu um erro ao salvar sua resposta. Por favor, tente novamente.",
+        description: error.message || "Por favor, tente novamente.",
         variant: "destructive",
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -851,34 +873,30 @@ export default function PerfilEmpreendedorPage() {
     }
   };
 
-  const handleTagSelect = (tag: string) => {
+  const handleTagSelect = (tag: string, questionId: string) => {
     setSelectedTags((prev) => {
       const newTags = prev.includes(tag)
         ? prev.filter((t) => t !== tag)
         : [...prev, tag];
-
       setResponses((prev) => ({
         ...prev,
-        areas: newTags,
+        [questionId]: newTags,
       }));
-
       return newTags;
     });
   };
-  // TODO: fix slider
+
   const handleSliderChange = (value: number[], questionId: string) => {
     const currentQuestion = profileQuestions.find((q) => q.id === questionId);
     if (!currentQuestion) return;
 
     const markValues = currentQuestion.marks?.map((mark) => mark.value) || [];
-
-    // Encontra o valor mais próximo dentro dos marks
     const inputValue = value[0];
-    const adjustedValue = markValues.reduce((prev, curr) => {
-      return Math.abs(curr - inputValue) < Math.abs(prev - inputValue)
-        ? curr
-        : prev;
-    }, markValues[0]);
+    const adjustedValue = markValues.reduce(
+      (prev, curr) =>
+        Math.abs(curr - inputValue) < Math.abs(prev - inputValue) ? curr : prev,
+      markValues[0]
+    );
 
     setResponses((prev) => ({
       ...prev,
@@ -894,97 +912,90 @@ export default function PerfilEmpreendedorPage() {
     );
   };
 
-  const handleHobbySelect = (
-    hobbyId: string,
-    icon: unknown,
-    hobbyLabel: string
-  ) => {
+  const handleHobbySelect = (hobbyId: string) => {
     setSelectedHobbies((prev) => {
       const newHobbies = prev.includes(hobbyId)
         ? prev.filter((h) => h !== hobbyId)
         : [...prev, hobbyId];
-
       setResponses((prev) => ({
         ...prev,
         hobbies: newHobbies,
       }));
-
       return newHobbies;
     });
   };
 
-const renderTreeNode = (node: TreeOption, level: number = 0) => {
-  const isExpanded = expandedNodes.includes(node.id);
-  const isSelected = selectedHobbies.includes(node.id);
+  const renderTreeNode = (node: TreeOption, level: number = 0) => {
+    const isExpanded = expandedNodes.includes(node.id);
+    const isSelected = selectedHobbies.includes(node.id);
 
-  return (
-    <div key={node.id} className="h-18 whitespace-nowrap items-start space-x-1">
-      <div className="flex items-center">
-        {node.children && (
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-6 w-6 p-0"
-            onClick={() => toggleNode(node.id)}
-          >
-            {isExpanded ? "-" : "+"}
-          </Button>
-        )}
-        <div
-          className={`flex items-center cursor-pointer my-2 py-1 pl-1 pr-3 rounded-md ${
-            isSelected
-              ? "bg-accent text-primary-foreground"
-              : "hover:bg-accent/10"
-          }`}
-          onClick={() => handleHobbySelect(node.id, node.icon, node.label)}
-        >
-          {node.icon && (
-            <span className={`mr-1 ${isSelected ? "text-white" : "text-green-600"}`}>
-              {node.icon}
-            </span>
+    return (
+      <div key={node.id} className="h-18 whitespace-nowrap items-start space-x-1">
+        <div className="flex items-center">
+          {node.children && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-6 w-6 p-0"
+              onClick={() => toggleNode(node.id)}
+            >
+              {isExpanded ? "-" : "+"}
+            </Button>
           )}
-          {node.label}
+          <div
+            className={`flex items-center cursor-pointer my-2 py-1 pl-1 pr-3 rounded-md ${
+              isSelected ? "bg-accent text-primary-foreground" : "hover:bg-accent/10"
+            }`}
+            onClick={() => handleHobbySelect(node.id)}
+          >
+            {node.icon && (
+              <span className={`mr-1 ${isSelected ? "text-white" : "text-green-600"}`}>
+                {node.icon}
+              </span>
+            )}
+            {node.label}
+          </div>
         </div>
+        {isExpanded && node.children && (
+          <div>{node.children.map((child) => renderTreeNode(child, level + 1))}</div>
+        )}
       </div>
-      {isExpanded && node.children && (
-        <div>
-          {node.children.map((child) => renderTreeNode(child, level + 1))}
-        </div>
-      )}
-    </div>
-  );
-};
+    );
+  };
 
   const handleFinish = async () => {
     setIsLoading(true);
-
     try {
-      // Get recommendations based on profile
-      const result = await api.getProfileRecommendations();
-      setRecommendations(result.recommendations);
+      const currentUser = getCurrentUser();
+      if (!currentUser) throw new Error("Usuário não encontrado.");
 
-      // Update coins (add 100 for completing profile)
-      if (userCoins) {
-        const newCoins = userCoins + 100;
-        setUserCoins(newCoins);
+      // Earn coins
+      const coinResponse = await api.earnCoins(100);
+      setUserCoins(coinResponse.coins);
+      localStorage.setItem("profileCompleted", "true");
 
-        // Save progress
-        localStorage.setItem("profileCompleted", "true");
-      }
+      // Update user in localStorage
+      const updatedUser = { ...currentUser, coins: coinResponse.coins };
+      localStorage.setItem("currentUser", JSON.stringify(updatedUser));
+
+      // Get recommendations
+      const result = await api.getProfileRecommendations(responses);
+      setRecommendations((result.recommendations as unknown as Recommendation[]) || []);
+      setShowRecommendations(true);
+
+      // Clear saved responses
+      localStorage.removeItem("entrepreneurProfile");
+      localStorage.removeItem("entrepreneurProfileStep");
 
       toast({
         title: "Perfil concluído!",
         description: "Você ganhou 100 moedas por completar seu perfil.",
       });
-
-      setShowRecommendations(true);
-    } catch (error) {
-      console.error("Erro ao buscar recomendações:", error); // 👈 adicione isso
-
+    } catch (error: any) {
+      console.error("Error finishing profile:", error);
       toast({
         title: "Erro ao processar perfil",
-        description:
-          "Ocorreu um erro ao processar seu perfil. Por favor, tente novamente.",
+        description: error.message || "Por favor, tente novamente.",
         variant: "destructive",
       });
     } finally {
@@ -997,24 +1008,21 @@ const renderTreeNode = (node: TreeOption, level: number = 0) => {
 
     switch (currentQuestion.type) {
       case "tags":
+      case "audience-tags":
         return (
           <div className="flex flex-wrap gap-2">
             {currentQuestion.options?.map((option) => {
               const label = typeof option === "string" ? option : option.label;
-              const icon =
-                typeof option === "object" && option.icon ? option.icon : null;
-
+              const icon = typeof option === "object" && option.icon ? option.icon : null;
               return (
                 <Badge
                   key={label}
                   variant={selectedTags.includes(label) ? "default" : "outline"}
                   className="cursor-pointer text-sm py-1.5"
-                  onClick={() => handleTagSelect(label)}
+                  onClick={() => handleTagSelect(label, currentQuestion.id)}
                 >
                   <div className="flex items-center gap-1">
-                    {icon && (
-                      <span className="text-muted-foreground">{icon}</span>
-                    )}
+                    {icon && <span className="text-muted-foreground">{icon}</span>}
                     <span>{label}</span>
                   </div>
                 </Badge>
@@ -1027,20 +1035,11 @@ const renderTreeNode = (node: TreeOption, level: number = 0) => {
         return (
           <div className="space-y-6">
             <Slider
-              defaultValue={[
-                responses[currentQuestion.id] || currentQuestion.min || 0,
-              ]}
+              value={[responses[currentQuestion.id] || currentQuestion.min || 0]}
               max={currentQuestion.max}
               min={currentQuestion.min}
-              step={currentQuestion.step} // Define os passos fixos
-              onValueChange={(value) => {
-                const step = currentQuestion.step || 1;
-                const adjustedValue = Math.round(value[0] / step) * step; // Arredonda para o valor mais próximo do passo
-                handleSliderChange([adjustedValue], currentQuestion.id);
-              }}
-              value={[
-                responses[currentQuestion.id] || currentQuestion.min || 0,
-              ]} // Mantém o valor fixo
+              step={currentQuestion.step}
+              onValueChange={(value) => handleSliderChange(value, currentQuestion.id)}
             />
             <div className="flex justify-between text-sm text-muted-foreground dark:text-gray-200">
               {currentQuestion.marks?.map((mark) => (
@@ -1054,25 +1053,6 @@ const renderTreeNode = (node: TreeOption, level: number = 0) => {
         return (
           <div className="flex max-h-[460px] overflow-y-auto border rounded-lg p-6">
             {currentQuestion.treeOptions?.map((node) => renderTreeNode(node))}
-          </div>
-        );
-
-      case "audience-tags":
-        return (
-          <div className="flex flex-wrap gap-2">
-            {currentQuestion.options?.map((option) => {
-              const label = typeof option === "string" ? option : option.label;
-              return (
-                <Badge
-                  key={label}
-                  variant={selectedTags.includes(label) ? "default" : "outline"}
-                  className="cursor-pointer text-sm py-1.5"
-                  onClick={() => handleTagSelect(label)}
-                >
-                  {label}
-                </Badge>
-              );
-            })}
           </div>
         );
 
@@ -1110,59 +1090,63 @@ const renderTreeNode = (node: TreeOption, level: number = 0) => {
 
   if (showRecommendations) {
     return (
-      <>
+      <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-gray-900">
         <Navbar />
-        <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <main className="flex-grow max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="mb-8 text-center">
             <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-green-100 dark:bg-green-900 mb-4">
               <Check className="h-8 w-8 text-green-600 dark:text-green-300" />
             </div>
             <h1 className="text-3xl font-bold">Perfil Concluído!</h1>
             <p className="text-muted-foreground mt-2">
-              Com base nas suas respostas, identificamos alguns nichos que podem
-              ser ideais para você.
+              Com base nas suas respostas, identificamos um nicho ideal para você.
             </p>
           </div>
 
           <div className="space-y-6 mb-8">
-            {recommendations.map((rec, index) => (
-              <Card key={index} className="overflow-hidden">
-                <CardHeader className="bg-gradient-to-r from-secondary/10 to-accent/10">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <CardTitle className="flex items-center">
-                        <Send className="h-5 w-5 mr-2 text-secondary" />
-                        {rec.niche}
-                      </CardTitle>
-                      <CardDescription className="mt-1 text-sm">
-                        Potencial:{" "}
-                        <span className="font-semibold">{rec.potential}</span>
-                      </CardDescription>
+            {recommendations.length > 0 ? (
+              recommendations.map((rec, index) => (
+                <Card key={index} className="overflow-hidden">
+                  <CardHeader className="bg-gradient-to-r from-secondary/10 to-accent/10">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <CardTitle className="flex items-center mr-4">
+                          <Send className="h-5 w-5 mr-2 text-secondary" />
+                          {rec.niche} ({rec.profile})
+                        </CardTitle>
+                        <CardDescription className="mt-1 text-sm">
+                          Potencial: <span className="font-semibold">{rec.potential}</span>
+                        </CardDescription>
+                      </div>
+                      <Button variant="secondary" size="sm">
+                        {rec.actionButton}
+                      </Button>
                     </div>
-                    <Button variant="secondary" size="sm">
-                      Explorar Este Nicho
-                    </Button>
-                  </div>
-                </CardHeader>
-                <CardContent className="pt-4">
-                  <p className="text-card-foreground mb-4">{rec.description}</p>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                    <div className="bg-muted p-3 rounded-md">
-                      <span className="block text-muted-foreground mb-1">
-                        Investimento Aproximado
-                      </span>
-                      <span className="font-medium">{rec.investmentRange}</span>
+                  </CardHeader>
+                  <CardContent className="pt-4">
+                    <p className="text-card-foreground mb-4">{rec.description}</p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                      <div className="bg-muted p-3 rounded-md">
+                        <span className="block text-muted-foreground mb-1">Investimento Aproximado</span>
+                        <span className="font-medium">{rec.investmentRange}</span>
+                      </div>
+                      <div className="bg-muted p-3 rounded-md">
+                        <span className="block text-muted-foreground mb-1">Tempo Necessário</span>
+                        <span className="font-medium">{rec.timeCommitment}</span>
+                      </div>
                     </div>
-                    <div className="bg-muted p-3 rounded-md">
-                      <span className="block text-muted-foreground mb-1">
-                        Tempo Necessário
-                      </span>
-                      <span className="font-medium">{rec.timeCommitment}</span>
-                    </div>
-                  </div>
+                  </CardContent>
+                </Card>
+              ))
+            ) : (
+              <Card>
+                <CardContent className="pt-6 text-center">
+                  <p className="text-muted-foreground">
+                    Nenhuma recomendação disponível no momento. Tente ajustar suas respostas ou entre em contato com o suporte.
+                  </p>
                 </CardContent>
               </Card>
-            ))}
+            )}
           </div>
 
           <div className="flex justify-between">
@@ -1176,39 +1160,31 @@ const renderTreeNode = (node: TreeOption, level: number = 0) => {
             </Button>
           </div>
         </main>
-      </>
+        <Footer />
+      </div>
     );
   }
 
   return (
-    <>
+    <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-gray-900">
       <Navbar />
-      <main className="max-w-6xl min-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <main className="flex-grow max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <Card className="mb-8">
           <CardHeader>
             <CardTitle>Perfil Empreendedor</CardTitle>
             <CardDescription>
-              Vamos ajudar você a encontrar o nicho ideal para seu negócio.
-              Responda as perguntas abaixo para que possamos entender melhor o
-              seu perfil.
+              Vamos ajudar você a encontrar o nicho ideal para seu negócio. Responda as perguntas abaixo.
             </CardDescription>
           </CardHeader>
           <CardContent>
             {renderProgressSteps()}
-
             <div className="mb-6">
-              <h2 className="text-xl font-semibold mb-2">
-                {profileQuestions[currentStep].question}
-              </h2>
+              <h2 className="text-xl font-semibold mb-2">{profileQuestions[currentStep].question}</h2>
               <div className="mt-4">{renderQuestionForm()}</div>
             </div>
           </CardContent>
           <CardFooter className="flex justify-between">
-            <Button
-              variant="outline"
-              onClick={handlePrevious}
-              disabled={currentStep === 0 || isLoading}
-            >
+            <Button variant="outline" onClick={handlePrevious} disabled={currentStep === 0 || isLoading}>
               <ArrowLeft className="mr-2 h-4 w-4" />
               Anterior
             </Button>
@@ -1227,7 +1203,6 @@ const renderTreeNode = (node: TreeOption, level: number = 0) => {
             </Button>
           </CardFooter>
         </Card>
-
         <div className="bg-card p-4 rounded-lg border">
           <div className="flex items-start">
             <div className="bg-primary/10 p-2 rounded-full mr-3">
@@ -1236,15 +1211,13 @@ const renderTreeNode = (node: TreeOption, level: number = 0) => {
             <div>
               <h3 className="font-medium dark:text-gray-100">Dica</h3>
               <p className="text-sm text-muted-foreground dark:text-gray-300">
-                Selecione todas as opções que se aplicam ao seu perfil. Quanto
-                mais informações você fornecer, melhores serão nossas
-                recomendações.
+                Selecione todas as opções que se aplicam ao seu perfil. Quanto mais informações você fornecer, melhores serão nossas recomendações.
               </p>
             </div>
           </div>
         </div>
       </main>
       <Footer />
-    </>
+    </div>
   );
 }

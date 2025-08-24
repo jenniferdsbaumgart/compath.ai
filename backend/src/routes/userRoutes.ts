@@ -1,348 +1,348 @@
-// src/routes/userRoutes.ts
-import { Router, Request, Response } from 'express';
-import bcrypt from 'bcryptjs';
+import { Router } from 'express';
+import User, { UserDocument } from '../models/User';
+import ProfileResponse from '../models/ProfileResponse';
+import Profile from '../models/Profile';
 import jwt from 'jsonwebtoken';
-import User from '../models/User';
+import OpenAI from 'openai';
+import mongoose from 'mongoose';
+import bcrypt from 'bcryptjs';
+import dotenv from 'dotenv';
+import { upload } from '../middleware/uploadMiddleware';
+import { updateAvatar } from '../controllers/userController';
+import { authMiddleware } from '../middleware/authMiddleware';
 
-const router: Router = Router();
+dotenv.config();
 
-// Definindo os tipos para o corpo da requisição
-interface RegisterRequestBody {
-  name: string;
-  email: string;
-  password: string;
-}
+const router = Router();
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-interface LoginRequestBody {
-  email: string;
-  password: string;
-}
-
-interface CoinRequestBody {
-  amount: number;
-}
-
-interface UpdateUserRequestBody {
-  name?: string;
-  email?: string;
-  phone?: string;
-  location?: string;
-  company?: string;
-  website?: string;
-  bio?: string;
-}
-
-//  middleware de autenticação
-// Verifica se o token JWT é válido e adiciona o usuário à requisição
-const authMiddleware = async (req: Request, res: Response, next: Function) => {
+// Middleware to verify JWT
+const authenticateToken = (req: any, res: any, next: any) => {
   const authHeader = req.headers.authorization;
-  const token = authHeader && authHeader.startsWith('Bearer ') ? authHeader.split(' ')[1] : null;
+  const token = authHeader && authHeader.split(' ')[1];
+  if (!token) return res.status(401).json({ message: 'No token provided' });
 
-  console.log('authMiddleware: Token received:', token);
-  if (!token) {
-    console.log('authMiddleware: No token provided');
-    return res.status(401).json({ message: 'Token não fornecido' });
-  }
-
-  try {
-    const jwtSecret = process.env.JWT_SECRET || '';
-    if (!jwtSecret) {
-      console.error('authMiddleware: JWT_SECRET not defined');
-      throw new Error('JWT_SECRET não está definido');
-    }
-
-    const decoded = jwt.verify(token, jwtSecret) as { user: { id: string } };
-    console.log('authMiddleware: Decoded token:', decoded);
-    (req as any).user = decoded.user;
+  jwt.verify(token, process.env.JWT_SECRET || 'secret', (err: any, decoded: any) => {
+    if (err) return res.status(401).json({ message: 'Invalid token' });
+    req.user = decoded;
     next();
-  } catch (error) {
-    console.error('authMiddleware: Invalid token:', error);
-    return res.status(401).json({ message: 'Token inválido' });
-  }
+  });
 };
 
-// cadastro de usuário
-router.post('/register', async (req: Request<{}, {}, RegisterRequestBody>, res: Response) => {
-  const { name, email, password } = req.body;
-
-  if (!name || !email || !password) {
-    return res.status(400).json({ message: 'Todos os campos são obrigatórios' });
-  }
-  if (password.length < 6) {
-    return res.status(400).json({ message: 'A senha deve ter pelo menos 6 caracteres' });
-  }
-  if (!email.match(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)) {
-    return res.status(400).json({ message: 'Email inválido' });
-  }
-
+// Register user
+router.post('/register', async (req, res) => {
   try {
+    const { name, email, password, phone } = req.body;
+
+    if (!name || !email || !password) {
+      return res.status(400).json({ message: 'Name, email, and password are required' });
+    }
+
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return res.status(400).json({ message: 'Email já registrado' });
+      return res.status(400).json({ message: 'Email already registered' });
     }
 
-    const existingName = await User.findOne({ name });
-    if (existingName) {
-      return res.status(400).json({ message: 'Nome já registrado' });
-    }
-
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
-
+    const hashedPassword = await bcrypt.hash(password, 10);
     const user = new User({
       name,
       email,
       password: hashedPassword,
-      coins: 200,
+      phone,
+      coins: 50,
+      profileCompletion: 0,
+      invitedFriends: [],
+      favourites: [],
     });
 
     await user.save();
 
-    // Gerar token JWT
-    const payload = {
-      user: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        coins: user.coins,
-      },
-    };
-
-    const jwtSecret = process.env.JWT_SECRET || '';
-    if (!jwtSecret) {
-      throw new Error('JWT_SECRET não está definido');
-    }
-
-    const token = jwt.sign(payload, jwtSecret, { expiresIn: '1h' });
+    const token = jwt.sign({ id: user._id.toString() }, process.env.JWT_SECRET || 'secret', {
+      expiresIn: '1d',
+    });
 
     res.status(201).json({
-      message: 'Usuário cadastrado com sucesso',
       token,
       user: {
-        id: user.id,
+        id: user._id.toString(),
         name: user.name,
         email: user.email,
         coins: user.coins,
+        createdAt: user.createdAt,
+        phone: user.phone,
+        location: user.location,
+        company: user.company,
+        website: user.website,
+        bio: user.bio,
+        avatar: user.avatar,
+        profileCompletion: user.profileCompletion,
+        invitedFriends: user.invitedFriends,
+        favourites: user.favourites,
       },
     });
   } catch (error) {
-    console.error((error as Error).message);
-    res.status(500).json({ message: 'Erro no servidor' });
+    console.error('Register error:', error);
+    res.status(500).json({ message: 'Server error' });
   }
 });
 
-// Login
-router.post('/login', async (req: Request<{}, {}, LoginRequestBody>, res: Response) => {
-  const { email, password } = req.body;
-
-  if (!email || !password) {
-    return res.status(400).json({ message: 'Email e senha são obrigatórios' });
-  }
-
+// Login user
+router.post('/login', async (req, res) => {
   try {
-    const user = await User.findOne({ email });
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({ message: 'Email and password are required' });
+    }
+
+    const user = await User.findOne({ email }) as UserDocument | null;
     if (!user) {
-      return res.status(400).json({ message: 'Email ou senha inválidos' });
+      return res.status(401).json({ message: 'Invalid credentials' });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return res.status(400).json({ message: 'Email ou senha inválidos' });
+      return res.status(401).json({ message: 'Invalid credentials' });
     }
 
-    const payload = {
-      user: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        coins: user.coins,
-      },
-    };
+    const token = jwt.sign({ id: user._id.toString() }, process.env.JWT_SECRET || 'secret', {
+      expiresIn: '1d',
+    });
 
-    const jwtSecret = process.env.JWT_SECRET || '';
-    if (!jwtSecret) {
-      throw new Error('JWT_SECRET não está definido');
-    }
-
-    const token = jwt.sign(payload, jwtSecret, { expiresIn: '1h' });
-
-    res.status(200).json({
-      message: 'Login bem-sucedido',
+    res.json({
       token,
       user: {
-        id: user.id,
+        id: user._id.toString(),
         name: user.name,
         email: user.email,
         coins: user.coins,
+        createdAt: user.createdAt,
+        phone: user.phone,
+        location: user.location,
+        company: user.company,
+        website: user.website,
+        bio: user.bio,
+        avatar: user.avatar,
+        profileCompletion: user.profileCompletion || 0,
+        invitedFriends: user.invitedFriends || [],
+        favourites: user.favourites || [],
       },
     });
   } catch (error) {
-    console.error((error as Error).message);
-    res.status(500).json({ message: 'Erro no servidor' });
+    console.error('Login error:', error);
+    res.status(500).json({ message: 'Server error' });
   }
 });
 
-// mostrar saldo de moedas
-router.get('/coins', authMiddleware, async (req: Request, res: Response) => {
+// Get user coins
+router.get('/coins', authenticateToken, async (req: any, res) => {
   try {
-    const user = await User.findById((req as any).user.id).select('coins');
+    const user = await User.findById(req.user.id).select('coins') as UserDocument | null;
     if (!user) {
-      return res.status(404).json({ message: 'Usuário não encontrado' });
+      return res.status(404).json({ message: 'User not found' });
     }
-    res.status(200).json({ coins: user.coins ?? 200 }); // Fallback
+    res.json({ coins: user.coins });
   } catch (error) {
-    console.error('Error fetching coins:', (error as Error).message);
-    res.status(500).json({ message: 'Erro no servidor' });
+    console.error('Error fetching coins:', error);
+    res.status(500).json({ message: 'Server error' });
   }
 });
 
-// gastar moedas
-router.post('/coins/spend', authMiddleware, async (req: Request<{}, {}, CoinRequestBody>, res: Response) => {
-  const { amount } = req.body;
-
-  if (!amount || amount <= 0) {
-    return res.status(400).json({ message: 'Quantidade inválida' });
-  }
-
+// Spend coins
+router.post('/coins/spend', authenticateToken, async (req: any, res) => {
   try {
-    const user = await User.findById((req as any).user.id);
+    const { amount } = req.body;
+    if (!amount || amount <= 0) {
+      return res.status(400).json({ message: 'Invalid amount' });
+    }
+
+    const user = await User.findById(req.user.id) as UserDocument | null;
     if (!user) {
-      return res.status(404).json({ message: 'Usuário não encontrado' });
+      return res.status(404).json({ message: 'User not found' });
     }
 
     if (user.coins < amount) {
-      return res.status(400).json({ message: 'Saldo insuficiente' });
+      return res.status(400).json({ message: 'Insufficient coins' });
     }
 
     user.coins -= amount;
     await user.save();
 
-    res.status(200).json({ coins: user.coins });
+    res.json({ coins: user.coins });
   } catch (error) {
-    console.error('Error spending coins:', (error as Error).message);
-    res.status(500).json({ message: 'Erro no servidor' });
+    console.error('Error spending coins:', error);
+    res.status(500).json({ message: 'Server error' });
   }
 });
 
-// ganhar moedas
-router.post('/coins/earn', authMiddleware, async (req: Request<{}, {}, CoinRequestBody>, res: Response) => {
-  const { amount } = req.body;
-
-  if (!amount || amount <= 0) {
-    return res.status(400).json({ message: 'Quantidade inválida' });
-  }
-
+// Earn coins
+router.post('/coins/earn', authenticateToken, async (req: any, res) => {
   try {
-    const user = await User.findById((req as any).user.id);
+    const { amount } = req.body;
+    if (!amount || amount <= 0) {
+      return res.status(400).json({ message: 'Invalid amount' });
+    }
+
+    const user = await User.findById(req.user.id) as UserDocument | null;
     if (!user) {
-      return res.status(404).json({ message: 'Usuário não encontrado' });
+      return res.status(404).json({ message: 'User not found' });
     }
 
     user.coins += amount;
     await user.save();
 
-    res.status(200).json({ coins: user.coins });
+    res.json({ coins: user.coins });
   } catch (error) {
-    console.error('Error earning coins:', (error as Error).message);
-    res.status(500).json({ message: 'Erro no servidor' });
+    console.error('Error earning coins:', error);
+    res.status(500).json({ message: 'Server error' });
   }
 });
 
-// Puxa todos os usuários
-// Apenas para fins de teste, não deve ser exposto em produção
-router.get('/list', authMiddleware, async (req: Request, res: Response) => {
+// Save profile response
+router.post('/profile', authenticateToken, async (req: any, res) => {
   try {
-    const users = await User.find().select('id name email coins createdAt');
-    console.log('Backend: Fetched users:', users.length);
-    res.status(200).json({ users });
+    const { questionId, response } = req.body;
+    const userId = req.user.id;
+
+    if (!questionId || response === undefined) {
+      return res.status(400).json({ message: 'Question ID and response are required' });
+    }
+
+    const profileResponse = new ProfileResponse({
+      userId: new mongoose.Types.ObjectId(userId),
+      questionId,
+      response,
+      createdAt: new Date(),
+    });
+    await profileResponse.save();
+
+    const responses = await ProfileResponse.find({ userId });
+    const totalQuestions = 5;
+    const completion = Math.round((responses.length / totalQuestions) * 100);
+
+    await User.findByIdAndUpdate(userId, { profileCompletion: completion });
+
+    res.json({ success: true, profileCompletion: completion });
   } catch (error) {
-    console.error('Backend: Error fetching users:', (error as Error).message);
-    res.status(500).json({ message: 'Erro ao listar usuários' });
+    console.error('Error saving profile response:', error);
+    res.status(500).json({ message: 'Server error' });
   }
 });
 
-// Pega usuário específico por id
-// Apenas para fins de teste, não deve ser exposto em produção
-router.get('/:id', authMiddleware, async (req: Request, res: Response) => {
-  const { id } = req.params;
-
-  console.log('GET /api/users/:id: Requesting user ID:', id);
+// Get profile recommendations
+router.get('/profile/recommendations', authenticateToken, async (req: any, res) => {
   try {
-    const user = await User.findById(id).select('id name email coins createdAt phone location company website bio');
+    const userId = req.user.id;
+    const responses = await ProfileResponse.find({ userId });
+
+    const responseSummary = responses.reduce((acc, r) => {
+      acc[r.questionId] = r.response;
+      return acc;
+    }, {} as { [key: string]: any });
+
+    const profiles = [
+      { profile: 'Social', description: 'Enjoys community engagement, helping others, and promoting well-being.' },
+      { profile: 'Analítico', description: 'Organized, detail-oriented, and excels in problem-solving and logistics.' },
+      { profile: 'Criativo', description: 'Innovative, artistic, and enjoys creating unique products or experiences.' },
+      { profile: 'Comunicador', description: 'Dynamic, expressive, and skilled at engaging and serving audiences.' },
+      { profile: 'Técnico', description: 'Skilled in technical tasks, technology, and optimizing systems.' },
+    ];
+
+    const prompt = `
+      Based on the following user responses, classify their entrepreneurial profile into one of these categories: ${profiles.map(p => p.profile).join(', ')}.
+      Each profile has a description:
+      ${profiles.map(p => `- ${p.profile}: ${p.description}`).join('\n')}
+
+      User responses:
+      - Education: ${JSON.stringify(responseSummary.education || 'N/A')}
+      - Investment: ${responseSummary.investment || 'N/A'} R$
+      - Time Commitment: ${responseSummary.time || 'N/A'} hours/week
+      - Hobbies: ${JSON.stringify(responseSummary.hobbies || 'N/A')}
+      - Target Audience: ${JSON.stringify(responseSummary.audience || 'N/A')}
+
+      Return the profile name (e.g., "Social") that best matches the user's responses.
+    `;
+
+    const completion = await openai.chat.completions.create({
+      model: 'gpt-4',
+      messages: [{ role: 'user', content: prompt }],
+      max_tokens: 50,
+    });
+
+    const selectedProfile = completion.choices[0].message.content?.trim() || 'Social';
+
+    const profileDoc = await Profile.findOne({ name: selectedProfile });
+    if (!profileDoc) {
+      return res.status(404).json({ message: 'Profile not found' });
+    }
+
+    res.json({
+      recommendations: profileDoc.niches,
+    });
+  } catch (error) {
+    console.error('Error fetching recommendations:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Get user by ID
+router.get('/:id', authenticateToken, async (req: any, res) => {
+  try {
+    const user = await User.findById(req.params.id).select('-password') as UserDocument | null;
     if (!user) {
-      console.log('GET /api/users/:id: User not found for ID:', id);
-      return res.status(404).json({ message: 'Usuário não encontrado' });
+      return res.status(404).json({ message: 'User not found' });
     }
-    console.log('GET /api/users/:id: Fetched user:', (user._id as string | { toString(): string }).toString());
-    res.status(200).json({ user });
+    res.json({ user });
   } catch (error) {
-    console.error('GET /api/users/:id: Error fetching user:', (error as Error).message);
-    res.status(500).json({ message: 'Erro ao buscar usuário' });
+    console.error('Error fetching user:', error);
+    res.status(500).json({ message: 'Server error' });
   }
 });
 
-// Atualiza informações do usuário
-router.put('/:id', authMiddleware, async (req: Request<{ id: string }, {}, UpdateUserRequestBody>, res: Response) => {
-  const { id } = req.params;
-  const { name, email, phone, location, company, website, bio } = req.body;
-
-  if (!name && !email && !phone && !location && !company && !website && !bio) {
-    return res.status(400).json({ message: 'Pelo menos um campo deve ser fornecido' });
-  }
-
+// Update user
+router.post('/:id', authenticateToken, async (req: any, res) => {
   try {
-    const updateData: Partial<UpdateUserRequestBody> = {};
-    if (name) updateData.name = name;
-    if (email) {
-      if (!email.match(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)) {
-        return res.status(400).json({ message: 'Email inválido' });
-      }
-      const existingUser = await User.findOne({ email, _id: { $ne: id } });
-      if (existingUser) {
-        return res.status(400).json({ message: 'Email já registrado' });
-      }
-      updateData.email = email;
-    }
-    if (phone !== undefined) updateData.phone = phone;
-    if (location !== undefined) updateData.location = location;
-    if (company !== undefined) updateData.company = company;
-    if (website !== undefined) updateData.website = website;
-    if (bio !== undefined) updateData.bio = bio;
-
-    const user = await User.findByIdAndUpdate(
-      id,
-      { $set: updateData },
-      { new: true, runValidators: true }
-    ).select('id name email coins createdAt phone location company website bio');
+    const { name, email, phone, location, company, website, bio } = req.body;
+    const user = await User.findById(req.params.id) as UserDocument | null;
 
     if (!user) {
-      return res.status(404).json({ message: 'Usuário não encontrado' });
+      return res.status(404).json({ message: 'User not found' });
     }
 
-    console.log('Backend: Updated user:', (user as { _id: { toString: () => string } })._id.toString());
-    res.status(200).json({ user, message: 'Usuário atualizado com sucesso' });
+    if (name) user.name = name;
+    if (email) user.email = email;
+    if (phone) user.phone = phone;
+    if (location) user.location = location;
+    if (company) user.company = company;
+    if (website) user.website = website;
+    if (bio) user.bio = bio;
+
+    await user.save();
+
+    res.json({
+      user: {
+        id: user._id.toString(),
+        name: user.name,
+        email: user.email,
+        coins: user.coins,
+        createdAt: user.createdAt,
+        phone: user.phone,
+        location: user.location,
+        company: user.company,
+        website: user.website,
+        bio: user.bio,
+        profileCompletion: user.profileCompletion,
+        invitedFriends: user.invitedFriends,
+        favourites: user.favourites,
+      },
+      message: 'User updated successfully',
+    });
   } catch (error) {
-    console.error('Backend: Error updating user:', (error as Error).message);
-    res.status(500).json({ message: 'Erro ao atualizar usuário' });
+    console.error('Error updating user:', error);
+    res.status(500).json({ message: 'Server error' });
   }
 });
 
-router.get('/profile/:id', authMiddleware, async (req: Request, res: Response) => {
-  const { id } = req.params;
-
-  console.log('GET /api/profile/:id: Requesting user ID:', id);
-  try {
-    const user = await User.findById(id).select('id name email coins createdAt phone location company website bio');
-    if (!user) {
-      console.log('GET /api/profile/:id: User not found for ID:', id);
-      return res.status(404).json({ message: 'Usuário não encontrado' });
-    }
-    console.log('GET /api/profile/:id: Fetched user:', (user._id as string | { toString(): string }).toString());
-    res.status(200).json({ user });
-  } catch (error) {
-    console.error('GET /api/profile/:id: Error fetching user:', (error as Error).message);
-    res.status(500).json({ message: 'Erro ao buscar perfil' });
-  }
-});
+router.post('/avatar', authMiddleware, upload.single('avatar'), updateAvatar);
 
 export default router;

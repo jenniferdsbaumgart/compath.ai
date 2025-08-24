@@ -19,6 +19,7 @@ import { getCurrentUser, isAuthenticated } from "@/lib/auth";
 import { useToast } from "@/hooks/use-toast";
 import { Footer } from "@/components/layout/footer";
 import { Navbar } from "@/components/layout/navbar";
+import { useProtectedRoute } from "@/hooks/protected-route";
 
 const coinPackages = [
   {
@@ -89,6 +90,7 @@ const subscriptionPlans = [
 
 export default function PaymentsPage() {
   const router = useRouter();
+  useProtectedRoute();
   const { toast } = useToast();
   const [user, setUser] = useState<any>(null);
   const [selectedTab, setSelectedTab] = useState("coins");

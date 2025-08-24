@@ -1,18 +1,33 @@
 import { jwtDecode } from 'jwt-decode';
 
 // Definição do tipo User
-export type User = {
+interface User {
   id: string;
   name: string;
   email: string;
   coins: number;
-  avatar?: string;
+  createdAt: string;
   phone?: string;
   location?: string;
   company?: string;
   website?: string;
   bio?: string;
-};
+  avatar?: string;
+  profileCompletion: number;
+  invitedFriends: string[];
+  favourites?: Array<{
+    title: string;
+    description?: string;
+    tags?: string[];
+    url?: string;
+    savedAt?: string;
+  }>;
+}
+
+interface DecodedToken {
+  id: string;
+  exp: number;
+}
 
 // Definição do tipo JwtPayload
 export type JwtPayload = {
@@ -26,74 +41,81 @@ export type JwtPayload = {
 };
 
 // GERENCIAMENTO TOKEN
-
-export const setToken = (token: string) => {
-  if (typeof window !== 'undefined') {
-    localStorage.setItem('compath_token', token);
+export function getToken(): string | null {
+  try {
+    return localStorage.getItem('token');
+  } catch (error) {
+    console.error('Error accessing token from localStorage:', error);
+    return null;
   }
-};
+}
 
-export const getToken = (): string | null => {
-  if (typeof window !== 'undefined') {
-    return localStorage.getItem('compath_token');
+export function setToken(token: string): void {
+  try {
+    localStorage.setItem('token', token);
+  } catch (error) {
+    console.error('Error setting token in localStorage:', error);
   }
-  return null;
-};
+}
 
-export const removeToken = () => {
-  if (typeof window !== 'undefined') {
-    localStorage.removeItem('compath_token');
-    localStorage.removeItem('compath_user');
+export function removeToken(): void {
+  try {
+    localStorage.removeItem('token');
+    localStorage.removeItem('currentUser');
+  } catch (error) {
+    console.error('Error removing token from localStorage:', error);
   }
 };
 
 // USUÁRIO ATUAL
-export const getCurrentUser = (): User | null => {
-  const token = getToken();
-  if (!token) {
-    console.log('getCurrentUser: No token found');
+export function getCurrentUser(): User | null {
+  if (!isAuthenticated()) {
     return null;
   }
 
   try {
-    const decoded = jwtDecode<JwtPayload>(token);
-    if (decoded.exp && decoded.exp * 1000 < Date.now()) {
-      console.log('getCurrentUser: Token expired');
-      removeToken();
-      return null;
+    const user = localStorage.getItem('currentUser');
+    if (user) {
+      return JSON.parse(user) as User;
     }
-    return {
-      id: decoded.user.id,
-      name: decoded.user.name,
-      email: decoded.user.email,
-      coins: decoded.user.coins,
-    };
+    return null;
   } catch (error) {
-    console.error('getCurrentUser: Invalid token:', error);
+    console.error('Error getting current user:', error);
     removeToken();
     return null;
   }
-};
+}
+
+export function setCurrentUser(user: User): void {
+  try {
+    localStorage.setItem('currentUser', JSON.stringify(user));
+  } catch (error) {
+    console.error('Error setting current user in localStorage:', error);
+  }
+}
 
 // VERIFICAÇÃO DE AUTENTICAÇÃO
 // Verifica se o usuário está autenticado
-export const isAuthenticated = (): boolean => {
+export function isAuthenticated(): boolean {
   const token = getToken();
   if (!token) {
-    console.log('isAuthenticated: No token found');
     return false;
   }
 
   try {
-    const decoded = jwtDecode<JwtPayload>(token);
-    const isValid = decoded.exp && decoded.exp * 1000 > Date.now();
-    console.log('isAuthenticated: Token valid?', isValid, 'Expiration:', new Date(decoded.exp * 1000));
-    return !!isValid;
+    const decoded: DecodedToken = jwtDecode(token);
+    const currentTime = Date.now() / 1000;
+    if (decoded.exp < currentTime) {
+      removeToken();
+      return false;
+    }
+    return true;
   } catch (error) {
-    console.error('isAuthenticated: Invalid token:', error);
+    console.error('Error decoding token:', error);
+    removeToken();
     return false;
   }
-};
+}
 
 // LOGOUT
 export const logout = () => {
@@ -174,4 +196,9 @@ export async function signIn(email: string, password: string): Promise<SignInRes
   localStorage.setItem('compath_user', JSON.stringify(data.user));
 
   return data;
+}
+
+export function getUserCoins(): number {
+  const currentUser = getCurrentUser();
+  return currentUser?.coins ?? 0;
 }

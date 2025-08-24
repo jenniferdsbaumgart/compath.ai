@@ -9,7 +9,7 @@ export default function Home() {
     <div className="flex flex-col min-h-screen">
       {/* Navigation */}
       <header className="w-full py-5 px-6 bg-secondary/40">
-        <div className="max-w-7xl mx-auto flex justify-between items-center">
+        <div className="max-w-8xl mx-10 flex justify-between items-center">
           <div className="flex items-center">
             <Image src="/logo-full-blue.svg" alt="Compath Logo" width={170} height={30} />
           </div>
@@ -27,13 +27,13 @@ export default function Home() {
       {/* Hero Section */}
       <main className="flex-grow">
         <section className="bg-gradient-to-b from-secondary/40 to-gray-50 py-20">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-8xl mx-auto px-8 sm:px-6 lg:px-8">
             <div className="md:flex md:items-center md:justify-between">
-              <div className="md:w-2/3 mb-10 md:mb-0 animate-slideInUp">
-                <h1 className="text-4xl md:text-6xl font-bold text-primary mb-4">
+              <div className="md:w-2/5 mb-10 ml-28 md:mb-0 animate-slideInUp">
+                <h1 className="text-4xl md:text-8xl font-bold text-primary mb-4">
                   Encontre seu <span className="text-teal-500">caminho</span> como empreendedor
                 </h1>
-                <p className="text-lg text-gray-600 mb-8">
+                <p className="text-xl text-gray-600 mb-8">
                   O <span className="text-teal-500 font-bold">Compath</span> é uma plataforma inteligente que utiliza IA para ajudar empreendedores a identificar nichos de mercado, analisar concorrência e encontrar oportunidades de negócio.
                 </p>
                 <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
@@ -51,7 +51,7 @@ export default function Home() {
                 </div>
               </div>
               <div className="md:w-1/2 flex justify-center">
-                <Image src="/compath-hero.png" alt="hero image"width={600} height={400} className='rounded-lg'/>
+                <Image src="/compath-hero.png" alt="hero image"width={800} height={500} className='rounded-lg'/>
               </div>
             </div>
           </div>
@@ -59,7 +59,7 @@ export default function Home() {
 
         {/* Features Section */}
         <section className="py-16 bg-gray-50">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-8xl mx-20 px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
               <h2 className="text-3xl font-bold text-primary mb-4">Como o Compath pode te ajudar</h2>
               <p className="text-lg text-gray-600 max-w-3xl mx-auto">
@@ -67,7 +67,7 @@ export default function Home() {
               </p>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-16 gap-y-12">
               <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
                 <div className="w-12 h-12 bg-secondary/10 rounded-lg flex items-center justify-center mb-4">
                   <Compass className="h-6 w-6 text-secondary" />
