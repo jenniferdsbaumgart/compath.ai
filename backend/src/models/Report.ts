@@ -1,14 +1,11 @@
-// models/Report.ts
 import mongoose, { Schema, Document } from 'mongoose';
 
 export interface IKeyPlayer {
   name: string;
-  marketShare: string;
-}
-
-export interface ICustomerSegment {
-  name: string;
-  percentage: number;
+  marketShare?: string;
+  url?: string;
+  address?: string;
+  visibilityIndex?: number;
 }
 
 export interface IReportContent {
@@ -17,17 +14,17 @@ export interface IReportContent {
   competitionLevel: string;
   entryBarriers: string;
 
-  targetAudience: string[];
+  targetAudience: string;
 
   keyPlayers: IKeyPlayer[];
-
   opportunities: string[];
   challenges: string[];
   recommendations: string[];
   strengths: string[];
   weaknesses: string[];
 
-  customerSegments?: ICustomerSegment[];
+  sources?: { name: string; url?: string; provider?: string }[];
+  dataQuality?: 'verified' | 'no_evidence';
 }
 
 export interface IReport extends Document {
@@ -39,13 +36,16 @@ export interface IReport extends Document {
 
 const KeyPlayerSchema = new Schema<IKeyPlayer>({
   name: { type: String, required: true },
-  marketShare: { type: String, required: true },
+  marketShare: { type: String, required: false },
+  url: { type: String },
+  address: { type: String },
+  visibilityIndex: { type: Number },
 }, { _id: false });
 
-const CustomerSegmentSchema = new Schema<ICustomerSegment>({
-  name: { type: String, required: true },
-  percentage: { type: Number, required: true },
-}, { _id: false });
+const SourceRefSchema = new Schema(
+  { name: { type: String, required: true }, url: String, provider: String },
+  { _id: false }
+);
 
 const ReportContentSchema = new Schema<IReportContent>({
   marketSize: { type: String, required: true },
@@ -53,17 +53,17 @@ const ReportContentSchema = new Schema<IReportContent>({
   competitionLevel: { type: String, required: true },
   entryBarriers: { type: String, required: true },
 
-  targetAudience: { type: [String], required: true, default: [] },
+  targetAudience: { type: String, required: true },
 
   keyPlayers: { type: [KeyPlayerSchema], required: true, default: [] },
-
   opportunities: { type: [String], required: true, default: [] },
   challenges: { type: [String], required: true, default: [] },
   recommendations: { type: [String], required: true, default: [] },
   strengths: { type: [String], required: true, default: [] },
   weaknesses: { type: [String], required: true, default: [] },
 
-  customerSegments: { type: [CustomerSegmentSchema], required: false, default: [] },
+  sources: { type: [SourceRefSchema], default: [] },
+  dataQuality: { type: String, enum: ['verified', 'no_evidence'], default: 'no_evidence' },
 }, { _id: false });
 
 const ReportSchema = new Schema<IReport>({
