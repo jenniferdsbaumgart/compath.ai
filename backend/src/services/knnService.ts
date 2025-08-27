@@ -11,6 +11,6 @@ interface UserProfile {
 }
 
 export async function fetchRecommendationsFromPython(data: { features: number[] }) {
-  const response = await axios.post('http://compath-knn:8000/predict', data);
+  const response = await axios.post(`${process.env.NEXT_PUBLIC_KNN_URL}/predict`, data);
   return response.data;
 }
