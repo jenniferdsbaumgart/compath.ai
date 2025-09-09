@@ -1,0 +1,606 @@
+[
+  {
+    "nome": "Armazém Fit Store - Centro",
+    "lat": -26.918990,
+    "lng": -49.071360,
+    "categoria": "Loja de Produtos Naturais"
+  },
+  {
+    "nome": "Mundo Verde - Centro",
+    "lat": -26.918660,
+    "lng": -49.068890,
+    "categoria": "Loja de Produtos Naturais"
+  },
+  {
+    "nome": "Canto do Grão Produtos Naturais",
+    "lat": -26.917420,
+    "lng": -49.070150,
+    "categoria": "Loja de Produtos Naturais"
+  },
+  {
+    "nome": "Empório Natural",
+    "lat": -26.915780,
+    "lng": -49.071030,
+    "categoria": "Loja de Produtos Naturais"
+  },
+  {
+    "nome": "Vitali Produtos Naturais",
+    "lat": -26.916800,
+    "lng": -49.067800,
+    "categoria": "Loja de Produtos Naturais"
+  },
+  {
+    "nome": "Celeiro Natural",
+    "lat": -26.914900,
+    "lng": -49.073500,
+    "categoria": "Loja de Produtos Naturais"
+  },
+  {
+    "nome": "Natureba Produtos Naturais",
+    "lat": -26.919500,
+    "lng": -49.072200,
+    "categoria": "Loja de Produtos Naturais"
+  },
+  {
+    "nome": "Empório do Grão",
+    "lat": -26.920100,
+    "lng": -49.069900,
+    "categoria": "Loja de Produtos Naturais"
+  },
+  {
+    "nome": "Bio Mundo - Shopping Neumarkt",
+    "lat": -26.917600,
+    "lng": -49.065500,
+    "categoria": "Loja de Produtos Naturais"
+  },
+  {
+    "nome": "Casa Grão",
+    "lat": -26.913800,
+    "lng": -49.072800,
+    "categoria": "Loja de Produtos Naturais"
+  },
+
+  {
+    "nome": "Barbearia da XV",
+    "lat": -26.909986,
+    "lng": -49.071360,
+    "categoria": "Barbearia"
+  },
+  {
+    "nome": "Freak",
+    "lat": -26.918660,
+    "lng": -49.068890,
+    "categoria": "Barbearia"
+  },
+  {
+    "nome": "PACKER´S Barbearia Cooper",
+    "lat": -26.896700,
+    "lng": -49.080500,
+    "categoria": "Barbearia"
+  },
+  {
+    "nome": "PACKER´S Barbearia Almirante",
+    "lat": -26.897800,
+    "lng": -49.080800,
+    "categoria": "Barbearia"
+  },
+  {
+    "nome": "Haus Barbearia",
+    "lat": -26.904800,
+    "lng": -49.076000,
+    "categoria": "Barbearia"
+  },
+  {
+    "nome": "Barbearia Urban",
+    "lat": -26.920500,
+    "lng": -49.071000,
+    "categoria": "Barbearia"
+  },
+  {
+    "nome": "Ornatus Barbearia Visagista",
+    "lat": -26.918900,
+    "lng": -49.068900,
+    "categoria": "Barbearia"
+  },
+  {
+    "nome": "Lombardis",
+    "lat": -26.917400,
+    "lng": -49.070100,
+    "categoria": "Barbearia"
+  },
+  {
+    "nome": "Barbearia Amadeu",
+    "lat": -26.918660,
+    "lng": -49.068890,
+    "categoria": "Barbearia"
+  },
+  {
+    "nome": "Toca do Urso Barbearia Blumenau",
+    "lat": -26.922000,
+    "lng": -49.076000,
+    "categoria": "Barbearia"
+  },
+  
+  {
+    "nome": "Mercearia Casa Bahia",
+    "lat": -26.909000,
+    "lng": -49.070000,
+    "categoria": "Mercearia"
+  },
+  {
+    "nome": "Mercearia da Alameda",
+    "lat": -26.917000,
+    "lng": -49.065000,
+    "categoria": "Mercearia"
+  },
+  {
+    "nome": "Armazém da Veiga - Mercearia",
+    "lat": -26.904000,
+    "lng": -49.078000,
+    "categoria": "Mercearia"
+  },
+  {
+    "nome": "Magnani Empório",
+    "lat": -26.915000,
+    "lng": -49.064000,
+    "categoria": "Mercearia"
+  },
+  {
+    "nome": "Cajusul Empório Natural - Centro (Calçadão)",
+    "lat": -26.918000,
+    "lng": -49.068000,
+    "categoria": "Mercearia"
+  },
+  {
+    "nome": "Rekynt & Sabor Restaurante e Confeitaria",
+    "lat": -26.912000,
+    "lng": -49.072000,
+    "categoria": "Mercearia"
+  },
+  {
+    "nome": "Berlim - Delícias pra você",
+    "lat": -26.918000,
+    "lng": -49.069000,
+    "categoria": "Mercearia"
+  },
+  {
+    "nome": "Armazém Natural",
+    "lat": -26.912000,
+    "lng": -49.071000,
+    "categoria": "Mercearia"
+  },
+  {
+    "nome": "Empório Cafeteria",
+    "lat": -26.917000,
+    "lng": -49.066000,
+    "categoria": "Mercearia"
+  },
+  {
+    "nome": "Empório Sabores do Mundo",
+    "lat": -26.917000,
+    "lng": -49.065000,
+    "categoria": "Mercearia"
+  },
+
+  {
+    "nome": "Studio Corpo Gisella Martins - Pilates",
+    "lat": -26.899000,
+    "lng": -49.080000,
+    "categoria": "Estúdio de Pilates"
+  },
+  {
+    "nome": "Vitalità Pilates & Bem-Estar",
+    "lat": -26.914000,
+    "lng": -49.072000,
+    "categoria": "Estúdio de Pilates"
+  },
+  {
+    "nome": "Inspire Pilates Estúdio",
+    "lat": -26.904000,
+    "lng": -49.076000,
+    "categoria": "Estúdio de Pilates"
+  },
+  {
+    "nome": "Linea Pilates - Studio de Pilates em Blumenau",
+    "lat": -26.903000,
+    "lng": -49.091000,
+    "categoria": "Estúdio de Pilates"
+  },
+  {
+    "nome": "Studio Pilates Juliana Haveroth",
+    "lat": -26.905000,
+    "lng": -49.088000,
+    "categoria": "Estúdio de Pilates"
+  },
+  {
+    "nome": "ACTION PILATES",
+    "lat": -26.903000,
+    "lng": -49.090000,
+    "categoria": "Estúdio de Pilates"
+  },
+  {
+    "nome": "La Vie Studio de Pilates",
+    "lat": -26.904000,
+    "lng": -49.089000,
+    "categoria": "Estúdio de Pilates"
+  },
+  {
+    "nome": "Inovação Studio Pilates",
+    "lat": -26.904000,
+    "lng": -49.075000,
+    "categoria": "Estúdio de Pilates"
+  },
+  {
+    "nome": "POSTURE – Osteopatia, Pilates e Reabilitação",
+    "lat": -26.907000,
+    "lng": -49.084000,
+    "categoria": "Estúdio de Pilates"
+  },
+  {
+    "nome": "Corporis Pilates",
+    "lat": -26.908000,
+    "lng": -49.084000,
+    "categoria": "Estúdio de Pilates"
+  },
+
+  {
+    "nome": "Papelaria Blumenau",
+    "lat": -26.918000,
+    "lng": -49.068000,
+    "categoria": "Papelaria"
+  },
+  {
+    "nome": "Papelaria Grafitte",
+    "lat": -26.916000,
+    "lng": -49.069000,
+    "categoria": "Papelaria"
+  },
+  {
+    "nome": "Papelaria Sete",
+    "lat": -26.914000,
+    "lng": -49.072000,
+    "categoria": "Papelaria"
+  },
+  {
+    "nome": "Pérgamo Papelaria - Papelaria Artística | Blumenau",
+    "lat": -26.908000,
+    "lng": -49.079000,
+    "categoria": "Papelaria"
+  },
+  {
+    "nome": "Marcante Papelaria e Variedades",
+    "lat": -26.909000,
+    "lng": -49.100000,
+    "categoria": "Papelaria"
+  },
+  {
+    "nome": "Caluá Papelaria",
+    "lat": -26.919000,
+    "lng": -49.067000,
+    "categoria": "Papelaria"
+  },
+  {
+    "nome": "Livraria e Papelaria Blulivro",
+    "lat": -26.917000,
+    "lng": -49.069000,
+    "categoria": "Papelaria"
+  },
+  {
+    "nome": "Blucopy",
+    "lat": -26.915000,
+    "lng": -49.070000,
+    "categoria": "Papelaria"
+  },
+  {
+    "nome": "Casa Trekos e Mimos",
+    "lat": -26.918000,
+    "lng": -49.066000,
+    "categoria": "Papelaria"
+  },
+
+  {
+    "nome": "Salão Novo Visual",
+    "lat": -26.918000,
+    "lng": -49.068000,
+    "categoria": "Salão de Beleza"
+  },
+  {
+    "nome": "Rodrigo Muniz Beleza e Bem Estar",
+    "lat": -26.917000,
+    "lng": -49.073000,
+    "categoria": "Salão de Beleza"
+  },
+  {
+    "nome": "ADI ESPAÇO MULHER Salão de Beleza em Blumenau",
+    "lat": -26.917000,
+    "lng": -49.079000,
+    "categoria": "Salão de Beleza"
+  },
+  {
+    "nome": "Eliz Beauty Studio",
+    "lat": -26.915000,
+    "lng": -49.085000,
+    "categoria": "Salão de Beleza"
+  },
+  {
+    "nome": "Salão de Beleza Luz do Sol",
+    "lat": -26.919000,
+    "lng": -49.067000,
+    "categoria": "Salão de Beleza"
+  },
+  {
+    "nome": "Leão Cabeleireiros",
+    "lat": -26.917000,
+    "lng": -49.073000,
+    "categoria": "Salão de Beleza"
+  },
+  {
+    "nome": "Ju EsteticaeHair",
+    "lat": -26.916000,
+    "lng": -49.072000,
+    "categoria": "Salão de Beleza"
+  },
+  {
+    "nome": "Lord & Lady Cabeleireiros",
+    "lat": -26.916000,
+    "lng": -49.072000,
+    "categoria": "Salão de Beleza"
+  },
+  {
+    "nome": "Casa Peluqueria",
+    "lat": -26.918000,
+    "lng": -49.070000,
+    "categoria": "Salão de Beleza"
+  },
+  {
+    "nome": "Studio Léia Lira",
+    "lat": -26.918000,
+    "lng": -49.070000,
+    "categoria": "Salão de Beleza"
+  },
+
+  {
+    "nome": "Padaria e Confeitaria Saxônia",
+    "lat": -26.9174,
+    "lng": -49.0724,
+    "categoria": "Padaria"
+  },
+  {
+    "nome": "Padaria e Confeitaria Dona Paula",
+    "lat": -26.9189,
+    "lng": -49.0731,
+    "categoria": "Padaria"
+  },
+  {
+    "nome": "Panificadora e Confeitaria Benkendorf",
+    "lat": -26.9202,
+    "lng": -49.0736,
+    "categoria": "Padaria"
+  },
+  {
+    "nome": "Padaria e Confeitaria Bublitz",
+    "lat": -26.9161,
+    "lng": -49.0748,
+    "categoria": "Padaria"
+  },
+  {
+    "nome": "Padaria e Confeitaria Dalri",
+    "lat": -26.9142,
+    "lng": -49.0759,
+    "categoria": "Padaria"
+  },
+  {
+    "nome": "Padaria e Confeitaria Nice",
+    "lat": -26.9240,
+    "lng": -49.0720,
+    "categoria": "Padaria"
+  },
+  {
+    "nome": "Padaria e Confeitaria Stuttgart",
+    "lat": -26.9195,
+    "lng": -49.0688,
+    "categoria": "Padaria"
+  },
+  {
+    "nome": "Padaria e Confeitaria Ambrosius",
+    "lat": -26.9130,
+    "lng": -49.0705,
+    "categoria": "Padaria"
+  },
+  {
+    "nome": "Padaria e Confeitaria Ritz",
+    "lat": -26.9150,
+    "lng": -49.0715,
+    "categoria": "Padaria"
+  },
+  {
+    "nome": "Padaria e Confeitaria Kibaguetti",
+    "lat": -26.9218,
+    "lng": -49.0700,
+    "categoria": "Padaria"
+  },
+
+  {
+    "nome": "JRB Distribuidora",
+    "lat": -26.9189,
+    "lng": -49.0709,
+    "categoria": "Distribuidora de Bebidas"
+  },
+  {
+    "nome": "Lounge Bier Express",
+    "lat": -26.9169,
+    "lng": -49.0687,
+    "categoria": "Distribuidora de Bebidas"
+  },
+  {
+    "nome": "Grand Cru Blumenau",
+    "lat": -26.9150,
+    "lng": -49.0759,
+    "categoria": "Distribuidora de Bebidas"
+  },
+  {
+    "nome": "Loja Conceito Kalvelage Distillery",
+    "lat": -26.9099,
+    "lng": -49.0717,
+    "categoria": "Distribuidora de Bebidas"
+  },
+  {
+    "nome": "OmaMute Distribuidora",
+    "lat": -26.9077,
+    "lng": -49.0706,
+    "categoria": "Distribuidora de Bebidas"
+  },
+  {
+    "nome": "Esser Bebidas",
+    "lat": -26.9065,
+    "lng": -49.0700,
+    "categoria": "Distribuidora de Bebidas"
+  },
+  {
+    "nome": "Adega do Alemão",
+    "lat": -26.9198,
+    "lng": -49.0730,
+    "categoria": "Distribuidora de Bebidas"
+  },
+  {
+    "nome": "Bier Vila",
+    "lat": -26.9158,
+    "lng": -49.0710,
+    "categoria": "Distribuidora de Bebidas"
+  },
+  {
+    "nome": "Casa do Chopp",
+    "lat": -26.9175,
+    "lng": -49.0745,
+    "categoria": "Distribuidora de Bebidas"
+  },
+  {
+    "nome": "Rei do Malte",
+    "lat": -26.9205,
+    "lng": -49.0715,
+    "categoria": "Distribuidora de Bebidas"
+  },
+
+  {
+    "nome": "CGTUR Agência de Viagens e Turismo Receptivo",
+    "lat": -26.9182,
+    "lng": -49.0700,
+    "categoria": "Agência de Viagens"
+  },
+  {
+    "nome": "DINÂMICA VIAGENS",
+    "lat": -26.9195,
+    "lng": -49.0715,
+    "categoria": "Agência de Viagens"
+  },
+  {
+    "nome": "Quero Viagens Blumenau",
+    "lat": -26.9125,
+    "lng": -49.0680,
+    "categoria": "Agência de Viagens"
+  },
+  {
+    "nome": "Flytour Blumenau",
+    "lat": -26.9140,
+    "lng": -49.0695,
+    "categoria": "Agência de Viagens"
+  },
+  {
+    "nome": "ILHATUR BLUMENAU TURISMO LTDA",
+    "lat": -26.9105,
+    "lng": -49.0725,
+    "categoria": "Agência de Viagens"
+  },
+
+  {
+    "nome": "Floresta Lanches",
+    "lat": -26.9180,
+    "lng": -49.0700,
+    "categoria": "Lanchonete"
+  },
+  {
+    "nome": "X Calota Blumenau",
+    "lat": -26.9150,
+    "lng": -49.0720,
+    "categoria": "Lanchonete"
+  },
+  {
+    "nome": "Alameda Lanches",
+    "lat": -26.9130,
+    "lng": -49.0740,
+    "categoria": "Lanchonete"
+  },
+  {
+    "nome": "Lanchonete Vapt Vupt em Blumenau",
+    "lat": -26.9100,
+    "lng": -49.0680,
+    "categoria": "Lanchonete"
+  },
+  {
+    "nome": "Pastelaria Edel Weis cardápio",
+    "lat": -26.9170,
+    "lng": -49.0710,
+    "categoria": "Lanchonete"
+  },
+  {
+    "nome": "União Lanches",
+    "lat": -26.9175,
+    "lng": -49.0690,
+    "categoria": "Lanchonete"
+  },
+  {
+    "nome": "Lanchonete Pingüim",
+    "lat": -26.9180,
+    "lng": -49.0700,
+    "categoria": "Lanchonete"
+  },
+  {
+    "nome": "Madrugão Lanches",
+    "lat": -26.9140,
+    "lng": -49.0730,
+    "categoria": "Lanchonete"
+  },
+  {
+    "nome": "Lanchonete da Praça",
+    "lat": -26.9160,
+    "lng": -49.0725,
+    "categoria": "Lanchonete"
+  },
+  {
+    "nome": "Café Central",
+    "lat": -26.9190,
+    "lng": -49.0710,
+    "categoria": "Lanchonete"
+  },
+
+  {
+    "nome": "Brechó Lika - Blumenau",
+    "lat": -26.9140,
+    "lng": -49.0700,
+    "categoria": "Brechó"
+  },
+  {
+    "nome": "Dig For Fashion Blumenau - Brechó",
+    "lat": -26.9100,
+    "lng": -49.0750,
+    "categoria": "Brechó"
+  },
+  {
+    "nome": "Beatriz e Rafaela | Brechó",
+    "lat": -26.9125,
+    "lng": -49.0680,
+    "categoria": "Brechó"
+  },
+  {
+    "nome": "Bazar da XV",
+    "lat": -26.9170,
+    "lng": -49.0710,
+    "categoria": "Brechó"
+  },
+  {
+    "nome": "Brechó Sítio Dona Lúcia",
+    "lat": -26.9190,
+    "lng": -49.0720,
+    "categoria": "Brechó"
+  }
+]
