@@ -1,77 +1,228 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
+
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Download, ChevronRight, DollarSign, TrendingDown, BanknoteArrowUp, Clock, MapPin, Users, Building, ShoppingBag, ThumbsUp, AlertTriangle } from "lucide-react";
-import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import FavoriteSearch from "@/components/ui/favorite-search";
-import { getAiReportById } from "@/lib/api";
-import { toast } from "sonner";
-import { useSearchParams } from "next/navigation";
 
-const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
+import {
+  ChevronRight,
+  Download,
+  DollarSign,
+  Minus,
+  TrendingDown,
+  TrendingUp,
+  BanknoteArrowUp,
+  Clock,
+  ThumbsUp,
+  AlertTriangle,
+  Link as LinkIcon,
+} from "lucide-react";
+
+import {
+  BarChart,
+  Bar,
+  CartesianGrid,
+  Legend,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
+
+import { getAiReportById } from "@/lib/api";
+import { normalizeReport } from "@/lib/normalizeReport";
+import CompetitorsMap from "@/components/maps/CompetitorsMap";
+
+/* ------------ helpers ------------ */
+
+type CompetitionStyle = {
+  label: string;
+  badgeVariant: "destructive" | "secondary" | "outline";
+  colorClass: string;
+  icon: any;
+};
+function getCompetitionStyle(level?: string): CompetitionStyle {
+  const v = (level || "").toLowerCase();
+  if (v.includes("baixo")) {
+    return {
+      label: "Baixa concorrência",
+      badgeVariant: "secondary",
+      colorClass: "text-green-600 bg-green-100 dark:bg-green-900",
+      icon: TrendingDown,
+    };
+  }
+  if (v.includes("méd") || v.includes("medio") || v.includes("médio")) {
+    return {
+      label: "Concorrência moderada",
+      badgeVariant: "outline",
+      colorClass: "text-amber-600 bg-amber-100 dark:bg-amber-900",
+      icon: Minus,
+    };
+  }
+  if (v.includes("alto") || v.includes("alta")) {
+    return {
+      label: "Concorrência alta",
+      badgeVariant: "destructive",
+      colorClass: "text-red-600 bg-red-100 dark:bg-red-900",
+      icon: TrendingUp,
+    };
+  }
+  return {
+    label: "Concorrência indefinida",
+    badgeVariant: "outline",
+    colorClass: "text-muted-foreground bg-muted",
+    icon: Minus,
+  };
+}
+
+function pickTitle(r: any): string {
+  const t = (r?.title || "").trim();
+  if (t && t.toLowerCase() !== "relatório sem título") return t;
+  const fb =
+    r?.topic || r?.niche || r?.searchQuery || r?.query || r?.location || "";
+  return String(fb || "").trim();
+}
+
+const CATEGORY_ALIASES: Record<string, string> = {
+  "produtos naturais": "Lojas de Produtos Naturais",
+  "loja de produtos naturais": "Lojas de Produtos Naturais",
+  natural: "Lojas de Produtos Naturais",
+  barbearia: "Barbearias",
+  mercearia: "Mercearias",
+  pilates: "Estúdios de Pilates",
+  papelaria: "Papelarias",
+  "salão de beleza": "Salões de Beleza",
+  "salao de beleza": "Salões de Beleza",
+  padaria: "Padarias",
+  "distribuidora de bebidas": "Distribuidoras de Bebidas",
+  "agência de viagens": "Agências de Viagens",
+  "agencia de viagens": "Agências de Viagens",
+  lanchonete: "Lanchonetes",
+  brechó: "Brechós",
+  brecho: "Brechós",
+};
+function inferMapCategories(...txt: (string | undefined)[]) {
+  const hay = txt.filter(Boolean).join(" ").toLowerCase();
+  const out = new Set<string>();
+  for (const [kw, cat] of Object.entries(CATEGORY_ALIASES)) {
+    if (hay.includes(kw)) out.add(cat);
+  }
+  return Array.from(out);
+}
+
+type VisDatum = { name: string; value: number };
+
+/* ------------ page ------------ */
 
 export default function ResultadosPesquisaPage() {
-  const [researchResults, setResearchResults] = useState<any>(null);
-  const searchParams = useSearchParams();
-  const reportId = searchParams.get('id');
+  const [report, setReport] = useState<any>(null);
 
+  const searchParams = useSearchParams();
+  const reportId = searchParams.get("id");
+  const urlQuery =
+    searchParams.get("q") ||
+    searchParams.get("query") ||
+    searchParams.get("niche") ||
+    "";
+
+  // carrega e normaliza
   useEffect(() => {
     if (!reportId) return;
-  
-    const fetchReport = async () => {
-      try {
-        const reportData = await getAiReportById(reportId);
-        setResearchResults(reportData.report);
-      } catch (err) {
-        console.error('Erro ao carregar relatório:', err);
-        toast.error("Não foi possível carregar o relatório.");
-      }
-    };
-  
-    fetchReport();
+    (async () => {
+      const res = await getAiReportById(reportId);
+      const raw = res?.report?.report ?? res?.report ?? res;
+      setReport(normalizeReport(raw));
+    })().catch(console.error);
   }, [reportId]);
 
-  if (!researchResults) return <p className="text-center mt-12">Carregando dados...</p>;
+  // hooks SEMPRE antes de qualquer return condicional
+  const heading = useMemo(() => pickTitle(report ?? {}), [report]);
 
-  const keyPlayers = researchResults.keyPlayers.map((p: any) => ({
-    name: p.name,
-    market_share: Number(p.marketShare.replace("%", "")),
-  }));
+  const competition = useMemo(
+    () => getCompetitionStyle(report?.competitionLevel ?? ""),
+    [report?.competitionLevel]
+  );
 
-  const audience = Array.isArray(researchResults.targetAudience)
-    ? researchResults.targetAudience
-    : researchResults.targetAudience?.split(",") || [];
+  const focusCats = useMemo(
+    () => inferMapCategories(heading, urlQuery),
+    [heading, urlQuery]
+  );
 
-  const customerSegmentData = audience.map((name: string) => ({
-    name: name.trim(),
-    value: Math.floor(100 / audience.length),
-  }));
+  const audience: string[] = useMemo(() => {
+    return Array.isArray(report?.targetAudience)
+      ? (report!.targetAudience as string[])
+      : String(report?.targetAudience ?? "")
+          .split(",")
+          .map((s) => s.trim())
+          .filter(Boolean);
+  }, [report?.targetAudience]);
 
+  type KeyPlayer = { name?: string; visibilityIndex?: number };
+  type VisDatum = { name: string; value: number };
+
+  const visibilityData = useMemo<VisDatum[]>(() => {
+    const list: KeyPlayer[] = Array.isArray(report?.keyPlayers)
+      ? (report!.keyPlayers as KeyPlayer[])
+      : [];
+
+    return list
+      .map(
+        (k): VisDatum => ({
+          name: String(k?.name ?? ""),
+          value: Number(k?.visibilityIndex ?? 0),
+        })
+      )
+      .filter((d: VisDatum) => d.name.length > 0 && Number.isFinite(d.value));
+    // alternativa com type predicate:
+    // .filter((d): d is VisDatum => d.name.length > 0 && Number.isFinite(d.value));
+  }, [report?.keyPlayers]);
+
+  const hasCompetitorData = visibilityData.length > 0;
+
+  if (!report) {
+    return <p className="text-center mt-12">Carregando dados...</p>;
+  }
 
   return (
     <>
       <Navbar />
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* header */}
         <div className="mb-8">
           <div className="flex items-center text-sm text-muted-foreground mb-2">
             <span>Pesquisa de Mercado</span>
             <ChevronRight className="h-4 w-4 mx-1" />
             <span className="text-foreground">Relatório Inteligente</span>
           </div>
+
           <div className="flex justify-between items-start">
             <div>
-              <div className="flex">
-                <h1 className="text-3xl font-bold">Análise de Mercado: {researchResults.title}</h1>
+              <div className="flex items-start gap-2">
+                <h1 className="text-3xl font-bold">
+                  Análise de Mercado{heading ? `: ${heading}` : ""}
+                </h1>
                 <FavoriteSearch />
               </div>
-              <p className="text-muted-foreground mt-2">{researchResults.marketSize}</p>
+              {report.marketSize && (
+                <p className="text-sm text-muted-foreground mt-2">
+                  Tamanho de mercado (estimativa): {report.marketSize}
+                </p>
+              )}
             </div>
+
             <Button>
               <Download className="mr-2 h-4 w-4" />
               Exportar Relatório
@@ -79,13 +230,18 @@ export default function ResultadosPesquisaPage() {
           </div>
         </div>
 
+        {/* KPIs */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           <Card>
             <CardContent className="pt-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Tamanho de Mercado</p>
-                  <p className="text-2xl font-bold">{researchResults.marketSize}</p>
+                  <p className="text-sm font-medium text-muted-foreground">
+                    Tamanho de Mercado
+                  </p>
+                  <p className="text-2xl font-bold">
+                    {report.marketSize || "—"}
+                  </p>
                 </div>
                 <div className="p-2 mt-2 bg-amber-100 dark:bg-amber-900 rounded-full">
                   <DollarSign className="h-8 w-8 text-amber-600 dark:text-amber-300" />
@@ -93,7 +249,9 @@ export default function ResultadosPesquisaPage() {
               </div>
               <div className="items-center mt-3">
                 <Progress value={20} className="mt-5" />
-                <p className="text-sm text-muted-foreground">{researchResults.growthRate}</p>
+                <p className="text-sm text-muted-foreground">
+                  {report.growthRate}
+                </p>
               </div>
             </CardContent>
           </Card>
@@ -102,18 +260,32 @@ export default function ResultadosPesquisaPage() {
             <CardContent className="pt-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Concorrência</p>
-                  <p className="text-2xl font-bold">{researchResults.competitionLevel}</p>
+                  <p className="text-sm font-medium text-muted-foreground">
+                    Concorrência
+                  </p>
+                  <p className="text-2xl font-bold">
+                    {report.competitionLevel || "—"}
+                  </p>
                 </div>
-                <div className="p-2 mt-2 bg-red-100 dark:bg-red-900 rounded-full">
-                  <TrendingDown className="h-8 w-8 text-red-600 dark:text-red-300" />
+                <div
+                  className={`p-2 mt-2 rounded-full ${competition.colorClass}`}
+                >
+                  <competition.icon className="h-8 w-8" />
                 </div>
               </div>
-              <div className="flex items-center mt-5">
-                <Badge variant="destructive" className="mr-2">
-                  Saturado
+              <div className="flex flex-col items-start mt-5 gap-3">
+                <Badge
+                  variant={competition.badgeVariant}
+                  className="whitespace-normal leading-tight text-xs px-2 py-0.5 max-w-[9rem]"
+                >
+                  {competition.label}
                 </Badge>
-                <span className="text-sm text-muted-foreground">{researchResults.entryBarriers}</span>
+                <span
+                  className="text-sm text-muted-foreground flex-1 break-words"
+                  title={report.entryBarriers}
+                >
+                  {report.entryBarriers}
+                </span>
               </div>
             </CardContent>
           </Card>
@@ -121,9 +293,24 @@ export default function ResultadosPesquisaPage() {
           <Card>
             <CardContent className="pt-4">
               <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Público-Alvo</p>
-                  <p className="text-xl font-bold">{audience.join(", ")}</p>
+                <div className="w-full">
+                  <p className="text-sm font-medium text-muted-foreground">
+                    Público-Alvo
+                  </p>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {audience.slice(0, 8).map((a, i) => (
+                      <span
+                        key={i}
+                        className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-muted text-foreground"
+                        title={a}
+                      >
+                        {a}
+                      </span>
+                    ))}
+                    {audience.length === 0 && (
+                      <span className="text-sm text-muted-foreground">—</span>
+                    )}
+                  </div>
                 </div>
                 <div className="p-2 bg-amber-100 dark:bg-amber-900 rounded-full">
                   <BanknoteArrowUp className="h-8 w-8 text-amber-600 dark:text-amber-300" />
@@ -136,7 +323,9 @@ export default function ResultadosPesquisaPage() {
             <CardContent className="pt-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Recomendações</p>
+                  <p className="text-sm font-medium text-muted-foreground">
+                    Recomendações
+                  </p>
                   <p className="text-2xl font-bold">3 principais</p>
                 </div>
                 <div className="p-2 mt-2 bg-purple-100 dark:bg-purple-900 rounded-full">
@@ -144,59 +333,94 @@ export default function ResultadosPesquisaPage() {
                 </div>
               </div>
               <ul className="mt-4 space-y-2 text-sm text-muted-foreground list-disc list-inside">
-                {researchResults.recommendations.slice(0, 3).map((r: string, i: number) => (
-                  <li key={i}>{r}</li>
-                ))}
+                {(report.recommendations || [])
+                  .slice(0, 3)
+                  .map((r: string, i: number) => (
+                    <li key={i}>{r}</li>
+                  ))}
+                {(!report.recommendations ||
+                  report.recommendations.length === 0) && <li>—</li>}
               </ul>
             </CardContent>
           </Card>
         </div>
 
-        {/* Charts */}
+        {/* gráficos / mapa */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
           <Card>
             <CardHeader>
-              <CardTitle>Participação de Mercado</CardTitle>
-              <CardDescription>Principais concorrentes</CardDescription>
+              <CardTitle>Concorrentes verificados</CardTitle>
+              <CardDescription>
+                Índice de visibilidade (0–100) baseado em avaliações públicas
+              </CardDescription>
             </CardHeader>
             <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
-                <PieChart>
-                  <Pie
-                    data={keyPlayers}
-                    cx="50%"
-                    cy="50%"
-                    outerRadius={100}
-                    label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                    dataKey="market_share"
-                  >
-                    {keyPlayers.map((entry: any, index: number) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                  <Legend />
-                </PieChart>
-              </ResponsiveContainer>
+              {hasCompetitorData ? (
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart data={visibilityData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="name" tick={{ fontSize: 12 }} />
+                    <YAxis />
+                    <Tooltip formatter={(v: number) => `${v}%`} />
+                    <Legend />
+                    <Bar dataKey="value" name="Visibilidade (%)" />
+                  </BarChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="text-sm text-muted-foreground">
+                  <p className="mb-2">
+                    Sem dados verificados de concorrentes para exibir.
+                  </p>
+                  {Array.isArray(report.sources) &&
+                    report.sources.length > 0 && (
+                      <>
+                        <p className="mb-1">Fontes consultadas:</p>
+                        <ul className="list-disc list-inside">
+                          {report.sources
+                            .slice(0, 8)
+                            .map((s: any, i: number) => (
+                              <li key={i}>
+                                {s.url ? (
+                                  <a
+                                    href={s.url}
+                                    className="underline inline-flex items-center gap-1"
+                                    target="_blank"
+                                    rel="noreferrer"
+                                  >
+                                    <LinkIcon className="h-3 w-3" /> {s.name}
+                                  </a>
+                                ) : (
+                                  s.name
+                                )}
+                              </li>
+                            ))}
+                        </ul>
+                      </>
+                    )}
+                </div>
+              )}
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader>
-              <CardTitle>Segmentação de Clientes</CardTitle>
-              <CardDescription>Distribuição estimada</CardDescription>
+              <CardTitle>Mapa de Concorrentes</CardTitle>
+              <CardDescription>
+                Blumenau — camadas por categoria e zonas sugeridas
+              </CardDescription>
             </CardHeader>
             <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={customerSegmentData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" />
-                  <YAxis />
-                  <Tooltip />
-                  <Legend />
-                  <Bar dataKey="value" fill="#657FEE" name="Porcentagem (%)" />
-                </BarChart>
-              </ResponsiveContainer>
+              <CompetitorsMap
+                center={[-26.915, -49.07]}
+                zoom={14}
+                jsonUrl="/data/pontos.json"
+                focusCategories={focusCats}
+                autoFit
+                className="h-[420px] w-full rounded-md overflow-hidden"
+              />
+              <p className="text-xs text-muted-foreground mt-2">
+                Fonte: OpenStreetMap · Dados locais (MVP).
+              </p>
             </CardContent>
           </Card>
         </div>
@@ -209,16 +433,20 @@ export default function ResultadosPesquisaPage() {
                 <ThumbsUp className="h-5 w-5 mr-2 text-green-600" />
                 Pontos Fortes e Oportunidades
               </CardTitle>
-              <CardDescription>Gerado por IA</CardDescription>
+              <CardDescription>Baseado no relatório</CardDescription>
             </CardHeader>
             <CardContent>
               <h4 className="font-medium mb-2">Forças</h4>
               <ul className="list-disc list-inside text-sm space-y-1 mb-4">
-                {researchResults.strengths.map((s: string, i: number) => <li key={i}>{s}</li>)}
+                {(report.strengths || []).map((s: string, i: number) => (
+                  <li key={i}>{s}</li>
+                ))}
               </ul>
               <h4 className="font-medium mb-2">Oportunidades</h4>
               <ul className="list-disc list-inside text-sm space-y-1">
-                {researchResults.opportunities.map((o: string, i: number) => <li key={i}>{o}</li>)}
+                {(report.opportunities || []).map((o: string, i: number) => (
+                  <li key={i}>{o}</li>
+                ))}
               </ul>
             </CardContent>
           </Card>
@@ -227,18 +455,22 @@ export default function ResultadosPesquisaPage() {
             <CardHeader>
               <CardTitle className="flex items-center">
                 <AlertTriangle className="h-5 w-5 mr-2 text-amber-600" />
-                Fraquezas e Ameaças
+                Fraquezas e Desafios
               </CardTitle>
-              <CardDescription>Gerado por IA</CardDescription>
+              <CardDescription>Baseado no relatório</CardDescription>
             </CardHeader>
             <CardContent>
               <h4 className="font-medium mb-2">Fraquezas</h4>
               <ul className="list-disc list-inside text-sm space-y-1 mb-4">
-                {researchResults.weaknesses.map((w: string, i: number) => <li key={i}>{w}</li>)}
+                {(report.weaknesses || []).map((w: string, i: number) => (
+                  <li key={i}>{w}</li>
+                ))}
               </ul>
               <h4 className="font-medium mb-2">Desafios</h4>
               <ul className="list-disc list-inside text-sm space-y-1">
-                {researchResults.challenges.map((c: string, i: number) => <li key={i}>{c}</li>)}
+                {(report.challenges || []).map((c: string, i: number) => (
+                  <li key={i}>{c}</li>
+                ))}
               </ul>
             </CardContent>
           </Card>
