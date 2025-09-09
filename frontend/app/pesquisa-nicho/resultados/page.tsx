@@ -1,29 +1,29 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { toast } from "sonner";
 
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import {
   Card,
   CardContent,
+  CardDescription,
   CardHeader,
   CardTitle,
-  CardDescription,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import FavoriteSearch from "@/components/ui/favorite-search";
 
 import {
-  Download,
   ChevronRight,
+  Download,
   DollarSign,
+  Minus,
   TrendingDown,
   TrendingUp,
-  Minus,
   BanknoteArrowUp,
   Clock,
   ThumbsUp,
@@ -34,18 +34,19 @@ import {
 import {
   BarChart,
   Bar,
-  XAxis,
-  YAxis,
   CartesianGrid,
-  Tooltip,
   Legend,
   ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
 } from "recharts";
 
-import FavoriteSearch from "@/components/ui/favorite-search";
 import { getAiReportById } from "@/lib/api";
+import { normalizeReport } from "@/lib/normalizeReport";
+import CompetitorsMap from "@/components/maps/CompetitorsMap";
 
-/* -------------- utils -------------- */
+/* ------------ helpers ------------ */
 
 type CompetitionStyle = {
   label: string;
@@ -53,10 +54,9 @@ type CompetitionStyle = {
   colorClass: string;
   icon: any;
 };
-
-function getCompetitionStyle(level: string | undefined): CompetitionStyle {
-  const val = (level || "").toLowerCase();
-  if (val.includes("baixo")) {
+function getCompetitionStyle(level?: string): CompetitionStyle {
+  const v = (level || "").toLowerCase();
+  if (v.includes("baixo")) {
     return {
       label: "Baixa concorrência",
       badgeVariant: "secondary",
@@ -64,7 +64,7 @@ function getCompetitionStyle(level: string | undefined): CompetitionStyle {
       icon: TrendingDown,
     };
   }
-  if (val.includes("méd") || val.includes("medio") || val.includes("médio")) {
+  if (v.includes("méd") || v.includes("medio") || v.includes("médio")) {
     return {
       label: "Concorrência moderada",
       badgeVariant: "outline",
@@ -72,7 +72,7 @@ function getCompetitionStyle(level: string | undefined): CompetitionStyle {
       icon: Minus,
     };
   }
-  if (val.includes("alto") || val.includes("alta")) {
+  if (v.includes("alto") || v.includes("alta")) {
     return {
       label: "Concorrência alta",
       badgeVariant: "destructive",
@@ -91,83 +91,116 @@ function getCompetitionStyle(level: string | undefined): CompetitionStyle {
 function pickTitle(r: any): string {
   const t = (r?.title || "").trim();
   if (t && t.toLowerCase() !== "relatório sem título") return t;
-  const fallback =
+  const fb =
     r?.topic || r?.niche || r?.searchQuery || r?.query || r?.location || "";
-  return String(fallback || "").trim();
+  return String(fb || "").trim();
 }
 
-/* -------------- page -------------- */
+const CATEGORY_ALIASES: Record<string, string> = {
+  "produtos naturais": "Lojas de Produtos Naturais",
+  "loja de produtos naturais": "Lojas de Produtos Naturais",
+  natural: "Lojas de Produtos Naturais",
+  barbearia: "Barbearias",
+  mercearia: "Mercearias",
+  pilates: "Estúdios de Pilates",
+  papelaria: "Papelarias",
+  "salão de beleza": "Salões de Beleza",
+  "salao de beleza": "Salões de Beleza",
+  padaria: "Padarias",
+  "distribuidora de bebidas": "Distribuidoras de Bebidas",
+  "agência de viagens": "Agências de Viagens",
+  "agencia de viagens": "Agências de Viagens",
+  lanchonete: "Lanchonetes",
+  brechó: "Brechós",
+  brecho: "Brechós",
+};
+function inferMapCategories(...txt: (string | undefined)[]) {
+  const hay = txt.filter(Boolean).join(" ").toLowerCase();
+  const out = new Set<string>();
+  for (const [kw, cat] of Object.entries(CATEGORY_ALIASES)) {
+    if (hay.includes(kw)) out.add(cat);
+  }
+  return Array.from(out);
+}
+
+type VisDatum = { name: string; value: number };
+
+/* ------------ page ------------ */
 
 export default function ResultadosPesquisaPage() {
   const [report, setReport] = useState<any>(null);
+
   const searchParams = useSearchParams();
   const reportId = searchParams.get("id");
+  const urlQuery =
+    searchParams.get("q") ||
+    searchParams.get("query") ||
+    searchParams.get("niche") ||
+    "";
 
+  // carrega e normaliza
   useEffect(() => {
     if (!reportId) return;
     (async () => {
-      try {
-        const res = await getAiReportById(reportId);
-        const normalized =
-          res?.report?.report ?? // quando vem doc do mongoose
-          res?.report ?? // quando já vem o conteúdo
-          res;
-        setReport(normalized);
-      } catch (err) {
-        console.error("Erro ao carregar relatório:", err);
-        toast.error("Não foi possível carregar o relatório.");
-      }
-    })();
+      const res = await getAiReportById(reportId);
+      const raw = res?.report?.report ?? res?.report ?? res;
+      setReport(normalizeReport(raw));
+    })().catch(console.error);
   }, [reportId]);
 
-  if (!report) return <p className="text-center mt-12">Carregando dados...</p>;
+  // hooks SEMPRE antes de qualquer return condicional
+  const heading = useMemo(() => pickTitle(report ?? {}), [report]);
 
-  const title = pickTitle(report);
-  const headingSuffix = title ? `: ${title}` : "";
+  const competition = useMemo(
+    () => getCompetitionStyle(report?.competitionLevel ?? ""),
+    [report?.competitionLevel]
+  );
 
-  // público-alvo (string ou array)
-  const audience: string[] = Array.isArray(report.targetAudience)
-    ? report.targetAudience
-    : report.targetAudience?.split(",").map((s: string) => s.trim()).filter(Boolean) || [];
+  const focusCats = useMemo(
+    () => inferMapCategories(heading, urlQuery),
+    [heading, urlQuery]
+  );
 
-  // concorrentes verificados (Foursquare) -> barras por visibilityIndex
-  const competitors: any[] = Array.isArray(report.keyPlayers) ? report.keyPlayers : [];
-  const visibilityData = competitors
-    .map((k: any) => ({ name: k.name, value: Number(k.visibilityIndex ?? 0) }))
-    .filter((d) => Number.isFinite(d.value));
-  const hasCompetitorData = visibilityData.length > 0;
+  const audience: string[] = useMemo(() => {
+    return Array.isArray(report?.targetAudience)
+      ? (report!.targetAudience as string[])
+      : String(report?.targetAudience ?? "")
+          .split(",")
+          .map((s) => s.trim())
+          .filter(Boolean);
+  }, [report?.targetAudience]);
 
-  // segmentação de clientes — preferir customerSegments; fallback: dividir equally pelo público-alvo
-  interface CustomerSegment {
-    name: string;
-    percentage?: number;
-    value?: number;
-  }
+  type KeyPlayer = { name?: string; visibilityIndex?: number };
+  type VisDatum = { name: string; value: number };
 
-  interface Segment {
-    name: string;
-    value: number;
-  }
-
-  const segments: Segment[] =
-    Array.isArray(report.customerSegments) && report.customerSegments.length
-      ? (report.customerSegments as CustomerSegment[])
-          .map((s: CustomerSegment) => ({
-            name: String(s?.name ?? "").trim(),
-            value: Number(s?.percentage ?? s?.value ?? 0),
-          }))
-          .filter((s: Segment) => s.name && Number.isFinite(s.value))
-      : audience.length
-      ? audience.map((name: string) => ({ name, value: +(100 / audience.length).toFixed(2) }))
+  const visibilityData = useMemo<VisDatum[]>(() => {
+    const list: KeyPlayer[] = Array.isArray(report?.keyPlayers)
+      ? (report!.keyPlayers as KeyPlayer[])
       : [];
 
-  const competition = getCompetitionStyle(report?.competitionLevel);
+    return list
+      .map(
+        (k): VisDatum => ({
+          name: String(k?.name ?? ""),
+          value: Number(k?.visibilityIndex ?? 0),
+        })
+      )
+      .filter((d: VisDatum) => d.name.length > 0 && Number.isFinite(d.value));
+    // alternativa com type predicate:
+    // .filter((d): d is VisDatum => d.name.length > 0 && Number.isFinite(d.value));
+  }, [report?.keyPlayers]);
+
+  const hasCompetitorData = visibilityData.length > 0;
+
+  if (!report) {
+    return <p className="text-center mt-12">Carregando dados...</p>;
+  }
 
   return (
     <>
       <Navbar />
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* breadcrumb + header */}
+        {/* header */}
         <div className="mb-8">
           <div className="flex items-center text-sm text-muted-foreground mb-2">
             <span>Pesquisa de Mercado</span>
@@ -179,12 +212,10 @@ export default function ResultadosPesquisaPage() {
             <div>
               <div className="flex items-start gap-2">
                 <h1 className="text-3xl font-bold">
-                  Análise de Mercado{headingSuffix}
+                  Análise de Mercado{heading ? `: ${heading}` : ""}
                 </h1>
                 <FavoriteSearch />
               </div>
-
-              {/* Subtítulo mais claro e com rótulo — nada de número “solto” */}
               {report.marketSize && (
                 <p className="text-sm text-muted-foreground mt-2">
                   Tamanho de mercado (estimativa): {report.marketSize}
@@ -208,7 +239,9 @@ export default function ResultadosPesquisaPage() {
                   <p className="text-sm font-medium text-muted-foreground">
                     Tamanho de Mercado
                   </p>
-                  <p className="text-2xl font-bold">{report.marketSize || "—"}</p>
+                  <p className="text-2xl font-bold">
+                    {report.marketSize || "—"}
+                  </p>
                 </div>
                 <div className="p-2 mt-2 bg-amber-100 dark:bg-amber-900 rounded-full">
                   <DollarSign className="h-8 w-8 text-amber-600 dark:text-amber-300" />
@@ -230,15 +263,17 @@ export default function ResultadosPesquisaPage() {
                   <p className="text-sm font-medium text-muted-foreground">
                     Concorrência
                   </p>
-                  <p className="text-2xl font-bold">{report.competitionLevel || "—"}</p>
+                  <p className="text-2xl font-bold">
+                    {report.competitionLevel || "—"}
+                  </p>
                 </div>
-                <div className={`p-2 mt-2 rounded-full ${competition.colorClass}`}>
+                <div
+                  className={`p-2 mt-2 rounded-full ${competition.colorClass}`}
+                >
                   <competition.icon className="h-8 w-8" />
                 </div>
               </div>
-
-              <div className="flex items-start mt-5 gap-3">
-                {/* Badge que quebra em 2 linhas e não ocupa tudo */}
+              <div className="flex flex-col items-start mt-5 gap-3">
                 <Badge
                   variant={competition.badgeVariant}
                   className="whitespace-normal leading-tight text-xs px-2 py-0.5 max-w-[9rem]"
@@ -263,7 +298,7 @@ export default function ResultadosPesquisaPage() {
                     Público-Alvo
                   </p>
                   <div className="mt-2 flex flex-wrap gap-2">
-                    {audience.slice(0, 8).map((a: string, i: number) => (
+                    {audience.slice(0, 8).map((a, i) => (
                       <span
                         key={i}
                         className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-muted text-foreground"
@@ -298,18 +333,19 @@ export default function ResultadosPesquisaPage() {
                 </div>
               </div>
               <ul className="mt-4 space-y-2 text-sm text-muted-foreground list-disc list-inside">
-                {(report.recommendations || []).slice(0, 3).map((r: string, i: number) => (
-                  <li key={i}>{r}</li>
-                ))}
-                {(!report.recommendations || report.recommendations.length === 0) && (
-                  <li>—</li>
-                )}
+                {(report.recommendations || [])
+                  .slice(0, 3)
+                  .map((r: string, i: number) => (
+                    <li key={i}>{r}</li>
+                  ))}
+                {(!report.recommendations ||
+                  report.recommendations.length === 0) && <li>—</li>}
               </ul>
             </CardContent>
           </Card>
         </div>
 
-        {/* Charts row: à esquerda concorrentes verificados, à direita segmentação */}
+        {/* gráficos / mapa */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
           <Card>
             <CardHeader>
@@ -332,30 +368,35 @@ export default function ResultadosPesquisaPage() {
                 </ResponsiveContainer>
               ) : (
                 <div className="text-sm text-muted-foreground">
-                  <p className="mb-2">Sem dados verificados de concorrentes para exibir.</p>
-                  {Array.isArray(report.sources) && report.sources.length > 0 && (
-                    <>
-                      <p className="mb-1">Fontes consultadas:</p>
-                      <ul className="list-disc list-inside">
-                        {report.sources.slice(0, 8).map((s: any, i: number) => (
-                          <li key={i}>
-                            {s.url ? (
-                              <a
-                                href={s.url}
-                                className="underline inline-flex items-center gap-1"
-                                target="_blank"
-                                rel="noreferrer"
-                              >
-                                <LinkIcon className="h-3 w-3" /> {s.name}
-                              </a>
-                            ) : (
-                              s.name
-                            )}
-                          </li>
-                        ))}
-                      </ul>
-                    </>
-                  )}
+                  <p className="mb-2">
+                    Sem dados verificados de concorrentes para exibir.
+                  </p>
+                  {Array.isArray(report.sources) &&
+                    report.sources.length > 0 && (
+                      <>
+                        <p className="mb-1">Fontes consultadas:</p>
+                        <ul className="list-disc list-inside">
+                          {report.sources
+                            .slice(0, 8)
+                            .map((s: any, i: number) => (
+                              <li key={i}>
+                                {s.url ? (
+                                  <a
+                                    href={s.url}
+                                    className="underline inline-flex items-center gap-1"
+                                    target="_blank"
+                                    rel="noreferrer"
+                                  >
+                                    <LinkIcon className="h-3 w-3" /> {s.name}
+                                  </a>
+                                ) : (
+                                  s.name
+                                )}
+                              </li>
+                            ))}
+                        </ul>
+                      </>
+                    )}
                 </div>
               )}
             </CardContent>
@@ -363,26 +404,23 @@ export default function ResultadosPesquisaPage() {
 
           <Card>
             <CardHeader>
-              <CardTitle>Segmentação de Clientes</CardTitle>
-              <CardDescription>Distribuição estimada</CardDescription>
+              <CardTitle>Mapa de Concorrentes</CardTitle>
+              <CardDescription>
+                Blumenau — camadas por categoria e zonas sugeridas
+              </CardDescription>
             </CardHeader>
             <CardContent>
-              {segments.length > 0 ? (
-                <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={segments}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" tick={{ fontSize: 12 }} />
-                    <YAxis />
-                    <Tooltip formatter={(v: number) => `${v}%`} />
-                    <Legend />
-                    <Bar dataKey="value" name="Porcentagem (%)" />
-                  </BarChart>
-                </ResponsiveContainer>
-              ) : (
-                <div className="text-sm text-muted-foreground">
-                  Não há dados suficientes para estimar a segmentação.
-                </div>
-              )}
+              <CompetitorsMap
+                center={[-26.915, -49.07]}
+                zoom={14}
+                jsonUrl="/data/pontos.json"
+                focusCategories={focusCats}
+                autoFit
+                className="h-[420px] w-full rounded-md overflow-hidden"
+              />
+              <p className="text-xs text-muted-foreground mt-2">
+                Fonte: OpenStreetMap · Dados locais (MVP).
+              </p>
             </CardContent>
           </Card>
         </div>
