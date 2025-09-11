@@ -22,20 +22,24 @@ class FeatureInput(BaseModel):
 @app.post("/predict")
 async def predict_niche(input_data: FeatureInput):
     try:
+        # Convert input features to a NumPy array of type float
         features = np.array(input_data.features, dtype=float)
 
+        # Reshape if the input is a single sample
         if features.ndim == 1:
             features = features.reshape(1, -1)
 
-        # Carrega o modelo se necessário
+        # Load the model if it hasn't been loaded yet
         if knn_service.model is None:
             knn_service.load_model()
 
-        # Predição de probabilidades
+        # Get prediction probabilities from the model
         probs = knn_service.model.predict_proba(features)[0]
 
+        # Get the indices of the top 5 highest probabilities
         top5_indices = np.argsort(probs)[-5:][::-1]
 
+        # Prepare the top 5 recommendations with their probabilities
         recommendations = []
         for idx in top5_indices:
             recommendations.append({
@@ -43,9 +47,11 @@ async def predict_niche(input_data: FeatureInput):
                 "probability": float(probs[idx])
             })
 
+        # Return the recommendations as a JSON response
         return {"recommendations": recommendations}
 
     except Exception as e:
+        # Return an error if prediction fails
         raise HTTPException(status_code=422, detail=str(e))
 
 @app.post("/retrain")

@@ -54,6 +54,7 @@ type CompetitionStyle = {
   colorClass: string;
   icon: any;
 };
+
 function getCompetitionStyle(level?: string): CompetitionStyle {
   const v = (level || "").toLowerCase();
   if (v.includes("baixo")) {
@@ -88,12 +89,16 @@ function getCompetitionStyle(level?: string): CompetitionStyle {
   };
 }
 
-function pickTitle(r: any): string {
-  const t = (r?.title || "").trim();
+function pickTitle(r: any, urlQuery: string): string {
+  const t = String(r?.title ?? "").trim();
   if (t && t.toLowerCase() !== "relatório sem título") return t;
-  const fb =
-    r?.topic || r?.niche || r?.searchQuery || r?.query || r?.location || "";
-  return String(fb || "").trim();
+
+  const fallback = [r?.topic, r?.niche, r?.searchQuery, r?.location, urlQuery]
+    .map((x) => String(x || "").trim())
+    .filter(Boolean)
+    .join(" · ");
+
+  return fallback;
 }
 
 const CATEGORY_ALIASES: Record<string, string> = {
@@ -114,13 +119,14 @@ const CATEGORY_ALIASES: Record<string, string> = {
   brechó: "Brechós",
   brecho: "Brechós",
 };
+
 function inferMapCategories(...txt: (string | undefined)[]) {
   const hay = txt.filter(Boolean).join(" ").toLowerCase();
-  const out = new Set<string>();
+  const picked = new Set<string>();
   for (const [kw, cat] of Object.entries(CATEGORY_ALIASES)) {
-    if (hay.includes(kw)) out.add(cat);
+    if (hay.includes(kw)) picked.add(cat);
   }
-  return Array.from(out);
+  return Array.from(picked);
 }
 
 type VisDatum = { name: string; value: number };
@@ -129,7 +135,6 @@ type VisDatum = { name: string; value: number };
 
 export default function ResultadosPesquisaPage() {
   const [report, setReport] = useState<any>(null);
-
   const searchParams = useSearchParams();
   const reportId = searchParams.get("id");
   const urlQuery =
@@ -145,15 +150,13 @@ export default function ResultadosPesquisaPage() {
       const res = await getAiReportById(reportId);
       const raw = res?.report?.report ?? res?.report ?? res;
       setReport(normalizeReport(raw));
-    })().catch(console.error);
+    })().catch((e) => console.error(e));
   }, [reportId]);
 
-  // hooks SEMPRE antes de qualquer return condicional
-  const heading = useMemo(() => pickTitle(report ?? {}), [report]);
-
-  const competition = useMemo(
-    () => getCompetitionStyle(report?.competitionLevel ?? ""),
-    [report?.competitionLevel]
+  // calcula tudo ANTES do early-return (ordem de hooks estável)
+  const heading = useMemo(
+    () => pickTitle(report, urlQuery),
+    [report, urlQuery]
   );
 
   const focusCats = useMemo(
@@ -161,33 +164,48 @@ export default function ResultadosPesquisaPage() {
     [heading, urlQuery]
   );
 
+  const competition = useMemo(
+    () => getCompetitionStyle(report?.competitionLevel),
+    [report?.competitionLevel]
+  );
+
   const audience: string[] = useMemo(() => {
-    return Array.isArray(report?.targetAudience)
-      ? (report!.targetAudience as string[])
-      : String(report?.targetAudience ?? "")
-          .split(",")
-          .map((s) => s.trim())
-          .filter(Boolean);
+    if (Array.isArray(report?.targetAudience)) return report.targetAudience;
+    return String(report?.targetAudience || "")
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
   }, [report?.targetAudience]);
 
-  type KeyPlayer = { name?: string; visibilityIndex?: number };
-  type VisDatum = { name: string; value: number };
-
-  const visibilityData = useMemo<VisDatum[]>(() => {
-    const list: KeyPlayer[] = Array.isArray(report?.keyPlayers)
-      ? (report!.keyPlayers as KeyPlayer[])
+  const visibilityData: VisDatum[] = useMemo(() => {
+    const list: any[] = Array.isArray(report?.keyPlayers)
+      ? report.keyPlayers
       : [];
-
-    return list
-      .map(
-        (k): VisDatum => ({
-          name: String(k?.name ?? ""),
-          value: Number(k?.visibilityIndex ?? 0),
-        })
-      )
-      .filter((d: VisDatum) => d.name.length > 0 && Number.isFinite(d.value));
-    // alternativa com type predicate:
-    // .filter((d): d is VisDatum => d.name.length > 0 && Number.isFinite(d.value));
+    // 1) tenta usar visibilityIndex
+    const base = list.map((k: any) => ({
+      name: String(k?.name ?? ""),
+      value: Number(k?.visibilityIndex ?? 0),
+      ms:
+        typeof k?.market_share === "number"
+          ? k.market_share
+          : parseFloat(String(k?.marketShare ?? "0")),
+    }));
+    let data: VisDatum[] = base
+      .map((d) => ({
+        name: d.name,
+        value: Number.isFinite(d.value) ? d.value : 0,
+      }))
+      .filter((d) => d.name);
+    // 2) se todo mundo for 0, cai para market_share → escala 0–100
+    const allZero = data.every((d) => !d.value);
+    if (allZero) {
+      const max = Math.max(...base.map((b) => (isFinite(b.ms) ? b.ms : 0)), 0);
+      data = base.map((b) => ({
+        name: b.name,
+        value: max > 0 ? Math.round((b.ms / max) * 100) : 0,
+      }));
+    }
+    return data;
   }, [report?.keyPlayers]);
 
   const hasCompetitorData = visibilityData.length > 0;
@@ -214,7 +232,9 @@ export default function ResultadosPesquisaPage() {
                 <h1 className="text-3xl font-bold">
                   Análise de Mercado{heading ? `: ${heading}` : ""}
                 </h1>
-                <FavoriteSearch />
+                <div className="pr-2">
+                  <FavoriteSearch />
+                </div>
               </div>
               {report.marketSize && (
                 <p className="text-sm text-muted-foreground mt-2">
@@ -276,7 +296,7 @@ export default function ResultadosPesquisaPage() {
               <div className="flex flex-col items-start mt-5 gap-3">
                 <Badge
                   variant={competition.badgeVariant}
-                  className="whitespace-normal leading-tight text-xs px-2 py-0.5 max-w-[9rem]"
+                  className="whitespace-normal leading-tight text-xs px-2 py-0.5 max-w-[12rem]"
                 >
                   {competition.label}
                 </Badge>
@@ -360,10 +380,16 @@ export default function ResultadosPesquisaPage() {
                   <BarChart data={visibilityData}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="name" tick={{ fontSize: 12 }} />
-                    <YAxis />
+                    <YAxis domain={[0, 100]} />
                     <Tooltip formatter={(v: number) => `${v}%`} />
                     <Legend />
-                    <Bar dataKey="value" name="Visibilidade (%)" />
+                    <Bar
+                      dataKey="value"
+                      name="Visibilidade (%)"
+                      minPointSize={3}
+                      fill="hsl(var(--primary))"
+                      radius={[6, 6, 0, 0]}
+                    />
                   </BarChart>
                 </ResponsiveContainer>
               ) : (

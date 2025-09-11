@@ -9,6 +9,7 @@ export interface IKeyPlayer {
 }
 
 export interface IReportContent {
+  title?: string;
   marketSize: string;
   growthRate: string;
   competitionLevel: string;
@@ -24,7 +25,7 @@ export interface IReportContent {
   weaknesses: string[];
 
   sources?: { name: string; url?: string; provider?: string }[];
-  dataQuality?: 'verified' | 'no_evidence';
+  dataQuality?: 'verified' | 'no_evidence' | 'demo';
 }
 
 export interface IReport extends Document {
@@ -48,6 +49,7 @@ const SourceRefSchema = new Schema(
 );
 
 const ReportContentSchema = new Schema<IReportContent>({
+  title: { type: String },
   marketSize: { type: String, required: true },
   growthRate: { type: String, required: true },
   competitionLevel: { type: String, required: true },

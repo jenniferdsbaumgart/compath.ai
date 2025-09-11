@@ -1,6 +1,10 @@
 export function normalizeIncomingReport(raw: any) {
   const r = { ...(raw || {}) };
 
+  if (raw?.title) {
+    r.title = String(raw.title).trim();
+  }
+
   // targetAudience pode vir string → transforma em array
   if (typeof r.targetAudience === "string") {
     r.targetAudience = r.targetAudience
@@ -37,10 +41,12 @@ export function normalizeIncomingReport(raw: any) {
   }
 
   // keyPlayers: garantir shape mínimo
-  r.keyPlayers = r.keyPlayers.map((kp: any) => ({
-    name: String(kp?.name ?? "").trim(),
-    marketShare: String(kp?.marketShare ?? "").trim(),
-  })).filter((kp: any) => kp.name);
+  r.keyPlayers = r.keyPlayers
+    .map((kp: any) => ({
+      name: String(kp?.name ?? "").trim(),
+      marketShare: String(kp?.marketShare ?? "").trim(),
+    }))
+    .filter((kp: any) => kp.name);
 
   return r;
 }
