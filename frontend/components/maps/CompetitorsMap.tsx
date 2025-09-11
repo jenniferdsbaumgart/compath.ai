@@ -1,180 +1,194 @@
 "use client";
 
+import { useEffect, useMemo, useRef } from "react";
+import L, { LatLngBounds } from "leaflet";
 import "leaflet/dist/leaflet.css";
-import L from "leaflet";
-import { useEffect, useRef } from "react";
 
-type Ponto = { nome: string; lat: number; lng: number; categoria: string };
+const defaultIcon = L.icon({
+  iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
+  iconRetinaUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
+  shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41],
+});
+(L.Marker.prototype as any).options.icon = defaultIcon;
+
+type Ponto = {
+  nome: string;
+  lat: number;
+  lng: number;
+  categoria: string;
+};
 
 type Props = {
-  /** centro do mapa */
   center: [number, number];
-  /** zoom inicial (default: 13) */
   zoom?: number;
-  /** URL do JSON (p.ex. /data/pontos.json) */
-  jsonUrl: string;
-  /** quais categorias já começam ligadas (liga só as relacionadas à busca) */
-  focusCategories?: string[];
-  /** tenta ajustar o mapa aos pontos carregados */
-  autoFit?: boolean;
+  jsonUrl: string;              // ex.: "/data/pontos.json"
+  focusCategories?: string[];   // liga só essas camadas (se vier vazio, começa tudo desligado)
+  autoFit?: boolean;            // faz fitBounds nas camadas ligadas
   className?: string;
 };
 
-/** normaliza rótulos sing/plural do dataset para os nomes exibidos no controle */
-function normalizeCategory(c: string) {
-  const map: Record<string, string> = {
-    "Loja de Produtos Naturais": "Lojas de Produtos Naturais",
-    Barbearia: "Barbearias",
-    "Estúdio de Pilates": "Estúdios de Pilates",
-    "Salão de Beleza": "Salões de Beleza",
-    "Agência de Viagens": "Agências de Viagens",
-    Brechó: "Brechós",
-  };
-  return map[c] ?? c;
-}
-
-const ALL_CATEGORIES = [
-  "Lojas de Produtos Naturais",
-  "Barbearias",
-  "Mercearias",
-  "Estúdios de Pilates",
-  "Papelarias",
-  "Salões de Beleza",
-  "Padarias",
-  "Distribuidoras de Bebidas",
-  "Agências de Viagens",
-  "Lanchonetes",
-  "Brechós",
-];
+/** Corrige os ícones default do Leaflet (sem isso aparece um quadrado com “Marker”) */
+const DefaultIcon = L.icon({
+  iconUrl:
+    "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
+  iconRetinaUrl:
+    "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
+  shadowUrl:
+    "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41],
+});
+(L.Marker.prototype as any).options.icon = DefaultIcon;
 
 export default function CompetitorsMap({
   center,
-  zoom = 13,
+  zoom = 14,
   jsonUrl,
   focusCategories = [],
   autoFit = true,
   className,
 }: Props) {
-  /** instâncias permanentes (evita recriar mapa/controles a cada render) */
   const mapRef = useRef<L.Map | null>(null);
   const controlRef = useRef<L.Control.Layers | null>(null);
-  const overlaysRef = useRef<Record<string, L.LayerGroup>>({});
-  const allMarkersRef = useRef<L.FeatureGroup>(new L.FeatureGroup());
+  const baseLayersRef = useRef<{ [k: string]: L.TileLayer }>({});
+  const overlayGroupsRef = useRef<Record<string, L.LayerGroup>>({});
 
-  /** cria o mapa uma única vez */
+  /** cria o mapa só uma vez */
   useEffect(() => {
     if (mapRef.current) return;
 
-    const map = L.map("competitors-map", { center, zoom });
+    const map = L.map("competitors-map", {
+      center,
+      zoom,
+      zoomControl: true,
+    });
     mapRef.current = map;
 
     const osm = L.tileLayer(
       "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-      { attribution: "© OpenStreetMap contributors", maxZoom: 19 }
+      { maxZoom: 19, attribution: "© OpenStreetMap contributors" }
     ).addTo(map);
 
     const hot = L.tileLayer(
       "https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png",
       {
-        attribution:
-          "© OpenStreetMap contributors, tiles style HOT by OpenStreetMap France",
         maxZoom: 19,
+        attribution:
+          "© OpenStreetMap contributors, Tiles style by HOT, hosted by OSM France",
       }
     );
 
-    const control = L.control
-      .layers({ OpenStreetMap: osm, "OpenStreetMap.HOT": hot }, undefined, {
-        collapsed: false,
-      })
+    baseLayersRef.current = { OpenStreetMap: osm, "OpenStreetMap.HOT": hot };
+
+    controlRef.current = L.control
+      .layers(baseLayersRef.current, {}, { collapsed: false })
       .addTo(map);
-    controlRef.current = control;
 
-    // cria todos os grupos, mas **não** adiciona ao mapa ainda
-    ALL_CATEGORIES.forEach((cat) => {
-      const g = L.layerGroup();
-      overlaysRef.current[cat] = g;
-      control.addOverlay(g, cat);
-    });
-
-    // grupo auxiliar só para manter bounds/facilitar clear
-    map.addLayer(allMarkersRef.current);
-
-    // cleanup ao desmontar
     return () => {
       map.remove();
       mapRef.current = null;
       controlRef.current = null;
-      overlaysRef.current = {};
-      allMarkersRef.current = new L.FeatureGroup();
+      overlayGroupsRef.current = {};
     };
   }, [center, zoom]);
 
-  /** carrega/repovoa os pontos do JSON */
+  /** carrega pontos.json e (re)monta as camadas */
   useEffect(() => {
-    const map = mapRef.current;
-    if (!map) return;
+    if (!mapRef.current) return;
+
+    // limpa overlays anteriores (e o control correspondente)
+    Object.values(overlayGroupsRef.current).forEach((g) => {
+      if (mapRef.current!.hasLayer(g)) mapRef.current!.removeLayer(g);
+    });
+    overlayGroupsRef.current = {};
+    controlRef.current?.remove();
+    controlRef.current = L.control
+      .layers(baseLayersRef.current, {}, { collapsed: false })
+      .addTo(mapRef.current);
 
     let cancelled = false;
 
-    async function load() {
-      const res = await fetch(jsonUrl);
-      if (!res.ok) return; // silencioso no MVP
-      const pontos = (await res.json()) as Ponto[];
+    (async () => {
+      const resp = await fetch(jsonUrl);
+      const pontos: Ponto[] = await resp.json();
 
-      // limpa tudo antes de desenhar de novo
-      allMarkersRef.current.clearLayers();
-      Object.values(overlaysRef.current).forEach((g) => g.clearLayers());
+      if (cancelled) return;
 
-      const bounds = new L.LatLngBounds([]);
-
-      pontos.forEach((p) => {
-        const cat = normalizeCategory(p.categoria);
-        const group = overlaysRef.current[cat];
-        if (!group) return;
-
+      // cria um layerGroup por categoria
+      const byCat = new Map<string, L.LayerGroup>();
+      for (const p of pontos) {
+        if (!byCat.has(p.categoria)) {
+          byCat.set(p.categoria, L.layerGroup());
+        }
         const m = L.marker([p.lat, p.lng]).bindPopup(
-          `<b>${p.nome}</b><br>${cat}`
+          `<b>${p.nome}</b><br>${p.categoria}`
         );
+        byCat.get(p.categoria)!.addLayer(m);
+      }
 
-        group.addLayer(m);
-        allMarkersRef.current.addLayer(m);
-        bounds.extend(m.getLatLng());
+      // adiciona os grupos ao controle; liga apenas os do "focusCategories"
+      const map = mapRef.current!;
+      const toFit: L.LatLngExpression[] = [];
+      byCat.forEach((group, cat) => {
+        overlayGroupsRef.current[cat] = group;
+        controlRef.current!.addOverlay(group, cat);
+        const shouldEnable =
+          focusCategories.length > 0 && focusCategories.includes(cat);
+        if (shouldEnable) {
+          group.addTo(map); // checkbox aparece marcado
+          // junta coordenadas p/ fitBounds
+          group.eachLayer((l: any) => {
+            if (l.getLatLng) toFit.push(l.getLatLng());
+          });
+        }
       });
 
-      const map = mapRef.current;
-      if (autoFit && map && bounds.isValid()) {
-        map.fitBounds(bounds.pad(0.15));
+      // somente faz fitBounds quando houver algo ligado
+      if (autoFit && toFit.length > 0) {
+        const b = new LatLngBounds(toFit);
+        map.fitBounds(b.pad(0.15));
       }
-    }
+    })();
 
-    load();
     return () => {
       cancelled = true;
     };
-  }, [jsonUrl, autoFit]);
+  }, [jsonUrl, focusCategories, autoFit]);
 
-  /** liga/desliga camadas de acordo com o foco */
+  /** quando foco muda, liga/desliga as camadas sem reconstruir os pontos */
   useEffect(() => {
+    if (!mapRef.current) return;
     const map = mapRef.current;
-    if (!map) return;
 
-    const showAll = focusCategories.length === 0;
+    // se não foi passado foco, não força seleção
+    if (focusCategories.length === 0) return;
 
-    ALL_CATEGORIES.forEach((cat) => {
-      const g = overlaysRef.current[cat];
-      if (!g) return;
+    const toFit: L.LatLngExpression[] = [];
+    for (const [cat, group] of Object.entries(overlayGroupsRef.current)) {
+      const want = focusCategories.includes(cat);
+      const has = map.hasLayer(group);
+      if (want && !has) {
+        group.addTo(map);
+      } else if (!want && has) {
+        map.removeLayer(group);
+      }
+      if (want) {
+        group.eachLayer((l: any) => {
+          if (l.getLatLng) toFit.push(l.getLatLng());
+        });
+      }
+    }
+    if (autoFit && toFit.length > 0) {
+      const b = new LatLngBounds(toFit);
+      map.fitBounds(b.pad(0.15));
+    }
+  }, [focusCategories, autoFit]);
 
-      const shouldShow = showAll || focusCategories.includes(cat);
-
-      if (shouldShow && !map.hasLayer(g)) map.addLayer(g);
-      if (!shouldShow && map.hasLayer(g)) map.removeLayer(g);
-    });
-  }, [focusCategories]);
-
-  return (
-    <div
-      id="competitors-map"
-      className={className ?? "h-[420px] w-full rounded-md overflow-hidden"}
-    />
-  );
+  return <div id="competitors-map" className={className} />;
 }
