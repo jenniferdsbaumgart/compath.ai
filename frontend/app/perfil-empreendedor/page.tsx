@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, JSX } from "react";
 import { useRouter } from "next/navigation";
 import { Navbar } from "@/components/layout/navbar";
 import {
@@ -104,7 +104,13 @@ import { api } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import { Footer } from "@/components/layout/footer";
 import { RiMentalHealthLine } from "react-icons/ri";
-import { GiBrazil, GiDeliveryDrone, GiLotus, GiSushis, GiSnake } from "react-icons/gi";
+import {
+  GiBrazil,
+  GiDeliveryDrone,
+  GiLotus,
+  GiSushis,
+  GiSnake,
+} from "react-icons/gi";
 import { FaDumbbell, FaMicrochip, FaRunning, FaSeedling } from "react-icons/fa";
 import { TbMeat } from "react-icons/tb";
 import { useProtectedRoute } from "@/hooks/protected-route";
@@ -740,7 +746,8 @@ const profileQuestions: ProfileQuestion[] = [
   },
   {
     id: "audience",
-    question: "Qual público-alvo você gostaria de atingir com seu produto ou serviço?",
+    question:
+      "Qual público-alvo você gostaria de atingir com seu produto ou serviço?",
     type: "audience-tags",
     options: audienceOptions,
   },
@@ -756,7 +763,6 @@ export default function PerfilEmpreendedorPage() {
   const [showRecommendations, setShowRecommendations] = useState(false);
   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
   const [userCoins, setUserCoins] = useState(0);
-  const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [selectedHobbies, setSelectedHobbies] = useState<string[]>([]);
   const [expandedNodes, setExpandedNodes] = useState<string[]>([]);
 
@@ -791,8 +797,6 @@ export default function PerfilEmpreendedorPage() {
     if (savedResponses) {
       const parsedResponses = JSON.parse(savedResponses);
       setResponses(parsedResponses);
-      if (parsedResponses.education) setSelectedTags(parsedResponses.education);
-      if (parsedResponses.audience) setSelectedTags(parsedResponses.audience);
       if (parsedResponses.hobbies) setSelectedHobbies(parsedResponses.hobbies);
     }
 
@@ -812,7 +816,10 @@ export default function PerfilEmpreendedorPage() {
     const response = responses[currentQuestion.id];
 
     // Validation
-    if (currentQuestion.type === "tags" && (!response || response.length === 0)) {
+    if (
+      currentQuestion.type === "tags" &&
+      (!response || response.length === 0)
+    ) {
       toast({
         title: "Seleção necessária",
         description: "Por favor, selecione pelo menos uma opção.",
@@ -820,7 +827,10 @@ export default function PerfilEmpreendedorPage() {
       });
       return;
     }
-    if (currentQuestion.type === "tree" && (!response || response.length === 0)) {
+    if (
+      currentQuestion.type === "tree" &&
+      (!response || response.length === 0)
+    ) {
       toast({
         title: "Seleção necessária",
         description: "Por favor, selecione pelo menos um hobby.",
@@ -828,7 +838,10 @@ export default function PerfilEmpreendedorPage() {
       });
       return;
     }
-    if (currentQuestion.type === "slider" && (response === undefined || response === null)) {
+    if (
+      currentQuestion.type === "slider" &&
+      (response === undefined || response === null)
+    ) {
       toast({
         title: "Seleção necessária",
         description: "Por favor, ajuste o valor do slider.",
@@ -874,15 +887,14 @@ export default function PerfilEmpreendedorPage() {
   };
 
   const handleTagSelect = (tag: string, questionId: string) => {
-    setSelectedTags((prev) => {
-      const newTags = prev.includes(tag)
-        ? prev.filter((t) => t !== tag)
-        : [...prev, tag];
-      setResponses((prev) => ({
-        ...prev,
-        [questionId]: newTags,
-      }));
-      return newTags;
+    setResponses((prev) => {
+      const current = Array.isArray(prev[questionId])
+        ? (prev[questionId] as string[])
+        : [];
+      const next = current.includes(tag)
+        ? current.filter((t) => t !== tag)
+        : [...current, tag];
+      return { ...prev, [questionId]: next };
     });
   };
 
@@ -930,7 +942,10 @@ export default function PerfilEmpreendedorPage() {
     const isSelected = selectedHobbies.includes(node.id);
 
     return (
-      <div key={node.id} className="h-18 whitespace-nowrap items-start space-x-1">
+      <div
+        key={node.id}
+        className="h-18 whitespace-nowrap items-start space-x-1"
+      >
         <div className="flex items-center">
           {node.children && (
             <Button
@@ -944,12 +959,18 @@ export default function PerfilEmpreendedorPage() {
           )}
           <div
             className={`flex items-center cursor-pointer my-2 py-1 pl-1 pr-3 rounded-md ${
-              isSelected ? "bg-accent text-primary-foreground" : "hover:bg-accent/10"
+              isSelected
+                ? "bg-accent text-primary-foreground"
+                : "hover:bg-accent/10"
             }`}
             onClick={() => handleHobbySelect(node.id)}
           >
             {node.icon && (
-              <span className={`mr-1 ${isSelected ? "text-white" : "text-green-600"}`}>
+              <span
+                className={`mr-1 ${
+                  isSelected ? "text-white" : "text-green-600"
+                }`}
+              >
                 {node.icon}
               </span>
             )}
@@ -957,7 +978,9 @@ export default function PerfilEmpreendedorPage() {
           </div>
         </div>
         {isExpanded && node.children && (
-          <div>{node.children.map((child) => renderTreeNode(child, level + 1))}</div>
+          <div>
+            {node.children.map((child) => renderTreeNode(child, level + 1))}
+          </div>
         )}
       </div>
     );
@@ -980,7 +1003,9 @@ export default function PerfilEmpreendedorPage() {
 
       // Get recommendations
       const result = await api.getProfileRecommendations(responses);
-      setRecommendations((result.recommendations as unknown as Recommendation[]) || []);
+      setRecommendations(
+        (result.recommendations as unknown as Recommendation[]) || []
+      );
       setShowRecommendations(true);
 
       // Clear saved responses
@@ -1009,20 +1034,29 @@ export default function PerfilEmpreendedorPage() {
     switch (currentQuestion.type) {
       case "tags":
       case "audience-tags":
+        const selectedForThisQuestion =
+          (responses[currentQuestion.id] as string[]) || [];
+
         return (
           <div className="flex flex-wrap gap-2">
             {currentQuestion.options?.map((option) => {
               const label = typeof option === "string" ? option : option.label;
-              const icon = typeof option === "object" && option.icon ? option.icon : null;
+              const icon =
+                typeof option === "object" && option.icon ? option.icon : null;
+
+              const isSelected = selectedForThisQuestion.includes(label);
+
               return (
                 <Badge
                   key={label}
-                  variant={selectedTags.includes(label) ? "default" : "outline"}
+                  variant={isSelected ? "default" : "outline"}
                   className="cursor-pointer text-sm py-1.5"
                   onClick={() => handleTagSelect(label, currentQuestion.id)}
                 >
                   <div className="flex items-center gap-1">
-                    {icon && <span className="text-muted-foreground">{icon}</span>}
+                    {icon && (
+                      <span className="text-muted-foreground">{icon}</span>
+                    )}
                     <span>{label}</span>
                   </div>
                 </Badge>
@@ -1035,11 +1069,15 @@ export default function PerfilEmpreendedorPage() {
         return (
           <div className="space-y-6">
             <Slider
-              value={[responses[currentQuestion.id] || currentQuestion.min || 0]}
+              value={[
+                responses[currentQuestion.id] || currentQuestion.min || 0,
+              ]}
               max={currentQuestion.max}
               min={currentQuestion.min}
               step={currentQuestion.step}
-              onValueChange={(value) => handleSliderChange(value, currentQuestion.id)}
+              onValueChange={(value) =>
+                handleSliderChange(value, currentQuestion.id)
+              }
             />
             <div className="flex justify-between text-sm text-muted-foreground dark:text-gray-200">
               {currentQuestion.marks?.map((mark) => (
@@ -1099,7 +1137,8 @@ export default function PerfilEmpreendedorPage() {
             </div>
             <h1 className="text-3xl font-bold">Perfil Concluído!</h1>
             <p className="text-muted-foreground mt-2">
-              Com base nas suas respostas, identificamos um nicho ideal para você.
+              Com base nas suas respostas, identificamos um nicho ideal para
+              você.
             </p>
           </div>
 
@@ -1115,7 +1154,8 @@ export default function PerfilEmpreendedorPage() {
                           {rec.niche} ({rec.profile})
                         </CardTitle>
                         <CardDescription className="mt-1 text-sm">
-                          Potencial: <span className="font-semibold">{rec.potential}</span>
+                          Potencial:{" "}
+                          <span className="font-semibold">{rec.potential}</span>
                         </CardDescription>
                       </div>
                       <Button variant="secondary" size="sm">
@@ -1124,15 +1164,25 @@ export default function PerfilEmpreendedorPage() {
                     </div>
                   </CardHeader>
                   <CardContent className="pt-4">
-                    <p className="text-card-foreground mb-4">{rec.description}</p>
+                    <p className="text-card-foreground mb-4">
+                      {rec.description}
+                    </p>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                       <div className="bg-muted p-3 rounded-md">
-                        <span className="block text-muted-foreground mb-1">Investimento Aproximado</span>
-                        <span className="font-medium">{rec.investmentRange}</span>
+                        <span className="block text-muted-foreground mb-1">
+                          Investimento Aproximado
+                        </span>
+                        <span className="font-medium">
+                          {rec.investmentRange}
+                        </span>
                       </div>
                       <div className="bg-muted p-3 rounded-md">
-                        <span className="block text-muted-foreground mb-1">Tempo Necessário</span>
-                        <span className="font-medium">{rec.timeCommitment}</span>
+                        <span className="block text-muted-foreground mb-1">
+                          Tempo Necessário
+                        </span>
+                        <span className="font-medium">
+                          {rec.timeCommitment}
+                        </span>
                       </div>
                     </div>
                   </CardContent>
@@ -1142,7 +1192,8 @@ export default function PerfilEmpreendedorPage() {
               <Card>
                 <CardContent className="pt-6 text-center">
                   <p className="text-muted-foreground">
-                    Nenhuma recomendação disponível no momento. Tente ajustar suas respostas ou entre em contato com o suporte.
+                    Nenhuma recomendação disponível no momento. Tente ajustar
+                    suas respostas ou entre em contato com o suporte.
                   </p>
                 </CardContent>
               </Card>
@@ -1173,18 +1224,25 @@ export default function PerfilEmpreendedorPage() {
           <CardHeader>
             <CardTitle>Perfil Empreendedor</CardTitle>
             <CardDescription>
-              Vamos ajudar você a encontrar o nicho ideal para seu negócio. Responda as perguntas abaixo.
+              Vamos ajudar você a encontrar o nicho ideal para seu negócio.
+              Responda as perguntas abaixo.
             </CardDescription>
           </CardHeader>
           <CardContent>
             {renderProgressSteps()}
             <div className="mb-6">
-              <h2 className="text-xl font-semibold mb-2">{profileQuestions[currentStep].question}</h2>
+              <h2 className="text-xl font-semibold mb-2">
+                {profileQuestions[currentStep].question}
+              </h2>
               <div className="mt-4">{renderQuestionForm()}</div>
             </div>
           </CardContent>
           <CardFooter className="flex justify-between">
-            <Button variant="outline" onClick={handlePrevious} disabled={currentStep === 0 || isLoading}>
+            <Button
+              variant="outline"
+              onClick={handlePrevious}
+              disabled={currentStep === 0 || isLoading}
+            >
               <ArrowLeft className="mr-2 h-4 w-4" />
               Anterior
             </Button>
@@ -1211,7 +1269,9 @@ export default function PerfilEmpreendedorPage() {
             <div>
               <h3 className="font-medium dark:text-gray-100">Dica</h3>
               <p className="text-sm text-muted-foreground dark:text-gray-300">
-                Selecione todas as opções que se aplicam ao seu perfil. Quanto mais informações você fornecer, melhores serão nossas recomendações.
+                Selecione todas as opções que se aplicam ao seu perfil. Quanto
+                mais informações você fornecer, melhores serão nossas
+                recomendações.
               </p>
             </div>
           </div>
