@@ -29,7 +29,7 @@ services:
       - /app/node_modules
     environment:
       - MONGODB_URI=mongodb://mongo:27017/compath
-      - KNN_API_URL=http://compath-knn:8000
+      - KNN_URL=http://compath-knn:8000
     depends_on:
       - mongo
       - compath-knn
