@@ -1,17 +1,18 @@
+// controllers/aiReportController.ts
 import { Request, Response } from "express";
-import { generateMarketReport } from "../services/aiReportService";
 import Report from "../models/Report";
-import {
-  searchPlacesFoursquare,
-  buildKeyPlayersFromPlaces,
-  type Place,
-} from "../services/placesService";
+import { generateMarketReport } from "../services/aiReportService";
 
-/** Normaliza o objeto report recebido do front/IA sem perder campos novos */
+/* ------------------------------------------------------------------ */
+/* Normalização só do que o schema aceita                             */
+/* ------------------------------------------------------------------ */
 function normalizeIncomingReport(raw: any) {
   const r = { ...(raw || {}) };
 
-  // targetAudience: string -> array
+  // title (opcional)
+  if (raw?.title) r.title = String(raw.title).trim();
+
+  // targetAudience: string -> array (o front prefere array)
   if (typeof r.targetAudience === "string") {
     r.targetAudience = r.targetAudience
       .split(/,| e /i)
@@ -21,7 +22,7 @@ function normalizeIncomingReport(raw: any) {
   }
   if (!Array.isArray(r.targetAudience)) r.targetAudience = [];
 
-  // customerSegments
+  // customerSegments: normaliza shape, mas pode ser removido no save (schema não tem)
   if (Array.isArray(r.customerSegments)) {
     r.customerSegments = r.customerSegments
       .map((s: any) => ({
@@ -33,7 +34,7 @@ function normalizeIncomingReport(raw: any) {
     r.customerSegments = [];
   }
 
-  // garantir listas
+  // listas garantidas
   const listKeys = [
     "keyPlayers",
     "opportunities",
@@ -44,64 +45,37 @@ function normalizeIncomingReport(raw: any) {
   ];
   for (const k of listKeys) if (!Array.isArray(r[k])) r[k] = [];
 
-  // keyPlayers: preservar url/address/visibilityIndex
-  r.keyPlayers = r.keyPlayers
+  // keyPlayers: só os campos que o schema conhece
+  r.keyPlayers = (Array.isArray(r.keyPlayers) ? r.keyPlayers : [])
     .map((kp: any) => ({
       name: String(kp?.name ?? "").trim(),
       marketShare:
         kp?.marketShare != null ? String(kp.marketShare).trim() : undefined,
-      url: kp?.url ? String(kp.url).trim() : undefined,
-      address: kp?.address ? String(kp.address).trim() : undefined,
-      visibilityIndex:
-        kp?.visibilityIndex != null && Number.isFinite(Number(kp.visibilityIndex))
-          ? Number(kp.visibilityIndex)
-          : undefined,
+      visibilityIndex: Number.isFinite(Number(kp?.visibilityIndex))
+        ? Number(kp.visibilityIndex)
+        : undefined,
     }))
     .filter((kp: any) => kp.name);
+
+  // fontes e dataQuality (schema aceita "verified" | "no_evidence")
+  if (!Array.isArray(r.sources)) r.sources = [];
+  if (r.dataQuality !== "verified") r.dataQuality = "no_evidence";
 
   return r;
 }
 
+/* ------------------------------------------------------------------ */
+/* Controllers                                                         */
+/* ------------------------------------------------------------------ */
+
 export const generateAiReport = async (req: Request, res: Response) => {
   try {
-    const { userInput, niche, location } = req.body;
-
-    const topic = (niche || userInput || "").trim();
-    const near = (location || userInput || "").trim(); // ex.: "Blumenau, SC"
-
-    if (!topic) {
+    const { userInput } = (req.body ?? {}) as { userInput?: string };
+    if (!userInput || userInput.trim() === "") {
       return res.status(400).json({ error: "Texto de entrada é obrigatório." });
     }
 
-    // 1) Relatório base via IA
-    const aiReport = await generateMarketReport(topic);
-
-    // 2) Concorrentes reais (Foursquare) → keyPlayers
-    let places: Place[] = [];
-    try {
-      const nearParam = near || "Brazil";
-      places = await searchPlacesFoursquare(topic, nearParam, { limit: 12 }); // << usa objeto
-    } catch (e) {
-      console.warn("Foursquare falhou, seguindo sem concorrentes reais:", e);
-    }
-    const keyPlayers = buildKeyPlayersFromPlaces(places);
-
-    // 3) Sobrescreve keyPlayers
-    const report = {
-      ...aiReport,
-      keyPlayers,
-      sources: keyPlayers.length
-        ? [
-            {
-              name: "Foursquare Places",
-              url: "https://location.foursquare.com/developer/",
-              provider: "foursquare",
-            },
-          ]
-        : [],
-      dataQuality: keyPlayers.length ? "verified" : "no_evidence",
-    };
-
+    const report = await generateMarketReport(userInput);
     return res.status(200).json({ report });
   } catch (error) {
     console.error("Erro ao gerar relatório:", error);
@@ -111,7 +85,12 @@ export const generateAiReport = async (req: Request, res: Response) => {
 
 export async function saveReport(req: Request, res: Response) {
   try {
-    const { userId, searchQuery, report } = req.body || {};
+    const { userId, searchQuery, report } = (req.body ?? {}) as {
+      userId?: string;
+      searchQuery?: string;
+      report?: unknown;
+    };
+
     if (!userId || !searchQuery || !report) {
       return res.status(400).json({
         success: false,
@@ -121,16 +100,18 @@ export async function saveReport(req: Request, res: Response) {
 
     const normalized = normalizeIncomingReport(report);
 
-    // compat: se o model ainda guarda targetAudience como String
+    // compat: schema atual espera targetAudience como String
     const schema: any = Report.schema;
     const taType = schema.path("report.targetAudience")?.instance; // "String" | "Array"
     if (taType === "String" && Array.isArray(normalized.targetAudience)) {
       normalized.targetAudience = normalized.targetAudience.join(", ");
     }
 
-    if (!schema.path("report.customerSegments")) {
-      delete normalized.customerSegments;
-    }
+    // remover campos que o schema não tem (evita ValidationError)
+    if (!schema.path("report.customerSegments"))
+      delete (normalized as any).customerSegments;
+    if (!schema.path("report.seasonality"))
+      delete (normalized as any).seasonality;
 
     const saved = await Report.create({
       userId,
@@ -144,7 +125,11 @@ export async function saveReport(req: Request, res: Response) {
       reportId: saved._id,
     });
   } catch (error: any) {
-    console.error("Erro ao salvar relatório:", error?.message, error?.errors ?? error);
+    console.error(
+      "Erro ao salvar relatório:",
+      error?.message,
+      error?.errors ?? error
+    );
     return res.status(500).json({
       success: false,
       error: error?.message || "Erro ao salvar relatório",
@@ -154,7 +139,7 @@ export async function saveReport(req: Request, res: Response) {
 
 export async function getReportById(req: Request, res: Response) {
   try {
-    const { id } = req.params;
+    const { id } = req.params as { id: string };
     const report = await Report.findById(id);
 
     if (!report) {

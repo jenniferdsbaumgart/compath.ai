@@ -1,5 +1,10 @@
 
-export type KeyPlayer = { name?: string; marketShare?: string | number; market_share?: number };
+export type KeyPlayer = {
+  name?: string;
+  marketShare?: string | number;
+  market_share?: number;
+  visibilityIndex?: number; // ← preservar
+};
 export type CustomerSegment = { name?: string; percentage?: number; value?: number };
 
 export function parsePercent(val: string | number | undefined) {
@@ -34,13 +39,25 @@ function normalizeAudience(aud: unknown): string[] {
 }
 
 export function normalizeKeyPlayers(players: KeyPlayer[] = []) {
-  const parsed = players.map((p) => ({
-    name: p.name?.trim() || "—",
-    market_share: typeof p.market_share === "number" ? p.market_share : parsePercent(p.marketShare),
-  }));
+  const parsed = players.map((p) => {
+    const ms =
+      typeof p.market_share === "number" ? p.market_share : parsePercent(p.marketShare);
+    const vi =
+      Number.isFinite(Number((p as any).visibilityIndex))
+        ? Number((p as any).visibilityIndex)
+        : undefined;
+    return {
+      name: p.name?.trim() || "—",
+      market_share: ms,
+      visibilityIndex: vi, // ← NÃO perder
+    };
+  });
   const total = parsed.reduce((acc, p) => acc + p.market_share, 0);
   if (total > 0 && Math.round(total) !== 100) {
-    return parsed.map((p) => ({ ...p, market_share: +(p.market_share * 100 / total).toFixed(2) }));
+    return parsed.map((p) => ({
+      ...p,
+      market_share: +((p.market_share * 100) / total).toFixed(2),
+    }));
   }
   return parsed;
 }
