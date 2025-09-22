@@ -2,6 +2,7 @@
 import { Request, Response } from "express";
 import Report from "../models/Report";
 import { generateMarketReport } from "../services/aiReportService";
+import { logger, logError, logBusiness } from "../utils/logger";
 
 /* ------------------------------------------------------------------ */
 /* Normalização só do que o schema aceita                             */
@@ -70,16 +71,58 @@ function normalizeIncomingReport(raw: any) {
 
 export const generateAiReport = async (req: Request, res: Response) => {
   try {
-    const { userInput } = (req.body ?? {}) as { userInput?: string };
-    if (!userInput || userInput.trim() === "") {
-      return res.status(400).json({ error: "Texto de entrada é obrigatório." });
+    const { userInput } = req.body;
+    const userId = req.user?.id;
+
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        error: "Usuário não autenticado.",
+      });
     }
 
+    // Import User model here to avoid circular dependencies
+    const User = (await import("../models/User")).default;
+
+    // Check if user has enough coins (cost: 10 coins per report)
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        error: "Usuário não encontrado.",
+      });
+    }
+
+    const reportCost = 10;
+    if (user.coins < reportCost) {
+      return res.status(400).json({
+        success: false,
+        error:
+          "Moedas insuficientes. Você precisa de 10 moedas para gerar um relatório.",
+        requiredCoins: reportCost,
+        userCoins: user.coins,
+      });
+    }
+
+    // Generate the report
     const report = await generateMarketReport(userInput);
-    return res.status(200).json({ report });
+
+    // Deduct coins after successful generation
+    user.coins -= reportCost;
+    await user.save();
+
+    return res.status(200).json({
+      success: true,
+      report,
+      coinsSpent: reportCost,
+      remainingCoins: user.coins,
+    });
   } catch (error) {
-    console.error("Erro ao gerar relatório:", error);
-    return res.status(500).json({ error: "Erro interno do servidor." });
+    logError(error as Error, "generateAiReport");
+    return res.status(500).json({
+      success: false,
+      error: "Erro interno do servidor.",
+    });
   }
 };
 
@@ -125,11 +168,7 @@ export async function saveReport(req: Request, res: Response) {
       reportId: saved._id,
     });
   } catch (error: any) {
-    console.error(
-      "Erro ao salvar relatório:",
-      error?.message,
-      error?.errors ?? error
-    );
+    logError(error as Error, "saveReport");
     return res.status(500).json({
       success: false,
       error: error?.message || "Erro ao salvar relatório",
@@ -150,7 +189,7 @@ export async function getReportById(req: Request, res: Response) {
 
     return res.status(200).json({ success: true, report });
   } catch (error) {
-    console.error("Erro ao buscar relatório:", error);
+    logError(error as Error, "getReportById");
     return res
       .status(500)
       .json({ success: false, error: "Erro ao buscar relatório" });
