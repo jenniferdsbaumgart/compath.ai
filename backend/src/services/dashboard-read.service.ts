@@ -32,23 +32,43 @@ export class DashboardReadService {
   }
 
   private async createDashboardReadModel(userId: string): Promise<any> {
-    const user = await this.userModel.findById(userId);
-    if (!user) {
+    // Otimizado: Buscar dados do usuário e estatísticas em uma única aggregation
+    const [userResult, statsResult] = await Promise.all([
+      // Query otimizada para dados do usuário
+      this.userModel.findById(userId).select('coins invitedFriends').lean(),
+
+      // Aggregation pipeline para estatísticas do usuário
+      this.reportModel.aggregate([
+        { $match: { userId } },
+        {
+          $group: {
+            _id: null,
+            searchCount: { $sum: 1 },
+            lastReportDate: { $max: '$createdAt' },
+          },
+        },
+      ]),
+    ]);
+
+    if (!userResult) {
       throw new Error(`User ${userId} not found`);
     }
 
-    const searchCount = await this.reportModel.countDocuments({ userId });
+    const userStats = statsResult[0] || { searchCount: 0 };
+
+    // Buscar métricas globais (cacheadas)
+    const globalMetrics = await this.getGlobalMetrics();
 
     const dashboard = new this.dashboardModel({
       userId,
-      coins: user.coins || 0,
-      searchCount,
-      invitedFriendsCount: user.invitedFriends?.length || 0,
+      coins: userResult.coins || 0,
+      searchCount: userStats.searchCount,
+      invitedFriendsCount: userResult.invitedFriends?.length || 0,
       activeCourses: [], // TODO: Implement when Course/Enrollment models are available
       lastUpdated: new Date(),
-      totalUsers: await this.userModel.countDocuments(),
-      totalCourses: 0, // TODO: Implement when Course model is available
-      totalSearches: await this.reportModel.countDocuments(),
+      totalUsers: globalMetrics.totalUsers,
+      totalCourses: globalMetrics.totalCourses,
+      totalSearches: globalMetrics.totalSearches,
     });
 
     return dashboard.save();
@@ -107,26 +127,41 @@ export class DashboardReadService {
     totalCourses: number;
     totalSearches: number;
   }> {
-    // Get the most recent global metrics from any dashboard read model
-    const latest = await this.dashboardModel
+    // Otimizado: Tentar cache primeiro, depois calcular em tempo real
+    const cachedMetrics = await this.dashboardModel
       .findOne()
       .sort({ lastUpdated: -1 })
-      .select('totalUsers totalCourses totalSearches');
+      .select('totalUsers totalCourses totalSearches totalSearches')
+      .lean();
 
-    if (!latest) {
-      // Fallback to real-time calculation
-      return {
-        totalUsers: await this.userModel.countDocuments(),
-        totalCourses: 0, // TODO: Implement when Course model is available
-        totalSearches: await this.reportModel.countDocuments(),
-      };
+    if (cachedMetrics && cachedMetrics.lastUpdated) {
+      // Verificar se o cache não está muito antigo (5 minutos)
+      const cacheAge = Date.now() - cachedMetrics.lastUpdated.getTime();
+      if (cacheAge < 5 * 60 * 1000) {
+        return {
+          totalUsers: cachedMetrics.totalUsers || 0,
+          totalCourses: cachedMetrics.totalCourses || 0,
+          totalSearches: cachedMetrics.totalSearches || 0,
+        };
+      }
     }
 
-    return {
-      totalUsers: latest.totalUsers || 0,
-      totalCourses: latest.totalCourses || 0,
-      totalSearches: latest.totalSearches || 0,
+    // Fallback: Calcular métricas globais com queries otimizadas
+    const [userCount, reportCount] = await Promise.all([
+      this.userModel.countDocuments(),
+      this.reportModel.countDocuments(),
+    ]);
+
+    const metrics = {
+      totalUsers: userCount,
+      totalCourses: 0, // TODO: Implement when Course model is available
+      totalSearches: reportCount,
     };
+
+    // Atualizar cache global
+    await this.updateGlobalMetrics(metrics);
+
+    return metrics;
   }
 
   async rebuildReadModel(userId: string): Promise<void> {

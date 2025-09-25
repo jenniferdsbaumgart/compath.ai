@@ -1,8 +1,11 @@
-import { Injectable, ConflictException } from '@nestjs/common';
+import { Injectable, ConflictException, Inject } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import type { Cache } from 'cache-manager';
 import * as bcrypt from 'bcryptjs';
 import { User, UserDocument } from '../../models';
+import { DashboardReadService } from '../../services/dashboard-read.service';
 import {
   CreateUserCommand,
   UpdateUserCommand,
@@ -22,7 +25,11 @@ import {
 export class CreateUserCommandHandler
   implements ICommandHandler<CreateUserCommand>
 {
-  constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
+  constructor(
+    @InjectModel(User.name) private userModel: Model<UserDocument>,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
+    private dashboardReadService: DashboardReadService,
+  ) {}
 
   async execute(command: CreateUserCommand): Promise<string> {
     const { payload } = command;
@@ -56,6 +63,14 @@ export class CreateUserCommandHandler
     );
 
     // TODO: Publish event to message broker
+
+    // Invalidar cache de métricas globais
+    await this.cacheManager.del('global_metrics');
+    await this.dashboardReadService.updateGlobalMetrics({
+      totalUsers: await this.userModel.countDocuments(),
+      totalCourses: 0, // TODO: Update when courses are implemented
+      totalSearches: await this.userModel.db.collection('reports').countDocuments(),
+    });
 
     return (savedUser._id as any).toString();
   }
@@ -98,7 +113,10 @@ export class UpdateUserCommandHandler
 export class SpendCoinsCommandHandler
   implements ICommandHandler<SpendCoinsCommand>
 {
-  constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
+  constructor(
+    @InjectModel(User.name) private userModel: Model<UserDocument>,
+    private dashboardReadService: DashboardReadService,
+  ) {}
 
   async execute(
     command: SpendCoinsCommand,
@@ -123,6 +141,9 @@ export class SpendCoinsCommandHandler
 
     // TODO: Publish event to message broker
 
+    // Atualizar read model do dashboard
+    await this.dashboardReadService.updateUserCoins(userId, user.coins);
+
     return { remainingCoins: user.coins };
   }
 }
@@ -131,7 +152,10 @@ export class SpendCoinsCommandHandler
 export class EarnCoinsCommandHandler
   implements ICommandHandler<EarnCoinsCommand>
 {
-  constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
+  constructor(
+    @InjectModel(User.name) private userModel: Model<UserDocument>,
+    private dashboardReadService: DashboardReadService,
+  ) {}
 
   async execute(command: EarnCoinsCommand): Promise<{ totalCoins: number }> {
     const { payload } = command;
@@ -149,6 +173,9 @@ export class EarnCoinsCommandHandler
     const event = new UserCoinsEarnedEvent(userId, amount, source, user.coins);
 
     // TODO: Publish event to message broker
+
+    // Atualizar read model do dashboard
+    await this.dashboardReadService.updateUserCoins(userId, user.coins);
 
     return { totalCoins: user.coins };
   }

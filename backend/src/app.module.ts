@@ -10,6 +10,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { User, UserSchema, Report, ReportSchema, DashboardReadModel, DashboardReadModelSchema } from './models';
 import { JwtStrategy } from './auth';
+import { DatabaseModule } from './database/database.module';
 import { UserModule } from './controllers/user.module';
 import { AiReportModule } from './controllers/ai-report.module';
 import { DashboardModule } from './controllers/dashboard.module';
@@ -64,6 +65,7 @@ import * as redisStore from 'cache-manager-redis-store';
         limit: 100,
       },
     ]),
+    DatabaseModule,
     UserModule,
     AiReportModule,
     DashboardModule,
