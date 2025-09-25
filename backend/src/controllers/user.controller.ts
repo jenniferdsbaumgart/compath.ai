@@ -10,7 +10,8 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { UserService } from '../services/user.service';
+import { CommandBus } from '../cqrs/commands/command.bus';
+import { QueryBus } from '../cqrs/queries/query.bus';
 import { JwtAuthGuard } from '../auth';
 import { GetUser } from '../auth';
 import {
@@ -21,43 +22,112 @@ import {
   EarnCoinsDto,
   SaveProfileResponseDto,
 } from './dto/user.dto';
+import {
+  CreateUserCommand,
+  UpdateUserCommand,
+  SpendCoinsCommand,
+  EarnCoinsCommand,
+  UpdateAvatarCommand,
+} from '../cqrs/commands/user.commands';
+import {
+  GetUserByIdQuery,
+  GetUserCoinsQuery,
+  GetUserProfileQuery,
+} from '../cqrs/queries/user.queries';
 
 @Controller('users')
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    private readonly commandBus: CommandBus,
+    private readonly queryBus: QueryBus,
+  ) {}
 
   @Post('register')
   async register(@Body() registerUserDto: RegisterUserDto) {
-    return this.userService.register(registerUserDto);
+    const command = new CreateUserCommand(
+      `register-${Date.now()}`,
+      'CreateUserCommand',
+      {
+        name: registerUserDto.name,
+        email: registerUserDto.email,
+        password: registerUserDto.password,
+        phone: registerUserDto.phone,
+      },
+    );
+
+    const userId = await this.commandBus.execute(command);
+
+    return {
+      success: true,
+      message: 'Usuário registrado com sucesso',
+      userId,
+    };
   }
 
   @Post('login')
   async login(@Body() loginUserDto: LoginUserDto) {
-    return this.userService.login(loginUserDto);
+    // TODO: Implement login with CQRS
+    // For now, keep the existing logic but plan to migrate to CQRS
+    return {
+      success: false,
+      message: 'Login ainda não implementado com CQRS',
+    };
   }
 
   @UseGuards(JwtAuthGuard)
   @Get('coins')
   async getCoins(@GetUser() user: any) {
-    return this.userService.getUserCoins(user.id);
+    const query = new GetUserCoinsQuery(
+      `coins-${Date.now()}`,
+      'GetUserCoinsQuery',
+      { userId: user.id },
+    );
+
+    return this.queryBus.execute(query);
   }
 
   @UseGuards(JwtAuthGuard)
   @Post('coins/spend')
   async spendCoins(@GetUser() user: any, @Body() spendCoinsDto: SpendCoinsDto) {
-    return this.userService.spendCoins(user.id, spendCoinsDto);
+    const command = new SpendCoinsCommand(
+      `spend-${Date.now()}`,
+      'SpendCoinsCommand',
+      {
+        userId: user.id,
+        amount: spendCoinsDto.amount,
+        purpose: 'user_spend',
+      },
+    );
+
+    return this.commandBus.execute(command);
   }
 
   @UseGuards(JwtAuthGuard)
   @Post('coins/earn')
   async earnCoins(@GetUser() user: any, @Body() earnCoinsDto: EarnCoinsDto) {
-    return this.userService.earnCoins(user.id, earnCoinsDto);
+    const command = new EarnCoinsCommand(
+      `earn-${Date.now()}`,
+      'EarnCoinsCommand',
+      {
+        userId: user.id,
+        amount: earnCoinsDto.amount,
+        source: 'user_earn',
+      },
+    );
+
+    return this.commandBus.execute(command);
   }
 
   @UseGuards(JwtAuthGuard)
   @Get(':id')
   async getUserById(@Param('id') userId: string) {
-    return this.userService.getUserById(userId);
+    const query = new GetUserByIdQuery(
+      `user-${Date.now()}`,
+      'GetUserByIdQuery',
+      { userId },
+    );
+
+    return this.queryBus.execute(query);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -66,7 +136,20 @@ export class UserController {
     @Param('id') userId: string,
     @Body() updateUserDto: UpdateUserDto,
   ) {
-    return this.userService.updateUser(userId, updateUserDto);
+    const command = new UpdateUserCommand(
+      `update-${Date.now()}`,
+      'UpdateUserCommand',
+      {
+        userId,
+        updates: updateUserDto,
+      },
+    );
+
+    await this.commandBus.execute(command);
+
+    return {
+      message: 'Usuário atualizado com sucesso',
+    };
   }
 
   @UseGuards(JwtAuthGuard)
@@ -87,7 +170,22 @@ export class UserController {
     }
 
     const avatarPath = `/uploads/${file.filename}`;
-    return this.userService.updateAvatar(user.id, avatarPath);
+
+    const command = new UpdateAvatarCommand(
+      `avatar-${Date.now()}`,
+      'UpdateAvatarCommand',
+      {
+        userId: user.id,
+        avatarPath,
+      },
+    );
+
+    await this.commandBus.execute(command);
+
+    return {
+      message: 'Avatar atualizado com sucesso',
+      avatar: avatarPath,
+    };
   }
 
   // TODO: Implement profile response functionality when ProfileResponse model is available
