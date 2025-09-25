@@ -11,6 +11,7 @@ import { AppService } from './app.service';
 import { User, UserSchema, Report, ReportSchema } from './models';
 import { JwtStrategy } from './auth';
 import { UserModule } from './controllers/user.module';
+import { AiReportModule } from './controllers/ai-report.module';
 import * as redisStore from 'cache-manager-redis-store';
 
 @Module({
@@ -62,6 +63,7 @@ import * as redisStore from 'cache-manager-redis-store';
       },
     ]),
     UserModule,
+    AiReportModule,
   ],
   controllers: [AppController],
   providers: [AppService, JwtStrategy],

@@ -11,13 +11,18 @@ import {
   UpdateAvatarCommand,
 } from '../commands/user.commands';
 import { ICommandHandler } from '../commands/command.interface';
-import { UserRegisteredEvent, UserProfileUpdatedEvent, UserCoinsSpentEvent, UserCoinsEarnedEvent } from '../../events';
+import {
+  UserRegisteredEvent,
+  UserProfileUpdatedEvent,
+  UserCoinsSpentEvent,
+  UserCoinsEarnedEvent,
+} from '../../events';
 
 @Injectable()
-export class CreateUserCommandHandler implements ICommandHandler<CreateUserCommand> {
-  constructor(
-    @InjectModel(User.name) private userModel: Model<UserDocument>,
-  ) {}
+export class CreateUserCommandHandler
+  implements ICommandHandler<CreateUserCommand>
+{
+  constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
 
   async execute(command: CreateUserCommand): Promise<string> {
     const { payload } = command;
@@ -57,10 +62,10 @@ export class CreateUserCommandHandler implements ICommandHandler<CreateUserComma
 }
 
 @Injectable()
-export class UpdateUserCommandHandler implements ICommandHandler<UpdateUserCommand> {
-  constructor(
-    @InjectModel(User.name) private userModel: Model<UserDocument>,
-  ) {}
+export class UpdateUserCommandHandler
+  implements ICommandHandler<UpdateUserCommand>
+{
+  constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
 
   async execute(command: UpdateUserCommand): Promise<void> {
     const { payload } = command;
@@ -83,22 +88,21 @@ export class UpdateUserCommandHandler implements ICommandHandler<UpdateUserComma
     await user.save();
 
     // Emit event
-    const event = new UserProfileUpdatedEvent(
-      userId,
-      updates,
-    );
+    const event = new UserProfileUpdatedEvent(userId, updates);
 
     // TODO: Publish event to message broker
   }
 }
 
 @Injectable()
-export class SpendCoinsCommandHandler implements ICommandHandler<SpendCoinsCommand> {
-  constructor(
-    @InjectModel(User.name) private userModel: Model<UserDocument>,
-  ) {}
+export class SpendCoinsCommandHandler
+  implements ICommandHandler<SpendCoinsCommand>
+{
+  constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
 
-  async execute(command: SpendCoinsCommand): Promise<{ remainingCoins: number }> {
+  async execute(
+    command: SpendCoinsCommand,
+  ): Promise<{ remainingCoins: number }> {
     const { payload } = command;
     const { userId, amount, purpose } = payload;
 
@@ -115,12 +119,7 @@ export class SpendCoinsCommandHandler implements ICommandHandler<SpendCoinsComma
     await user.save();
 
     // Emit event
-    const event = new UserCoinsSpentEvent(
-      userId,
-      amount,
-      purpose,
-      user.coins,
-    );
+    const event = new UserCoinsSpentEvent(userId, amount, purpose, user.coins);
 
     // TODO: Publish event to message broker
 
@@ -129,10 +128,10 @@ export class SpendCoinsCommandHandler implements ICommandHandler<SpendCoinsComma
 }
 
 @Injectable()
-export class EarnCoinsCommandHandler implements ICommandHandler<EarnCoinsCommand> {
-  constructor(
-    @InjectModel(User.name) private userModel: Model<UserDocument>,
-  ) {}
+export class EarnCoinsCommandHandler
+  implements ICommandHandler<EarnCoinsCommand>
+{
+  constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
 
   async execute(command: EarnCoinsCommand): Promise<{ totalCoins: number }> {
     const { payload } = command;
@@ -147,12 +146,7 @@ export class EarnCoinsCommandHandler implements ICommandHandler<EarnCoinsCommand
     await user.save();
 
     // Emit event
-    const event = new UserCoinsEarnedEvent(
-      userId,
-      amount,
-      source,
-      user.coins,
-    );
+    const event = new UserCoinsEarnedEvent(userId, amount, source, user.coins);
 
     // TODO: Publish event to message broker
 
@@ -161,10 +155,10 @@ export class EarnCoinsCommandHandler implements ICommandHandler<EarnCoinsCommand
 }
 
 @Injectable()
-export class UpdateAvatarCommandHandler implements ICommandHandler<UpdateAvatarCommand> {
-  constructor(
-    @InjectModel(User.name) private userModel: Model<UserDocument>,
-  ) {}
+export class UpdateAvatarCommandHandler
+  implements ICommandHandler<UpdateAvatarCommand>
+{
+  constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
 
   async execute(command: UpdateAvatarCommand): Promise<void> {
     const { payload } = command;

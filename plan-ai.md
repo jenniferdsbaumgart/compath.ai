@@ -36,7 +36,7 @@ Transformar Compath.ai em uma plataforma SaaS escalável e robusta, migrando de 
 ### Fase 2: Core Domain (Semanas 9-16)
 
 - [x] Implementar CQRS para User Service
-- [ ] Migrar AI Reports para event-driven
+- [x] Migrar AI Reports para event-driven
 - [ ] Criar Read Models para Dashboard
 - [ ] Otimizar queries MongoDB
 - [ ] Implementar cache inteligente

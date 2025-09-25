@@ -10,10 +10,10 @@ import {
 import { IQueryHandler } from '../queries/query.interface';
 
 @Injectable()
-export class GetUserByIdQueryHandler implements IQueryHandler<GetUserByIdQuery> {
-  constructor(
-    @InjectModel(User.name) private userModel: Model<UserDocument>,
-  ) {}
+export class GetUserByIdQueryHandler
+  implements IQueryHandler<GetUserByIdQuery>
+{
+  constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
 
   async execute(query: GetUserByIdQuery): Promise<any> {
     const { payload } = query;
@@ -29,10 +29,10 @@ export class GetUserByIdQueryHandler implements IQueryHandler<GetUserByIdQuery> 
 }
 
 @Injectable()
-export class GetUserCoinsQueryHandler implements IQueryHandler<GetUserCoinsQuery> {
-  constructor(
-    @InjectModel(User.name) private userModel: Model<UserDocument>,
-  ) {}
+export class GetUserCoinsQueryHandler
+  implements IQueryHandler<GetUserCoinsQuery>
+{
+  constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
 
   async execute(query: GetUserCoinsQuery): Promise<{ coins: number }> {
     const { payload } = query;
@@ -48,10 +48,10 @@ export class GetUserCoinsQueryHandler implements IQueryHandler<GetUserCoinsQuery
 }
 
 @Injectable()
-export class GetUserProfileQueryHandler implements IQueryHandler<GetUserProfileQuery> {
-  constructor(
-    @InjectModel(User.name) private userModel: Model<UserDocument>,
-  ) {}
+export class GetUserProfileQueryHandler
+  implements IQueryHandler<GetUserProfileQuery>
+{
+  constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
 
   async execute(query: GetUserProfileQuery): Promise<any> {
     const { payload } = query;
