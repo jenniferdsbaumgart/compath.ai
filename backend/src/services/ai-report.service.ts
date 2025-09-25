@@ -13,7 +13,20 @@ export class AiReportService {
   }
 
   private monthLabels() {
-    return ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+    return [
+      'Jan',
+      'Fev',
+      'Mar',
+      'Abr',
+      'Mai',
+      'Jun',
+      'Jul',
+      'Ago',
+      'Set',
+      'Out',
+      'Nov',
+      'Dez',
+    ];
   }
 
   private clampText(s: string, max: number) {
@@ -39,18 +52,22 @@ export class AiReportService {
   private parsePct(s?: string | number) {
     if (typeof s === 'number') return s;
     if (!s) return 0;
-    const n = Number(String(s).replace(/[^\d.,-]/g, '').replace(',', '.'));
+    const n = Number(
+      String(s)
+        .replace(/[^\d.,-]/g, '')
+        .replace(',', '.'),
+    );
     return isNaN(n) ? 0 : n;
   }
 
   private injectVisibilityIndex(keyPlayers: any[] = []) {
-    const withMs = keyPlayers.map(k => ({
+    const withMs = keyPlayers.map((k) => ({
       ...k,
       __ms: this.parsePct(k.marketShare),
     }));
-    const max = Math.max(...withMs.map(k => k.__ms), 0);
+    const max = Math.max(...withMs.map((k) => k.__ms), 0);
     if (max > 0) {
-      return withMs.map(k => ({
+      return withMs.map((k) => ({
         ...k,
         visibilityIndex: Math.round((k.__ms / max) * 100),
       }));
@@ -112,20 +129,35 @@ Retorne **apenas** o JSON válido, sem comentários.
     ];
     const keyPlayers = this.injectVisibilityIndex(players);
 
-    const base = Array.from({ length: 12 }, (_, i) => ({ month: this.monthLabels()[i], demandIndex: 6 }));
-    base[0].demandIndex = 7; base[1].demandIndex = 7; base[5].demandIndex = 9;
-    base[6].demandIndex = 10; base[7].demandIndex = 11; base[11].demandIndex = 8;
+    const base = Array.from({ length: 12 }, (_, i) => ({
+      month: this.monthLabels()[i],
+      demandIndex: 6,
+    }));
+    base[0].demandIndex = 7;
+    base[1].demandIndex = 7;
+    base[5].demandIndex = 9;
+    base[6].demandIndex = 10;
+    base[7].demandIndex = 11;
+    base[11].demandIndex = 8;
     const sum = base.reduce((a, b) => a + b.demandIndex, 0);
-    base.forEach(x => x.demandIndex = Math.round((x.demandIndex / sum) * 100));
+    base.forEach(
+      (x) => (x.demandIndex = Math.round((x.demandIndex / sum) * 100)),
+    );
     const diff = 100 - base.reduce((a, b) => a + b.demandIndex, 0);
     base[6].demandIndex += diff;
 
     return {
       title: `Análise de ${topic}`,
       marketSize: 'R$ 12–18 milhões/ano (estimado)',
-      growthRate: this.clampText('Crescimento moderado impulsionado por demanda local', 70),
+      growthRate: this.clampText(
+        'Crescimento moderado impulsionado por demanda local',
+        70,
+      ),
       competitionLevel: 'Média',
-      entryBarriers: this.clampText('Exige ponto estratégico, capital inicial e branding consistente', 140),
+      entryBarriers: this.clampText(
+        'Exige ponto estratégico, capital inicial e branding consistente',
+        140,
+      ),
       targetAudience: ['moradores locais', 'trabalhadores', 'turistas'],
       customerSegments: [
         { name: 'Clientes recorrentes', percentage: 38 },
@@ -202,7 +234,10 @@ Retorne **apenas** o JSON válido, sem comentários.
         return parsed;
       }
 
-      this.logger.error('OpenAI returned unexpected format. Using fallback stub.', { text });
+      this.logger.error(
+        'OpenAI returned unexpected format. Using fallback stub.',
+        { text },
+      );
       return this.getStubReport(userInput);
     } catch (err) {
       this.logger.error('Failed to call OpenAI. Using fallback stub.', err);

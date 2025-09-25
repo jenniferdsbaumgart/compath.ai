@@ -1,11 +1,4 @@
-import {
-  Controller,
-  Post,
-  Get,
-  Body,
-  Param,
-  UseGuards,
-} from '@nestjs/common';
+import { Controller, Post, Get, Body, Param, UseGuards } from '@nestjs/common';
 import { CommandBus } from '../cqrs/commands/command.bus';
 import { QueryBus } from '../cqrs/queries/query.bus';
 import { JwtAuthGuard } from '../auth';

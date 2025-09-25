@@ -12,7 +12,9 @@ import { ICommandHandler } from '../commands/command.interface';
 import { ReportGeneratedEvent } from '../../events';
 
 @Injectable()
-export class GenerateAiReportCommandHandler implements ICommandHandler<GenerateAiReportCommand> {
+export class GenerateAiReportCommandHandler
+  implements ICommandHandler<GenerateAiReportCommand>
+{
   constructor(
     private aiReportService: AiReportService,
     private userService: UserService,
@@ -30,7 +32,8 @@ export class GenerateAiReportCommandHandler implements ICommandHandler<GenerateA
     if (userCoins.coins < reportCost) {
       throw new ConflictException({
         success: false,
-        error: 'Moedas insuficientes. Você precisa de 10 moedas para gerar um relatório.',
+        error:
+          'Moedas insuficientes. Você precisa de 10 moedas para gerar um relatório.',
         requiredCoins: reportCost,
         userCoins: userCoins.coins,
       });
@@ -64,7 +67,9 @@ export class GenerateAiReportCommandHandler implements ICommandHandler<GenerateA
 }
 
 @Injectable()
-export class SaveReportCommandHandler implements ICommandHandler<SaveReportCommand> {
+export class SaveReportCommandHandler
+  implements ICommandHandler<SaveReportCommand>
+{
   constructor(
     @InjectModel(Report.name) private reportModel: Model<ReportDocument>,
   ) {}

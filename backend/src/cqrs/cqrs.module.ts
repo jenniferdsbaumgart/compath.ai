@@ -1,10 +1,18 @@
 import { Module, OnModuleInit } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { User, UserSchema, Report, ReportSchema } from '../models';
+import {
+  User,
+  UserSchema,
+  Report,
+  ReportSchema,
+  DashboardReadModel,
+  DashboardReadModelSchema
+} from '../models';
 
 // Services
 import { AiReportService } from '../services/ai-report.service';
 import { UserService } from '../services/user.service';
+import { DashboardReadService } from '../services/dashboard-read.service';
 
 // Command handlers
 import {
@@ -20,6 +28,11 @@ import {
   SaveReportCommandHandler,
 } from './handlers/report.command.handlers';
 
+import {
+  UpdateDashboardReadModelCommandHandler,
+  UpdateGlobalMetricsCommandHandler,
+} from './handlers/dashboard.command.handlers';
+
 // Query handlers
 import {
   GetUserByIdQueryHandler,
@@ -31,6 +44,11 @@ import {
   GetReportByIdQueryHandler,
   GetUserReportsQueryHandler,
 } from './handlers/report.query.handlers';
+
+import {
+  GetDashboardDataQueryHandler,
+  GetGlobalMetricsQueryHandler,
+} from './handlers/dashboard.query.handlers';
 
 // Buses
 import { CommandBus } from './commands/command.bus';
@@ -47,6 +65,7 @@ import { QueryBus } from './queries/query.bus';
     // Services
     AiReportService,
     UserService,
+    DashboardReadService,
 
     // Command handlers
     CreateUserCommandHandler,
@@ -56,6 +75,8 @@ import { QueryBus } from './queries/query.bus';
     UpdateAvatarCommandHandler,
     GenerateAiReportCommandHandler,
     SaveReportCommandHandler,
+    UpdateDashboardReadModelCommandHandler,
+    UpdateGlobalMetricsCommandHandler,
 
     // Query handlers
     GetUserByIdQueryHandler,
@@ -63,6 +84,8 @@ import { QueryBus } from './queries/query.bus';
     GetUserProfileQueryHandler,
     GetReportByIdQueryHandler,
     GetUserReportsQueryHandler,
+    GetDashboardDataQueryHandler,
+    GetGlobalMetricsQueryHandler,
 
     // Buses
     CommandBus,
@@ -83,6 +106,8 @@ export class CqrsModule implements OnModuleInit {
     private updateAvatarHandler: UpdateAvatarCommandHandler,
     private generateAiReportHandler: GenerateAiReportCommandHandler,
     private saveReportHandler: SaveReportCommandHandler,
+    private updateDashboardHandler: UpdateDashboardReadModelCommandHandler,
+    private updateGlobalMetricsHandler: UpdateGlobalMetricsCommandHandler,
 
     // Query handlers
     private getUserByIdHandler: GetUserByIdQueryHandler,
@@ -90,6 +115,8 @@ export class CqrsModule implements OnModuleInit {
     private getUserProfileHandler: GetUserProfileQueryHandler,
     private getReportByIdHandler: GetReportByIdQueryHandler,
     private getUserReportsHandler: GetUserReportsQueryHandler,
+    private getDashboardDataHandler: GetDashboardDataQueryHandler,
+    private getGlobalMetricsHandler: GetGlobalMetricsQueryHandler,
   ) {}
 
   onModuleInit() {
@@ -122,6 +149,14 @@ export class CqrsModule implements OnModuleInit {
       'SaveReportCommand',
       SaveReportCommandHandler,
     );
+    this.commandBus.registerHandler(
+      'UpdateDashboardReadModelCommand',
+      UpdateDashboardReadModelCommandHandler,
+    );
+    this.commandBus.registerHandler(
+      'UpdateGlobalMetricsCommand',
+      UpdateGlobalMetricsCommandHandler,
+    );
 
     // Register query handlers
     this.queryBus.registerHandler('GetUserByIdQuery', GetUserByIdQueryHandler);
@@ -140,6 +175,14 @@ export class CqrsModule implements OnModuleInit {
     this.queryBus.registerHandler(
       'GetUserReportsQuery',
       GetUserReportsQueryHandler,
+    );
+    this.queryBus.registerHandler(
+      'GetDashboardDataQuery',
+      GetDashboardDataQueryHandler,
+    );
+    this.queryBus.registerHandler(
+      'GetGlobalMetricsQuery',
+      GetGlobalMetricsQueryHandler,
     );
   }
 }

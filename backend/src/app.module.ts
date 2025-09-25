@@ -8,10 +8,11 @@ import { CacheModule } from '@nestjs/cache-manager';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { User, UserSchema, Report, ReportSchema } from './models';
+import { User, UserSchema, Report, ReportSchema, DashboardReadModel, DashboardReadModelSchema } from './models';
 import { JwtStrategy } from './auth';
 import { UserModule } from './controllers/user.module';
 import { AiReportModule } from './controllers/ai-report.module';
+import { DashboardModule } from './controllers/dashboard.module';
 import * as redisStore from 'cache-manager-redis-store';
 
 @Module({
@@ -27,6 +28,7 @@ import * as redisStore from 'cache-manager-redis-store';
     MongooseModule.forFeature([
       { name: User.name, schema: UserSchema },
       { name: Report.name, schema: ReportSchema },
+      { name: DashboardReadModel.name, schema: DashboardReadModelSchema },
     ]),
     JwtModule.register({
       global: true,
@@ -64,6 +66,7 @@ import * as redisStore from 'cache-manager-redis-store';
     ]),
     UserModule,
     AiReportModule,
+    DashboardModule,
   ],
   controllers: [AppController],
   providers: [AppService, JwtStrategy],

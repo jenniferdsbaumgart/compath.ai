@@ -9,7 +9,9 @@ import {
 import { IQueryHandler } from '../queries/query.interface';
 
 @Injectable()
-export class GetReportByIdQueryHandler implements IQueryHandler<GetReportByIdQuery> {
+export class GetReportByIdQueryHandler
+  implements IQueryHandler<GetReportByIdQuery>
+{
   constructor(
     @InjectModel(Report.name) private reportModel: Model<ReportDocument>,
   ) {}
@@ -29,7 +31,9 @@ export class GetReportByIdQueryHandler implements IQueryHandler<GetReportByIdQue
 }
 
 @Injectable()
-export class GetUserReportsQueryHandler implements IQueryHandler<GetUserReportsQuery> {
+export class GetUserReportsQueryHandler
+  implements IQueryHandler<GetUserReportsQuery>
+{
   constructor(
     @InjectModel(Report.name) private reportModel: Model<ReportDocument>,
   ) {}
