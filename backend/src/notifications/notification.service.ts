@@ -18,7 +18,10 @@ export class NotificationService {
     const notification = await this.commandBus.execute(command);
 
     // Enviar via WebSocket se usuário estiver conectado
-    await this.notificationGateway.sendNotificationToUser(command.userId, notification);
+    await this.notificationGateway.sendNotificationToUser(
+      command.userId,
+      notification,
+    );
 
     return notification;
   }
@@ -53,7 +56,11 @@ export class NotificationService {
   }
 
   // Notificações específicas do negócio
-  async notifyReportGenerated(userId: string, reportId: string, reportTitle: string) {
+  async notifyReportGenerated(
+    userId: string,
+    reportId: string,
+    reportTitle: string,
+  ) {
     return this.sendQuickNotification(
       userId,
       NotificationType.REPORT_GENERATED,

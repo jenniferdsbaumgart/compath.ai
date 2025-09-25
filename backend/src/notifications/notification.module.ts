@@ -13,8 +13,8 @@ import { MarkNotificationReadHandler } from './commands/mark-notification-read.h
   imports: [
     CqrsModule,
     MongooseModule.forFeature([
-      { name: Notification.name, schema: NotificationSchema }
-    ])
+      { name: Notification.name, schema: NotificationSchema },
+    ]),
   ],
   providers: [
     NotificationGateway,

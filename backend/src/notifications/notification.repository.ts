@@ -6,15 +6,22 @@ import { Notification, NotificationDocument } from './notification.schema';
 @Injectable()
 export class NotificationRepository {
   constructor(
-    @InjectModel(Notification.name) private notificationModel: Model<NotificationDocument>,
+    @InjectModel(Notification.name)
+    private notificationModel: Model<NotificationDocument>,
   ) {}
 
-  async create(notification: Partial<Notification>): Promise<NotificationDocument> {
+  async create(
+    notification: Partial<Notification>,
+  ): Promise<NotificationDocument> {
     const createdNotification = new this.notificationModel(notification);
     return createdNotification.save();
   }
 
-  async findByUserId(userId: string, limit = 50, offset = 0): Promise<NotificationDocument[]> {
+  async findByUserId(
+    userId: string,
+    limit = 50,
+    offset = 0,
+  ): Promise<NotificationDocument[]> {
     return this.notificationModel
       .find({ userId })
       .sort({ createdAt: -1 })
@@ -30,7 +37,10 @@ export class NotificationRepository {
       .exec();
   }
 
-  async markAsRead(notificationId: string, userId: string): Promise<NotificationDocument | null> {
+  async markAsRead(
+    notificationId: string,
+    userId: string,
+  ): Promise<NotificationDocument | null> {
     return this.notificationModel
       .findOneAndUpdate(
         { _id: notificationId, userId },

@@ -12,6 +12,8 @@ Compath is a platform designed to help entrepreneurs find their ideal niche, exp
 
 **AI/ML:** Python, scikit-learn, KNN Algorithm
 
+**Analytics:** Event Sourcing, Real-time Metrics, Business Intelligence
+
 **Others**: JWT, bcrypt, Stripe, OpenAI, CQRS Pattern, Event Sourcing
 
 ## Features
@@ -20,6 +22,7 @@ Compath is a platform designed to help entrepreneurs find their ideal niche, exp
 - **Real-time Notifications**: WebSocket-based notifications for immediate feedback on reports, coins, and system events.
 - User Currency System: Gamified experience where users earn coins by using the platform and inviting others. Coins are used to conduct research.
 - Courses: Access to courses aimed at improving entrepreneurial skills.
+- **Analytics Dashboard**: Real-time business intelligence with event-sourced metrics and charts.
 - Dashboard: Displays previous research, insights and important data through interactive charts.
 - **CQRS Architecture**: Command Query Responsibility Segregation for scalable operations.
 - **Event-Driven System**: RabbitMQ for asynchronous processing and event sourcing.
@@ -42,13 +45,13 @@ Compath is a platform designed to help entrepreneurs find their ideal niche, exp
     ▼
 [API Gateway (NestJS + CQRS)]
     │
-    ├── [Command Service] → [Event Handlers] → [RabbitMQ]
-    │       │                       │
-    │       ▼                       ▼
-    │   [MongoDB]           [Analytics Service]
-    │       │                       │
-    │       ▼                       ▼
-    │   [Read Models]       [Event Store]
+    ├── [Command Service] → [Event Handlers] → [RabbitMQ] → [Event Store]
+    │       │                       │                       │
+    │       ▼                       ▼                       ▼
+    │   [MongoDB]           [Analytics Service]     [Business Intelligence]
+    │       │                       │                       │
+    │       ▼                       ▼                       ▼
+    │   [Read Models]       [Real-time Metrics]     [Analytics Dashboard]
     │       │
     │       ▼
     └── [Query Service] ← [Redis Cache]
@@ -89,6 +92,7 @@ python main.py
 Base URL: `http://localhost:3001/api`
 
 #### Authentication
+
 All requests require JWT token in Authorization header: `Bearer <token>`
 
 #### Key Endpoints
@@ -97,6 +101,9 @@ All requests require JWT token in Authorization header: `Bearer <token>`
 - `POST /reports/generate` - Generate AI report
 - `GET /dashboard/stats` - Get dashboard statistics
 - `GET /notifications` - Get user notifications (real-time via WebSocket)
+- `GET /analytics/summary` - Get comprehensive analytics summary
+- `GET /analytics/dashboard` - Get analytics dashboard with charts
+- `GET /analytics/realtime` - Get real-time metrics
 - `WebSocket: /notifications` - Real-time notification stream
 
 ### Real-time Features
@@ -104,14 +111,14 @@ All requests require JWT token in Authorization header: `Bearer <token>`
 Connect to WebSocket namespace `/notifications` with JWT token for real-time updates:
 
 ```javascript
-import io from 'socket.io-client';
+import io from "socket.io-client";
 
-const socket = io('http://localhost:3001/notifications', {
-  auth: { token: 'your-jwt-token' }
+const socket = io("http://localhost:3001/notifications", {
+  auth: { token: "your-jwt-token" },
 });
 
-socket.on('notification', (notification) => {
-  console.log('New notification:', notification);
+socket.on("notification", (notification) => {
+  console.log("New notification:", notification);
 });
 ```
 

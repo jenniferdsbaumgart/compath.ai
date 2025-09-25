@@ -4,6 +4,7 @@ import { Model } from 'mongoose';
 import { Report, ReportDocument } from '../../models';
 import { AiReportService } from '../../services/ai-report.service';
 import { UserService } from '../../services/user.service';
+import { EventPublisherService } from '../../analytics/event-publisher.service';
 import {
   GenerateAiReportCommand,
   SaveReportCommand,
@@ -18,6 +19,7 @@ export class GenerateAiReportCommandHandler
   constructor(
     private aiReportService: AiReportService,
     private userService: UserService,
+    private eventPublisher: EventPublisherService,
   ) {}
 
   async execute(command: GenerateAiReportCommand): Promise<any> {
@@ -47,15 +49,7 @@ export class GenerateAiReportCommandHandler
       amount: reportCost,
     });
 
-    // Emit event
-    const event = new ReportGeneratedEvent(
-      `report-${Date.now()}`, // This would be the actual report ID after saving
-      userId,
-      userInput,
-      report,
-    );
-
-    // TODO: Publish event to message broker
+    // Event will be emitted when report is saved in SaveReportCommandHandler
 
     return {
       success: true,
@@ -72,6 +66,7 @@ export class SaveReportCommandHandler
 {
   constructor(
     @InjectModel(Report.name) private reportModel: Model<ReportDocument>,
+    private eventPublisher: EventPublisherService,
   ) {}
 
   async execute(command: SaveReportCommand): Promise<{ reportId: string }> {
@@ -87,7 +82,20 @@ export class SaveReportCommandHandler
       report: normalized,
     });
 
-    return { reportId: (saved._id as any).toString() };
+    const reportId = (saved._id as any).toString();
+
+    // Emit event
+    const event = new ReportGeneratedEvent(
+      reportId,
+      userId,
+      searchQuery,
+      normalized,
+    );
+
+    // Publish to event store for analytics
+    await this.eventPublisher.publish(event);
+
+    return { reportId };
   }
 
   private normalizeIncomingReport(raw: any) {

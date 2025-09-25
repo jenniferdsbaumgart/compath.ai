@@ -19,7 +19,9 @@ import { NotificationService } from './notification.service';
   },
   namespace: '/notifications',
 })
-export class NotificationGateway implements OnGatewayConnection, OnGatewayDisconnect {
+export class NotificationGateway
+  implements OnGatewayConnection, OnGatewayDisconnect
+{
   @WebSocketServer()
   server: Server;
 
@@ -60,7 +62,10 @@ export class NotificationGateway implements OnGatewayConnection, OnGatewayDiscon
   }
 
   @SubscribeMessage('join')
-  handleJoin(@MessageBody() data: { userId: string }, @ConnectedSocket() client: Socket) {
+  handleJoin(
+    @MessageBody() data: { userId: string },
+    @ConnectedSocket() client: Socket,
+  ) {
     this.connectedUsers.set(data.userId, client.id);
     client.emit('joined', { message: 'Connected to notification service' });
   }
@@ -68,7 +73,7 @@ export class NotificationGateway implements OnGatewayConnection, OnGatewayDiscon
   @SubscribeMessage('mark_read')
   async handleMarkRead(
     @MessageBody() data: { notificationId: string },
-    @ConnectedSocket() client: Socket
+    @ConnectedSocket() client: Socket,
   ) {
     // Implementation will be added
     client.emit('notification_read', { notificationId: data.notificationId });

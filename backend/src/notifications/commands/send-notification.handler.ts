@@ -4,8 +4,12 @@ import { NotificationRepository } from '../notification.repository';
 import { NotificationType, NotificationPriority } from '../notification.schema';
 
 @CommandHandler(SendNotificationCommand)
-export class SendNotificationHandler implements ICommandHandler<SendNotificationCommand> {
-  constructor(private readonly notificationRepository: NotificationRepository) {}
+export class SendNotificationHandler
+  implements ICommandHandler<SendNotificationCommand>
+{
+  constructor(
+    private readonly notificationRepository: NotificationRepository,
+  ) {}
 
   async execute(command: SendNotificationCommand) {
     const { userId, type, title, message, priority, data } = command;

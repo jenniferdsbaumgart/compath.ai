@@ -6,6 +6,7 @@ import type { Cache } from 'cache-manager';
 import * as bcrypt from 'bcryptjs';
 import { User, UserDocument } from '../../models';
 import { DashboardReadService } from '../../services/dashboard-read.service';
+import { EventPublisherService } from '../../analytics/event-publisher.service';
 import {
   CreateUserCommand,
   UpdateUserCommand,
@@ -29,6 +30,7 @@ export class CreateUserCommandHandler
     @InjectModel(User.name) private userModel: Model<UserDocument>,
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
     private dashboardReadService: DashboardReadService,
+    private eventPublisher: EventPublisherService,
   ) {}
 
   async execute(command: CreateUserCommand): Promise<string> {
@@ -62,7 +64,8 @@ export class CreateUserCommandHandler
       payload.name,
     );
 
-    // TODO: Publish event to message broker
+    // Publish to event store for analytics
+    await this.eventPublisher.publish(event);
 
     // Invalidar cache de métricas globais
     await this.cacheManager.del('global_metrics');
@@ -118,6 +121,7 @@ export class SpendCoinsCommandHandler
   constructor(
     @InjectModel(User.name) private userModel: Model<UserDocument>,
     private dashboardReadService: DashboardReadService,
+    private eventPublisher: EventPublisherService,
   ) {}
 
   async execute(
@@ -141,7 +145,8 @@ export class SpendCoinsCommandHandler
     // Emit event
     const event = new UserCoinsSpentEvent(userId, amount, purpose, user.coins);
 
-    // TODO: Publish event to message broker
+    // Publish to event store for analytics
+    await this.eventPublisher.publish(event);
 
     // Atualizar read model do dashboard
     await this.dashboardReadService.updateUserCoins(userId, user.coins);
@@ -157,6 +162,7 @@ export class EarnCoinsCommandHandler
   constructor(
     @InjectModel(User.name) private userModel: Model<UserDocument>,
     private dashboardReadService: DashboardReadService,
+    private eventPublisher: EventPublisherService,
   ) {}
 
   async execute(command: EarnCoinsCommand): Promise<{ totalCoins: number }> {
@@ -174,7 +180,8 @@ export class EarnCoinsCommandHandler
     // Emit event
     const event = new UserCoinsEarnedEvent(userId, amount, source, user.coins);
 
-    // TODO: Publish event to message broker
+    // Publish to event store for analytics
+    await this.eventPublisher.publish(event);
 
     // Atualizar read model do dashboard
     await this.dashboardReadService.updateUserCoins(userId, user.coins);
