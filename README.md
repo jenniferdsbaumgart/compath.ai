@@ -10,7 +10,7 @@ Compath is a platform designed to help entrepreneurs find their ideal niche, exp
 
 **Real-time:** WebSocket (Socket.io), RabbitMQ for event streaming
 
-**AI/ML:** Python, scikit-learn, KNN Algorithm
+**AI/ML:** Python, scikit-learn, Enhanced KNN Algorithm with hyperparameter tuning, cross-validation, and feature engineering
 
 **Analytics:** Event Sourcing, Real-time Metrics, Business Intelligence
 
@@ -84,7 +84,16 @@ npm run dev
 # KNN Service
 cd knn-service
 pip install -r requirements.txt
+
+# Original KNN Service (Port 8000)
 python main.py
+
+# Enhanced KNN Service (Port 8001) - Recommended
+python enhanced_main.py
+
+# Run tests and training
+python test_enhanced_knn.py
+python enhanced_train_from_db.py
 ```
 
 ### API Documentation
@@ -120,6 +129,53 @@ const socket = io("http://localhost:3001/notifications", {
 socket.on("notification", (notification) => {
   console.log("New notification:", notification);
 });
+```
+
+### Enhanced KNN Service (Port 8001)
+
+The enhanced KNN service provides advanced machine learning capabilities:
+
+**New Features:**
+- Hyperparameter tuning with Grid Search CV
+- Cross-validation with multiple scoring metrics
+- Feature scaling and automatic selection
+- Ensemble methods (Bagging)
+- Confidence score predictions
+- Comprehensive model evaluation
+- Feature importance analysis
+- Background model retraining
+
+**API Endpoints:**
+- `POST /predict` - Enhanced predictions with confidence scores
+- `POST /retrain` - Background model retraining
+- `POST /retrain/sync` - Synchronous retraining
+- `GET /model-info` - Detailed model information
+- `GET /feature-importance` - Feature importance scores
+- `GET /performance` - Model performance metrics
+
+**Example Prediction Request:**
+```json
+{
+  "features": [10.5, 2.1, 15.8, 7.2],
+  "confidence_threshold": 0.7
+}
+```
+
+**Example Response:**
+```json
+{
+  "recommendations": [
+    {"niche": "technology", "probability": 0.85, "rank": 1},
+    {"niche": "finance", "probability": 0.72, "rank": 2}
+  ],
+  "metadata": {
+    "input_features_count": 4,
+    "confidence_threshold": 0.7,
+    "high_confidence_predictions": true,
+    "model_version": "enhanced_v2"
+  },
+  "confidence_scores": [0.85, 0.72, 0.68, 0.55, 0.42]
+}
 ```
 
 ## License

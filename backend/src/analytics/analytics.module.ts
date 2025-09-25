@@ -13,15 +13,7 @@ import { EventStore, EventStoreSchema } from './event-store.schema';
     ]),
   ],
   controllers: [AnalyticsController],
-  providers: [
-    AnalyticsService,
-    EventStoreService,
-    EventPublisherService,
-  ],
-  exports: [
-    AnalyticsService,
-    EventStoreService,
-    EventPublisherService,
-  ],
+  providers: [AnalyticsService, EventStoreService, EventPublisherService],
+  exports: [AnalyticsService, EventStoreService, EventPublisherService],
 })
 export class AnalyticsModule {}

@@ -45,7 +45,7 @@ Transformar Compath.ai em uma plataforma SaaS escalável e robusta, migrando de 
 
 - [x] Sistema de notificações real-time
 - [x] Analytics com event sourcing
-- [ ] Melhorar algoritmo KNN
+- [x] Melhorar algoritmo KNN
 - [ ] Framework A/B testing
 - [ ] Estratégia de versionamento API
 

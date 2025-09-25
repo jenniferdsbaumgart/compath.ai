@@ -1,10 +1,4 @@
-import {
-  Controller,
-  Get,
-  Query,
-  UseGuards,
-  Param,
-} from '@nestjs/common';
+import { Controller, Get, Query, UseGuards, Param } from '@nestjs/common';
 import { AnalyticsService } from './analytics.service';
 import { EventStoreService } from './event-store.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -181,7 +175,10 @@ export class AnalyticsController {
       const nextDay = new Date(day);
       nextDay.setDate(nextDay.getDate() + 1);
 
-      const revenue = await this.analyticsService.getRevenueMetrics(day, nextDay);
+      const revenue = await this.analyticsService.getRevenueMetrics(
+        day,
+        nextDay,
+      );
       chartData.push({
         date: day.toISOString().split('T')[0],
         revenue: revenue.revenueToday,
@@ -205,7 +202,10 @@ export class AnalyticsController {
       const nextDay = new Date(day);
       nextDay.setDate(nextDay.getDate() + 1);
 
-      const reports = await this.analyticsService.getReportMetrics(day, nextDay);
+      const reports = await this.analyticsService.getReportMetrics(
+        day,
+        nextDay,
+      );
       chartData.push({
         date: day.toISOString().split('T')[0],
         reports: reports.reportsToday,

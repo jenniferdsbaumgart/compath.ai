@@ -1,7 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { EventStore, EventStoreDocument, EventType } from './event-store.schema';
+import {
+  EventStore,
+  EventStoreDocument,
+  EventType,
+} from './event-store.schema';
 
 export interface StoredEvent {
   eventType: EventType;
@@ -44,10 +48,7 @@ export class EventStoreService {
       query.version = { $gte: fromVersion };
     }
 
-    return this.eventStoreModel
-      .find(query)
-      .sort({ version: 1 })
-      .exec();
+    return this.eventStoreModel.find(query).sort({ version: 1 }).exec();
   }
 
   async getEventsByType(
@@ -89,13 +90,13 @@ export class EventStoreService {
       query.eventType = { $in: eventTypes };
     }
 
-    return this.eventStoreModel
-      .find(query)
-      .sort({ timestamp: 1 })
-      .exec();
+    return this.eventStoreModel.find(query).sort({ timestamp: 1 }).exec();
   }
 
-  async getLatestVersion(aggregateId: string, aggregateType: string): Promise<number> {
+  async getLatestVersion(
+    aggregateId: string,
+    aggregateType: string,
+  ): Promise<number> {
     const latestEvent = await this.eventStoreModel
       .findOne({ aggregateId, aggregateType })
       .sort({ version: -1 })
