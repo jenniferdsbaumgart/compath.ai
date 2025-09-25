@@ -1,7 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { DashboardReadModel, DashboardReadModelDocument } from '../models/dashboard-read.model';
+import {
+  DashboardReadModel,
+  DashboardReadModelDocument,
+} from '../models/dashboard-read.model';
 import { User, UserDocument } from '../models/user.schema';
 import { Report, ReportDocument } from '../models/report.schema';
 
@@ -24,7 +27,9 @@ export class DashboardReadService {
     if (!dashboard) {
       dashboard = await this.createDashboardReadModel(userId);
       if (!dashboard) {
-        throw new Error(`Failed to create dashboard read model for user ${userId}`);
+        throw new Error(
+          `Failed to create dashboard read model for user ${userId}`,
+        );
       }
     }
 
@@ -96,7 +101,10 @@ export class DashboardReadService {
     );
   }
 
-  async updateUserInvitedFriendsCount(userId: string, count: number): Promise<void> {
+  async updateUserInvitedFriendsCount(
+    userId: string,
+    count: number,
+  ): Promise<void> {
     await this.dashboardModel.findOneAndUpdate(
       { userId },
       {
@@ -179,7 +187,10 @@ export class DashboardReadService {
       try {
         await this.createDashboardReadModel((user._id as any).toString());
       } catch (error) {
-        this.logger.error(`Failed to rebuild read model for user ${user._id}`, error);
+        this.logger.error(
+          `Failed to rebuild read model for user ${user._id}`,
+          error,
+        );
       }
     }
 

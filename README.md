@@ -6,16 +6,23 @@ Compath is a platform designed to help entrepreneurs find their ideal niche, exp
 
 **Client:** React, Next.js, Typescript, TailwindCSS
 
-**Server:** Node.js, Express.js, MongoDB
+**Server:** Node.js, NestJS, TypeScript 5.0, MongoDB, Redis, RabbitMQ
 
-**Others**: JWT, bcrypt, Stripe, OpenAI
+**Real-time:** WebSocket (Socket.io), RabbitMQ for event streaming
+
+**AI/ML:** Python, scikit-learn, KNN Algorithm
+
+**Others**: JWT, bcrypt, Stripe, OpenAI, CQRS Pattern, Event Sourcing
 
 ## Features
 
 - AI-Powered Market Research: Detailed reports on business opportunities, customer and competitor analysis by region.
+- **Real-time Notifications**: WebSocket-based notifications for immediate feedback on reports, coins, and system events.
 - User Currency System: Gamified experience where users earn coins by using the platform and inviting others. Coins are used to conduct research.
 - Courses: Access to courses aimed at improving entrepreneurial skills.
 - Dashboard: Displays previous research, insights and important data through interactive charts.
+- **CQRS Architecture**: Command Query Responsibility Segregation for scalable operations.
+- **Event-Driven System**: RabbitMQ for asynchronous processing and event sourcing.
 - Light/dark mode toggle
 
 ## Screenshots
@@ -27,12 +34,86 @@ Compath is a platform designed to help entrepreneurs find their ideal niche, exp
 ![Compath Niche Results](https://i.ibb.co/BKY92853/compath3.png)
 ![Compath Subscriptions](https://i.ibb.co/5Xx16Sv4/compath.png)
 
+## System Architecture
+
+```
+[Web Frontend (Next.js)]
+    │
+    ▼
+[API Gateway (NestJS + CQRS)]
+    │
+    ├── [Command Service] → [Event Handlers] → [RabbitMQ]
+    │       │                       │
+    │       ▼                       ▼
+    │   [MongoDB]           [Analytics Service]
+    │       │                       │
+    │       ▼                       ▼
+    │   [Read Models]       [Event Store]
+    │       │
+    │       ▼
+    └── [Query Service] ← [Redis Cache]
+            │
+            ▼
+    [WebSocket Service] → Real-time Notifications
+```
 
 ## 🎥 Project Demonstration
 
 Click the image below to watch the demo video on YouTube:
 
 [![VideoDemonstration](https://img.youtube.com/vi/GFLlJt3nNR0/hqdefault.jpg)](https://youtu.be/GFLlJt3nNR0)
+
+## Development
+
+### Quick Start
+
+```bash
+# Backend
+cd backend
+npm install
+npm run start:dev
+
+# Frontend
+cd frontend
+npm install
+npm run dev
+
+# KNN Service
+cd knn-service
+pip install -r requirements.txt
+python main.py
+```
+
+### API Documentation
+
+Base URL: `http://localhost:3001/api`
+
+#### Authentication
+All requests require JWT token in Authorization header: `Bearer <token>`
+
+#### Key Endpoints
+
+- `GET /users/profile` - Get user profile
+- `POST /reports/generate` - Generate AI report
+- `GET /dashboard/stats` - Get dashboard statistics
+- `GET /notifications` - Get user notifications (real-time via WebSocket)
+- `WebSocket: /notifications` - Real-time notification stream
+
+### Real-time Features
+
+Connect to WebSocket namespace `/notifications` with JWT token for real-time updates:
+
+```javascript
+import io from 'socket.io-client';
+
+const socket = io('http://localhost:3001/notifications', {
+  auth: { token: 'your-jwt-token' }
+});
+
+socket.on('notification', (notification) => {
+  console.log('New notification:', notification);
+});
+```
 
 ## License
 

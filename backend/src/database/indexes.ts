@@ -13,7 +13,7 @@ export async function createOptimizedIndexes(connection: Connection) {
           name: 'email_unique_auth',
           unique: true,
           background: true,
-        }
+        },
       );
 
       // Índice para buscas por localização/empresa
@@ -22,7 +22,7 @@ export async function createOptimizedIndexes(connection: Connection) {
         {
           name: 'location_company_search',
           background: true,
-        }
+        },
       );
 
       // Índice para perfil de conclusão
@@ -31,7 +31,7 @@ export async function createOptimizedIndexes(connection: Connection) {
         {
           name: 'profile_completion_recent',
           background: true,
-        }
+        },
       );
     }
 
@@ -44,7 +44,7 @@ export async function createOptimizedIndexes(connection: Connection) {
         {
           name: 'user_reports_timeline',
           background: true,
-        }
+        },
       );
 
       // Índice para buscas por query de pesquisa
@@ -53,7 +53,7 @@ export async function createOptimizedIndexes(connection: Connection) {
         {
           name: 'search_query_text',
           background: true,
-        }
+        },
       );
 
       // Índice composto para filtros de data + usuário
@@ -62,7 +62,7 @@ export async function createOptimizedIndexes(connection: Connection) {
         {
           name: 'reports_date_user',
           background: true,
-        }
+        },
       );
 
       // Índice para métricas globais
@@ -71,7 +71,7 @@ export async function createOptimizedIndexes(connection: Connection) {
         {
           name: 'reports_timeline_global',
           background: true,
-        }
+        },
       );
     }
 
@@ -85,7 +85,7 @@ export async function createOptimizedIndexes(connection: Connection) {
           name: 'dashboard_user_lookup',
           unique: true,
           background: true,
-        }
+        },
       );
 
       // Índice para cache expiration
@@ -95,7 +95,7 @@ export async function createOptimizedIndexes(connection: Connection) {
           name: 'dashboard_cache_expiration',
           background: true,
           expireAfterSeconds: 3600, // 1 hora
-        }
+        },
       );
     }
 
@@ -111,7 +111,10 @@ export async function ensureIndexes(connection: Connection) {
   try {
     await createOptimizedIndexes(connection);
   } catch (error) {
-    console.warn('⚠️ Index creation failed, continuing without optimization:', error);
+    console.warn(
+      '⚠️ Index creation failed, continuing without optimization:',
+      error,
+    );
   }
 }
 
@@ -121,7 +124,9 @@ export async function logSlowQueries(connection: Connection) {
   try {
     if (connection.db) {
       // Profiling habilitado via configuração do MongoDB
-      console.log('📊 Query profiling can be enabled via MongoDB configuration');
+      console.log(
+        '📊 Query profiling can be enabled via MongoDB configuration',
+      );
     }
   } catch (error) {
     console.warn('⚠️ Could not enable query profiling:', error);

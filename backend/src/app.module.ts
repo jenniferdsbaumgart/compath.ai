@@ -8,12 +8,21 @@ import { CacheModule } from '@nestjs/cache-manager';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { User, UserSchema, Report, ReportSchema, DashboardReadModel, DashboardReadModelSchema } from './models';
+import {
+  User,
+  UserSchema,
+  Report,
+  ReportSchema,
+  DashboardReadModel,
+  DashboardReadModelSchema,
+} from './models';
 import { JwtStrategy } from './auth';
 import { DatabaseModule } from './database/database.module';
 import { UserModule } from './controllers/user.module';
 import { AiReportModule } from './controllers/ai-report.module';
 import { DashboardModule } from './controllers/dashboard.module';
+import { NotificationModule } from './notifications/notification.module';
+import { NotificationController } from './controllers/notification.controller';
 import * as redisStore from 'cache-manager-redis-store';
 
 @Module({
@@ -69,8 +78,9 @@ import * as redisStore from 'cache-manager-redis-store';
     UserModule,
     AiReportModule,
     DashboardModule,
+    NotificationModule,
   ],
-  controllers: [AppController],
+  controllers: [AppController, NotificationController],
   providers: [AppService, JwtStrategy],
 })
 export class AppModule {}

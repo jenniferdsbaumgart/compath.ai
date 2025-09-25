@@ -69,7 +69,9 @@ export class CreateUserCommandHandler
     await this.dashboardReadService.updateGlobalMetrics({
       totalUsers: await this.userModel.countDocuments(),
       totalCourses: 0, // TODO: Update when courses are implemented
-      totalSearches: await this.userModel.db.collection('reports').countDocuments(),
+      totalSearches: await this.userModel.db
+        .collection('reports')
+        .countDocuments(),
     });
 
     return (savedUser._id as any).toString();
