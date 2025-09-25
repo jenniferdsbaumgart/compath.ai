@@ -24,6 +24,7 @@ import { DashboardModule } from './controllers/dashboard.module';
 import { NotificationModule } from './notifications/notification.module';
 import { NotificationController } from './controllers/notification.controller';
 import { AnalyticsModule } from './analytics/analytics.module';
+import { ABTestingModule } from './ab-testing/ab-testing.module';
 import * as redisStore from 'cache-manager-redis-store';
 
 @Module({
@@ -81,6 +82,7 @@ import * as redisStore from 'cache-manager-redis-store';
     DashboardModule,
     NotificationModule,
     AnalyticsModule,
+    ABTestingModule,
   ],
   controllers: [AppController, NotificationController],
   providers: [AppService, JwtStrategy],

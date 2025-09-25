@@ -14,6 +14,8 @@ Compath is a platform designed to help entrepreneurs find their ideal niche, exp
 
 **Analytics:** Event Sourcing, Real-time Metrics, Business Intelligence
 
+**A/B Testing:** Statistical Experimentation, Feature Flags, Multivariate Testing
+
 **Others**: JWT, bcrypt, Stripe, OpenAI, CQRS Pattern, Event Sourcing
 
 ## Features
@@ -23,6 +25,7 @@ Compath is a platform designed to help entrepreneurs find their ideal niche, exp
 - User Currency System: Gamified experience where users earn coins by using the platform and inviting others. Coins are used to conduct research.
 - Courses: Access to courses aimed at improving entrepreneurial skills.
 - **Analytics Dashboard**: Real-time business intelligence with event-sourced metrics and charts.
+- **A/B Testing Framework**: Statistical experimentation platform for data-driven feature development.
 - Dashboard: Displays previous research, insights and important data through interactive charts.
 - **CQRS Architecture**: Command Query Responsibility Segregation for scalable operations.
 - **Event-Driven System**: RabbitMQ for asynchronous processing and event sourcing.
@@ -175,6 +178,98 @@ The enhanced KNN service provides advanced machine learning capabilities:
     "model_version": "enhanced_v2"
   },
   "confidence_scores": [0.85, 0.72, 0.68, 0.55, 0.42]
+}
+```
+
+## A/B Testing Framework
+
+Compath.ai includes a comprehensive A/B testing framework for data-driven feature development and optimization.
+
+### Key Features
+
+- **Statistical Rigor**: Proper randomization, sample size calculation, and statistical significance testing
+- **Multiple Test Types**: UI variants, feature flags, algorithms, pricing, and content tests
+- **Real-time Results**: Live monitoring of test performance and automatic winner determination
+- **Targeted Testing**: Segment users by behavior, geography, or custom criteria
+- **Event Tracking**: Comprehensive event collection for detailed analysis
+
+### API Endpoints
+
+**Test Management:**
+- `POST /api/ab-testing/tests` - Create new A/B test
+- `GET /api/ab-testing/tests` - List all tests
+- `GET /api/ab-testing/tests/:id` - Get test details
+- `PUT /api/ab-testing/tests/:id/start` - Start a test
+- `PUT /api/ab-testing/tests/:id/stop` - Stop a test
+- `GET /api/ab-testing/tests/:id/results` - Get test results
+
+**Analytics:**
+- `GET /api/ab-testing/analytics/overview` - Testing overview and insights
+- `GET /api/ab-testing/user/tests` - Get active tests for current user
+
+### Test Types
+
+1. **UI Variants**: Test different layouts, colors, and user interfaces
+2. **Feature Flags**: Gradually roll out new features to subsets of users
+3. **Algorithm Testing**: Compare different recommendation or pricing algorithms
+4. **Pricing Tests**: Optimize pricing strategies and monetization
+5. **Content Testing**: A/B test copy, messaging, and content strategies
+
+### Example Test Creation
+
+```json
+{
+  "name": "Dashboard Layout Optimization",
+  "description": "Test different dashboard layouts",
+  "type": "ui_variant",
+  "goal": "user_engagement",
+  "variants": {
+    "control": {
+      "name": "Current Layout",
+      "weight": 50,
+      "config": { "layout": "standard" }
+    },
+    "variant_a": {
+      "name": "Compact Layout",
+      "weight": 50,
+      "config": { "layout": "compact", "showExtraMetrics": true }
+    }
+  },
+  "targetAudience": {
+    "userSegments": ["active_users"]
+  },
+  "schedule": {
+    "minSampleSize": 1000,
+    "statisticalSignificance": 0.95
+  }
+}
+```
+
+### Implementation in Code
+
+**Using the A/B Testing Guard:**
+```typescript
+@UseGuards(JwtAuthGuard, ABTestingGuard)
+@ABTest('test-id', 'feature_name')
+@Get('endpoint')
+async myEndpoint(@GetUser() user: any) {
+  // Access test variant
+  const variant = user.abTests?.['feature_name'];
+
+  if (variant.variantId === 'variant_a') {
+    // Show variant A behavior
+  } else {
+    // Show control behavior
+  }
+}
+```
+
+**Recording Events:**
+```typescript
+@RecordABEvent('converted', { action: 'purchase' })
+@Post('purchase')
+async makePurchase() {
+  // Event automatically recorded when method completes
 }
 ```
 
