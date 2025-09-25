@@ -15,7 +15,10 @@ import { GetUser } from '../auth/get-user.decorator';
 import { SendNotificationCommand } from '../notifications/commands/send-notification.command';
 import { GetUserNotificationsQuery } from '../notifications/queries/get-user-notifications.query';
 import { MarkNotificationReadCommand } from '../notifications/commands/mark-notification-read.command';
-import { NotificationType, NotificationPriority } from '../notifications/notification.schema';
+import {
+  NotificationType,
+  NotificationPriority,
+} from '../notifications/notification.schema';
 
 @Controller('notifications')
 @UseGuards(JwtAuthGuard)
@@ -27,10 +30,10 @@ export class NotificationController {
 
   @Get()
   async getUserNotifications(
-    @GetUser() user,
-    @Query('limit') limit = 50,
-    @Query('offset') offset = 0,
-    @Query('unreadOnly') unreadOnly = false,
+    @GetUser() user: any,
+    @Query('limit') limit = '50',
+    @Query('offset') offset = '0',
+    @Query('unreadOnly') unreadOnly = 'false',
   ) {
     const query = new GetUserNotificationsQuery(
       user._id,
@@ -43,13 +46,13 @@ export class NotificationController {
   }
 
   @Put(':id/read')
-  async markAsRead(@Param('id') notificationId: string, @GetUser() user) {
+  async markAsRead(@Param('id') notificationId: string, @GetUser() user: any) {
     const command = new MarkNotificationReadCommand(notificationId, user._id);
     return this.commandBus.execute(command);
   }
 
   @Post('test')
-  async sendTestNotification(@GetUser() user) {
+  async sendTestNotification(@GetUser() user: any) {
     const command = new SendNotificationCommand(
       user._id,
       NotificationType.SYSTEM_MAINTENANCE,
