@@ -221,7 +221,7 @@ export class AnalyticsService {
     }, {} as Record<string, number>);
 
     return Object.entries(queryCount)
-      .map(([query, count]) => ({ query, count }))
+      .map(([query, count]) => ({ query, count: count as number }))
       .sort((a, b) => b.count - a.count)
       .slice(0, 10);
   }
@@ -241,7 +241,7 @@ export class AnalyticsService {
     }, {} as Record<string, number>);
 
     return Object.entries(sourceRevenue)
-      .map(([source, amount]) => ({ source, amount }))
+      .map(([source, amount]) => ({ source, amount: amount as number }))
       .sort((a, b) => b.amount - a.amount)
       .slice(0, 5);
   }
