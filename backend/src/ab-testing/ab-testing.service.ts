@@ -196,7 +196,7 @@ export class ABTestingService {
         status: test.status,
         totalParticipants: participations.length,
         variantResults: results,
-        winner,
+        winner: winner || undefined,
         confidenceLevel: this.calculateOverallConfidence(results),
         recommendation,
         sampleSizeAdequate,
@@ -324,7 +324,7 @@ export class ABTestingService {
   }
 
   private groupParticipationsByVariant(participations: ABTestParticipationDocument[]) {
-    const variantStats = {};
+    const variantStats: { [key: string]: any } = {};
 
     for (const participation of participations) {
       const { variantId, event } = participation;
@@ -365,12 +365,12 @@ export class ABTestingService {
   }
 
   private calculateStatisticalSignificance(variantStats: any, goal: ABTestGoal) {
-    const results = {};
+    const results: { [key: string]: any } = {};
 
     // Calculate conversion rates and statistical tests
     for (const [variantId, stats] of Object.entries(variantStats)) {
-      const participants = stats.participants;
-      const conversions = stats.conversions;
+      const participants = (stats as any).participants;
+      const conversions = (stats as any).conversions;
 
       if (participants === 0) continue;
 
@@ -399,12 +399,12 @@ export class ABTestingService {
 
   private determineWinner(results: any, test: ABTestDocument) {
     // Find variant with highest conversion rate
-    let winner = null;
+    let winner: string | null = null;
     let maxConversionRate = -1;
 
     for (const [variantId, stats] of Object.entries(results)) {
-      if (stats.conversionRate > maxConversionRate) {
-        maxConversionRate = stats.conversionRate;
+      if ((stats as any).conversionRate > maxConversionRate) {
+        maxConversionRate = (stats as any).conversionRate;
         winner = variantId;
       }
     }

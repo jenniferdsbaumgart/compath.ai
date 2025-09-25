@@ -106,7 +106,7 @@ export const AB_TEST_EXAMPLES = {
     schedule: {
       startDate: new Date(),
       minSampleSize: 500,
-      statisticalSignificance: 0.90,
+      statisticalSignificance: 0.9,
     },
     metadata: {
       tags: ['onboarding', 'conversion', 'reports'],
@@ -278,7 +278,7 @@ export const AB_TEST_EXAMPLES = {
     schedule: {
       startDate: new Date(),
       minSampleSize: 1500,
-      statisticalSignificance: 0.90,
+      statisticalSignificance: 0.9,
     },
     metadata: {
       tags: ['content', 'engagement', 'copywriting'],
@@ -346,7 +346,9 @@ export const AB_TEST_EXAMPLES = {
 /**
  * Helper function to create a test from the examples
  */
-export function createTestFromExample(exampleKey: keyof typeof AB_TEST_EXAMPLES) {
+export function createTestFromExample(
+  exampleKey: keyof typeof AB_TEST_EXAMPLES,
+) {
   return AB_TEST_EXAMPLES[exampleKey];
 }
 
@@ -385,7 +387,8 @@ export function getRecommendedTests(currentMetrics: {
     });
   }
 
-  if (currentMetrics.revenue < 1000) { // Monthly revenue threshold
+  if (currentMetrics.revenue < 1000) {
+    // Monthly revenue threshold
     recommendations.push({
       test: 'coin_system_pricing',
       reason: 'Low revenue suggests pricing optimization needed',

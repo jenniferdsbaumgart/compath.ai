@@ -1,6 +1,7 @@
 import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { ABTestingService } from './ab-testing.service';
+import { ParticipationEvent } from './ab-test-participation.schema';
 
 export interface ABTestMetadata {
   testId: string;
@@ -39,7 +40,7 @@ export class ABTestingGuard implements CanActivate {
       const activeTests = await this.abTestingService.getActiveTestsForUser(userId);
 
       // Find the specific test
-      const test = activeTests.find(t => t._id.toString() === testId);
+      const test = activeTests.find(t => (t._id as any).toString() === testId);
 
       if (!test) {
         // Test not found or not active, use control variant
@@ -65,7 +66,7 @@ export class ABTestingGuard implements CanActivate {
         await this.abTestingService.recordEvent(
           testId,
           userId,
-          'exposed',
+          ParticipationEvent.EXPOSED,
           {
             feature,
             path: request.path,
