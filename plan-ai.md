@@ -96,14 +96,17 @@ Transformar Compath.ai em uma plataforma SaaS escalável e robusta, migrando de 
 
 ### 🚀 CQRS Implementado (Fase 2)
 
-- ✅ **CQRS Pattern** implementado para User Service
-- ✅ **Command Bus** e **Query Bus** criados
+- ✅ **CQRS Pattern** implementado para User Service e AI Reports
+- ✅ **Command Bus** e **Query Bus** criados e expandidos
 - ✅ **User Commands**: CreateUser, UpdateUser, SpendCoins, EarnCoins, UpdateAvatar
+- ✅ **Report Commands**: GenerateAiReport, SaveReport
 - ✅ **User Queries**: GetUserById, GetUserCoins, GetUserProfile
-- ✅ **Command Handlers** com emissão de eventos
+- ✅ **Report Queries**: GetReportById, GetUserReports
+- ✅ **Command Handlers** com emissão de eventos para ambos domínios
 - ✅ **Query Handlers** para operações otimizadas
-- ✅ **UserController** atualizado para usar CQRS
-- ✅ **Event Structure** preparada para event sourcing
+- ✅ **UserController** e **AiReportController** usando CQRS
+- ✅ **AiReportService** com integração OpenAI e fallbacks
+- ✅ **Event Structure** preparada para event sourcing completo
 
 ### 🔧 Infraestrutura Avançada
 
