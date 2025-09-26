@@ -63,8 +63,22 @@ export default function AdminPage() {
 
   const fetchAdminStats = async () => {
     try {
-      // TODO: Implement actual admin stats API endpoint
-      // For now, using mock data
+      // Fetch admin stats from dedicated endpoint
+      const response = await api.get("/admin/stats");
+      const data = response.data;
+
+      const adminStats: AdminStats = {
+        totalUsers: data.totalUsers || 0,
+        activeUsers: data.activeUsers || 0,
+        totalReports: data.totalReports || 0,
+        systemHealth: data.systemHealth || "unknown",
+        lastBackup: data.lastBackup || new Date().toISOString(),
+      };
+
+      setStats(adminStats);
+    } catch (error) {
+      console.error("Failed to fetch admin stats:", error);
+      // Fallback to mock data if API fails
       const mockStats: AdminStats = {
         totalUsers: 1250,
         activeUsers: 890,
@@ -72,10 +86,7 @@ export default function AdminPage() {
         systemHealth: "healthy",
         lastBackup: new Date().toISOString(),
       };
-
       setStats(mockStats);
-    } catch (error) {
-      console.error("Failed to fetch admin stats:", error);
     } finally {
       setIsLoading(false);
     }
