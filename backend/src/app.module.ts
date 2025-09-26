@@ -1,4 +1,4 @@
-import { Module, MiddlewareConsumer } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { JwtModule } from '@nestjs/jwt';
@@ -26,6 +26,7 @@ import { NotificationController } from './controllers/notification.controller';
 import { AnalyticsModule } from './analytics/analytics.module';
 import { ABTestingModule } from './ab-testing/ab-testing.module';
 import { AdminModule } from './admin/admin.module';
+import { CqrsModule } from './cqrs/cqrs.module';
 import * as redisStore from 'cache-manager-redis-store';
 
 @Module({
@@ -85,6 +86,7 @@ import * as redisStore from 'cache-manager-redis-store';
     AnalyticsModule,
     ABTestingModule,
     AdminModule,
+    CqrsModule,
   ],
   controllers: [AppController, NotificationController],
   providers: [AppService, JwtStrategy],
