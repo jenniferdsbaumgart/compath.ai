@@ -180,7 +180,10 @@ export class ABTestingService {
       const variantStats = this.groupParticipationsByVariant(participations);
 
       // Calculate statistical significance
-      const results = this.calculateStatisticalSignificance(variantStats, test.goal);
+      const results = this.calculateStatisticalSignificance(
+        variantStats,
+        test.goal,
+      );
 
       // Determine winner and recommendation
       const { winner, recommendation } = this.determineWinner(results, test);
@@ -222,7 +225,10 @@ export class ABTestingService {
         ],
       });
     } catch (error) {
-      this.logger.error(`Error getting active tests for user ${userId}:`, error);
+      this.logger.error(
+        `Error getting active tests for user ${userId}:`,
+        error,
+      );
       return [];
     }
   }
@@ -323,7 +329,9 @@ export class ABTestingService {
     return !targetAudience.excludeUserIds?.includes(userId);
   }
 
-  private groupParticipationsByVariant(participations: ABTestParticipationDocument[]) {
+  private groupParticipationsByVariant(
+    participations: ABTestParticipationDocument[],
+  ) {
     const variantStats: { [key: string]: any } = {};
 
     for (const participation of participations) {
@@ -364,7 +372,10 @@ export class ABTestingService {
     return variantStats;
   }
 
-  private calculateStatisticalSignificance(variantStats: any, goal: ABTestGoal) {
+  private calculateStatisticalSignificance(
+    variantStats: any,
+    goal: ABTestGoal,
+  ) {
     const results: { [key: string]: any } = {};
 
     // Calculate conversion rates and statistical tests
@@ -377,7 +388,9 @@ export class ABTestingService {
       const conversionRate = conversions / participants;
 
       // Calculate confidence interval (simplified)
-      const standardError = Math.sqrt(conversionRate * (1 - conversionRate) / participants);
+      const standardError = Math.sqrt(
+        (conversionRate * (1 - conversionRate)) / participants,
+      );
       const confidenceInterval: [number, number] = [
         Math.max(0, conversionRate - 1.96 * standardError),
         Math.min(1, conversionRate + 1.96 * standardError),
@@ -428,7 +441,10 @@ export class ABTestingService {
     return significantResults.length / Object.keys(results).length;
   }
 
-  private checkSampleSizeAdequate(variantStats: any, minSampleSize: number): boolean {
+  private checkSampleSizeAdequate(
+    variantStats: any,
+    minSampleSize: number,
+  ): boolean {
     const minParticipants = Math.min(
       ...Object.values(variantStats).map((s: any) => s.participants),
     );

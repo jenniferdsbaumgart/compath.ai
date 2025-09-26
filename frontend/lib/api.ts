@@ -254,7 +254,32 @@ export const api = {
     }),
 
   retrainModelKNN: () =>
-    request<{ accuracy: number }>('/admin/retrain', { method: 'POST' })
+    request<{ accuracy: number }>('/admin/retrain', { method: 'POST' }),
+
+  // Analytics endpoints
+  getAnalyticsDashboard: () =>
+    request<{ summary: any; realtime: any; charts: any }>('/analytics/dashboard'),
+
+  getAnalyticsSummary: (startDate?: string, endDate?: string) =>
+    request<any>(`/analytics/summary${startDate && endDate ? `?startDate=${startDate}&endDate=${endDate}` : ''}`),
+
+  getUserMetrics: (startDate?: string, endDate?: string) =>
+    request<any>(`/analytics/users${startDate && endDate ? `?startDate=${startDate}&endDate=${endDate}` : ''}`),
+
+  getReportMetrics: (startDate?: string, endDate?: string) =>
+    request<any>(`/analytics/reports${startDate && endDate ? `?startDate=${startDate}&endDate=${endDate}` : ''}`),
+
+  getRevenueMetrics: (startDate?: string, endDate?: string) =>
+    request<any>(`/analytics/revenue${startDate && endDate ? `?startDate=${startDate}&endDate=${endDate}` : ''}`),
+
+  getRealTimeMetrics: () =>
+    request<any>('/analytics/realtime'),
+
+  getUserEvents: (userId: string, limit = 50, offset = 0) =>
+    request<any>(`/analytics/events/${userId}?limit=${limit}&offset=${offset}`),
+
+  getEvents: (type?: string, limit = 100, offset = 0) =>
+    request<any>(`/analytics/events${type ? `?type=${type}&` : '?'}limit=${limit}&offset=${offset}`)
 };
 
 export const fetchMarketReport = async (input: string) => {

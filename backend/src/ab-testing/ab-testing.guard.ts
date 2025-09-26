@@ -37,10 +37,13 @@ export class ABTestingGuard implements CanActivate {
 
     try {
       // Get active tests for user
-      const activeTests = await this.abTestingService.getActiveTestsForUser(userId);
+      const activeTests =
+        await this.abTestingService.getActiveTestsForUser(userId);
 
       // Find the specific test
-      const test = activeTests.find(t => (t._id as any).toString() === testId);
+      const test = activeTests.find(
+        (t) => (t._id as any).toString() === testId,
+      );
 
       if (!test) {
         // Test not found or not active, use control variant
@@ -80,7 +83,6 @@ export class ABTestingGuard implements CanActivate {
         // User not eligible for test
         this.setControlVariant(request, feature);
       }
-
     } catch (error) {
       console.error('A/B Testing Guard error:', error);
       // On error, use control variant

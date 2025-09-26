@@ -139,6 +139,7 @@ socket.on("notification", (notification) => {
 The enhanced KNN service provides advanced machine learning capabilities:
 
 **New Features:**
+
 - Hyperparameter tuning with Grid Search CV
 - Cross-validation with multiple scoring metrics
 - Feature scaling and automatic selection
@@ -149,6 +150,7 @@ The enhanced KNN service provides advanced machine learning capabilities:
 - Background model retraining
 
 **API Endpoints:**
+
 - `POST /predict` - Enhanced predictions with confidence scores
 - `POST /retrain` - Background model retraining
 - `POST /retrain/sync` - Synchronous retraining
@@ -157,6 +159,7 @@ The enhanced KNN service provides advanced machine learning capabilities:
 - `GET /performance` - Model performance metrics
 
 **Example Prediction Request:**
+
 ```json
 {
   "features": [10.5, 2.1, 15.8, 7.2],
@@ -165,11 +168,12 @@ The enhanced KNN service provides advanced machine learning capabilities:
 ```
 
 **Example Response:**
+
 ```json
 {
   "recommendations": [
-    {"niche": "technology", "probability": 0.85, "rank": 1},
-    {"niche": "finance", "probability": 0.72, "rank": 2}
+    { "niche": "technology", "probability": 0.85, "rank": 1 },
+    { "niche": "finance", "probability": 0.72, "rank": 2 }
   ],
   "metadata": {
     "input_features_count": 4,
@@ -196,6 +200,7 @@ Compath.ai includes a comprehensive A/B testing framework for data-driven featur
 ### API Endpoints
 
 **Test Management:**
+
 - `POST /api/ab-testing/tests` - Create new A/B test
 - `GET /api/ab-testing/tests` - List all tests
 - `GET /api/ab-testing/tests/:id` - Get test details
@@ -204,6 +209,7 @@ Compath.ai includes a comprehensive A/B testing framework for data-driven featur
 - `GET /api/ab-testing/tests/:id/results` - Get test results
 
 **Analytics:**
+
 - `GET /api/ab-testing/analytics/overview` - Testing overview and insights
 - `GET /api/ab-testing/user/tests` - Get active tests for current user
 
@@ -248,6 +254,7 @@ Compath.ai includes a comprehensive A/B testing framework for data-driven featur
 ### Implementation in Code
 
 **Using the A/B Testing Guard:**
+
 ```typescript
 @UseGuards(JwtAuthGuard, ABTestingGuard)
 @ABTest('test-id', 'feature_name')
@@ -265,6 +272,7 @@ async myEndpoint(@GetUser() user: any) {
 ```
 
 **Recording Events:**
+
 ```typescript
 @RecordABEvent('converted', { action: 'purchase' })
 @Post('purchase')

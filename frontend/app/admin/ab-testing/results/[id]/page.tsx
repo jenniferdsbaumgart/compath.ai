@@ -106,7 +106,9 @@ export default function ABTestResultsPage() {
       }
 
       // Fetch test results
-      const resultsResponse = await api.get(`/ab-testing/tests/${testId}/results`);
+      const resultsResponse = await api.get(
+        `/ab-testing/tests/${testId}/results`
+      );
       const resultsData = resultsResponse.data;
 
       if (resultsData.success) {
@@ -118,7 +120,8 @@ export default function ABTestResultsPage() {
       setTest({
         _id: testId,
         name: "Dashboard Layout Test",
-        description: "Testing different dashboard layouts for better user engagement",
+        description:
+          "Testing different dashboard layouts for better user engagement",
         type: "ui_variant",
         goal: "user_engagement",
         status: "active",
@@ -137,7 +140,7 @@ export default function ABTestResultsPage() {
             control: {
               participants: 225,
               conversions: 45,
-              conversionRate: 0.20,
+              conversionRate: 0.2,
               confidenceInterval: [0.15, 0.25],
               statisticalSignificance: true,
               metrics: {
@@ -149,7 +152,7 @@ export default function ABTestResultsPage() {
               participants: 225,
               conversions: 58,
               conversionRate: 0.257,
-              confidenceInterval: [0.20, 0.31],
+              confidenceInterval: [0.2, 0.31],
               statisticalSignificance: true,
               metrics: {
                 time_on_page: { value: 210, variance: 30, sampleSize: 225 },
@@ -178,15 +181,15 @@ export default function ABTestResultsPage() {
 
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case 'active':
+      case "active":
         return <Badge className="bg-green-100 text-green-800">Active</Badge>;
-      case 'draft':
+      case "draft":
         return <Badge variant="secondary">Draft</Badge>;
-      case 'paused':
+      case "paused":
         return <Badge className="bg-yellow-100 text-yellow-800">Paused</Badge>;
-      case 'completed':
+      case "completed":
         return <Badge className="bg-blue-100 text-blue-800">Completed</Badge>;
-      case 'cancelled':
+      case "cancelled":
         return <Badge variant="destructive">Cancelled</Badge>;
       default:
         return <Badge variant="outline">Unknown</Badge>;
@@ -245,7 +248,9 @@ export default function ABTestResultsPage() {
                 </Button>
               </Link>
               <div>
-                <h1 className="text-3xl font-bold text-gray-900">{test.name}</h1>
+                <h1 className="text-3xl font-bold text-gray-900">
+                  {test.name}
+                </h1>
                 <p className="mt-2 text-gray-600">{test.description}</p>
               </div>
             </div>
@@ -261,7 +266,9 @@ export default function ABTestResultsPage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Participants</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                Total Participants
+              </CardTitle>
               <Users className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
@@ -272,7 +279,8 @@ export default function ABTestResultsPage() {
                 <div className="mt-2">
                   <Progress value={calculateProgress()} className="h-2" />
                   <p className="text-xs text-muted-foreground mt-1">
-                    {calculateProgress().toFixed(0)}% of target ({test.schedule.minSampleSize})
+                    {calculateProgress().toFixed(0)}% of target (
+                    {test.schedule.minSampleSize})
                   </p>
                 </div>
               )}
@@ -281,14 +289,17 @@ export default function ABTestResultsPage() {
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Test Duration</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                Test Duration
+              </CardTitle>
               <BarChart3 className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
                 {test.results?.startDate
                   ? Math.ceil(
-                      (new Date().getTime() - new Date(test.results.startDate).getTime()) /
+                      (new Date().getTime() -
+                        new Date(test.results.startDate).getTime()) /
                         (1000 * 60 * 60 * 24)
                     )
                   : 0}
@@ -320,62 +331,78 @@ export default function ABTestResultsPage() {
         {/* Variant Results */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
           {test.results?.variantResults &&
-            Object.entries(test.results.variantResults).map(([variantId, variantData]) => (
-              <Card key={variantId}>
-                <CardHeader>
-                  <CardTitle className="flex items-center justify-between">
-                    <span>{test.variants[variantId]?.name || variantId}</span>
-                    {results?.winner === variantId && (
-                      <Badge className="bg-green-100 text-green-800">
-                        <CheckCircle className="h-3 w-3 mr-1" />
-                        Winner
-                      </Badge>
-                    )}
-                  </CardTitle>
-                  <CardDescription>
-                    Weight: {test.variants[variantId]?.weight}%
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
+            Object.entries(test.results.variantResults).map(
+              ([variantId, variantData]) => (
+                <Card key={variantId}>
+                  <CardHeader>
+                    <CardTitle className="flex items-center justify-between">
+                      <span>{test.variants[variantId]?.name || variantId}</span>
+                      {results?.winner === variantId && (
+                        <Badge className="bg-green-100 text-green-800">
+                          <CheckCircle className="h-3 w-3 mr-1" />
+                          Winner
+                        </Badge>
+                      )}
+                    </CardTitle>
+                    <CardDescription>
+                      Weight: {test.variants[variantId]?.weight}%
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <p className="text-sm font-medium text-gray-600">
+                            Participants
+                          </p>
+                          <p className="text-2xl font-bold">
+                            {variantData.participants}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-gray-600">
+                            Conversions
+                          </p>
+                          <p className="text-2xl font-bold">
+                            {variantData.conversions}
+                          </p>
+                        </div>
+                      </div>
+
                       <div>
-                        <p className="text-sm font-medium text-gray-600">Participants</p>
-                        <p className="text-2xl font-bold">{variantData.participants}</p>
+                        <p className="text-sm font-medium text-gray-600 mb-2">
+                          Conversion Rate:{" "}
+                          {(variantData.conversionRate * 100).toFixed(1)}%
+                        </p>
+                        <Progress
+                          value={variantData.conversionRate * 100}
+                          className="h-3"
+                        />
                       </div>
-                      <div>
-                        <p className="text-sm font-medium text-gray-600">Conversions</p>
-                        <p className="text-2xl font-bold">{variantData.conversions}</p>
+
+                      {variantData.statisticalSignificance && (
+                        <div className="flex items-center space-x-2 text-green-600">
+                          <CheckCircle className="h-4 w-4" />
+                          <span className="text-sm font-medium">
+                            Statistically Significant
+                          </span>
+                        </div>
+                      )}
+
+                      <div className="text-sm text-gray-600">
+                        <p>
+                          Confidence Interval: [
+                          {(variantData.confidenceInterval[0] * 100).toFixed(1)}
+                          %,
+                          {(variantData.confidenceInterval[1] * 100).toFixed(1)}
+                          %]
+                        </p>
                       </div>
                     </div>
-
-                    <div>
-                      <p className="text-sm font-medium text-gray-600 mb-2">
-                        Conversion Rate: {(variantData.conversionRate * 100).toFixed(1)}%
-                      </p>
-                      <Progress value={variantData.conversionRate * 100} className="h-3" />
-                    </div>
-
-                    {variantData.statisticalSignificance && (
-                      <div className="flex items-center space-x-2 text-green-600">
-                        <CheckCircle className="h-4 w-4" />
-                        <span className="text-sm font-medium">
-                          Statistically Significant
-                        </span>
-                      </div>
-                    )}
-
-                    <div className="text-sm text-gray-600">
-                      <p>
-                        Confidence Interval: [
-                        {(variantData.confidenceInterval[0] * 100).toFixed(1)}%,
-                        {(variantData.confidenceInterval[1] * 100).toFixed(1)}%]
-                      </p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                  </CardContent>
+                </Card>
+              )
+            )}
         </div>
 
         {/* Recommendations */}
@@ -442,10 +469,15 @@ export default function ABTestResultsPage() {
                 <h4 className="font-medium mb-3">Variants</h4>
                 <div className="space-y-3">
                   {Object.entries(test.variants).map(([key, variant]) => (
-                    <div key={key} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div
+                      key={key}
+                      className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                    >
                       <div>
                         <p className="font-medium">{variant.name}</p>
-                        <p className="text-sm text-gray-600">{variant.description}</p>
+                        <p className="text-sm text-gray-600">
+                          {variant.description}
+                        </p>
                       </div>
                       <Badge variant="outline">{variant.weight}%</Badge>
                     </div>

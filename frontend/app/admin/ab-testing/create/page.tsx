@@ -3,13 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import {
-  ArrowLeft,
-  Plus,
-  Minus,
-  Save,
-  FlaskConical,
-} from "lucide-react";
+import { ArrowLeft, Plus, Minus, Save, FlaskConical } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -51,12 +45,22 @@ export default function CreateABTestPage() {
     type: "",
     goal: "",
     minSampleSize: 1000,
-    startDate: new Date().toISOString().split('T')[0],
+    startDate: new Date().toISOString().split("T")[0],
   });
 
   const [variants, setVariants] = useState<Variant[]>([
-    { id: "control", name: "Control", description: "Current version", weight: 50 },
-    { id: "variant_a", name: "Variant A", description: "New version", weight: 50 },
+    {
+      id: "control",
+      name: "Control",
+      description: "Current version",
+      weight: 50,
+    },
+    {
+      id: "variant_a",
+      name: "Variant A",
+      description: "New version",
+      weight: 50,
+    },
   ]);
 
   useEffect(() => {
@@ -77,9 +81,9 @@ export default function CreateABTestPage() {
   }, [router]);
 
   const addVariant = () => {
-    const variantLetters = ['a', 'b', 'c', 'd', 'e'];
+    const variantLetters = ["a", "b", "c", "d", "e"];
     const nextIndex = variants.length - 1; // -1 because control is index 0
-    const nextLetter = variantLetters[nextIndex] || 'x';
+    const nextLetter = variantLetters[nextIndex] || "x";
 
     const newVariant: Variant = {
       id: `variant_${nextLetter}`,
@@ -100,7 +104,11 @@ export default function CreateABTestPage() {
     redistributeWeights();
   };
 
-  const updateVariant = (index: number, field: keyof Variant, value: string | number) => {
+  const updateVariant = (
+    index: number,
+    field: keyof Variant,
+    value: string | number
+  ) => {
     const newVariants = [...variants];
     newVariants[index] = { ...newVariants[index], [field]: value };
     setVariants(newVariants);
@@ -128,14 +136,16 @@ export default function CreateABTestPage() {
     const totalWeight = variants.reduce((sum, v) => sum + v.weight, 0);
     if (totalWeight !== 100) return false;
 
-    return variants.every(v => v.name.trim() && v.description.trim());
+    return variants.every((v) => v.name.trim() && v.description.trim());
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!validateForm()) {
-      alert("Please fill all required fields and ensure variant weights total 100%");
+      alert(
+        "Please fill all required fields and ensure variant weights total 100%"
+      );
       return;
     }
 
@@ -174,7 +184,9 @@ export default function CreateABTestPage() {
       if (response.data.success) {
         router.push("/admin/ab-testing");
       } else {
-        alert("Failed to create test: " + (response.data.error || "Unknown error"));
+        alert(
+          "Failed to create test: " + (response.data.error || "Unknown error")
+        );
       }
     } catch (error) {
       console.error("Error creating test:", error);
@@ -200,7 +212,9 @@ export default function CreateABTestPage() {
                 </Button>
               </Link>
               <div>
-                <h1 className="text-3xl font-bold text-gray-900">Create A/B Test</h1>
+                <h1 className="text-3xl font-bold text-gray-900">
+                  Create A/B Test
+                </h1>
                 <p className="mt-2 text-gray-600">
                   Set up a new experiment to optimize user experience
                 </p>
@@ -226,19 +240,28 @@ export default function CreateABTestPage() {
                     <Input
                       id="name"
                       value={formData.name}
-                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, name: e.target.value })
+                      }
                       placeholder="e.g., Dashboard Layout Test"
                       required
                     />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="type">Test Type *</Label>
-                    <Select value={formData.type} onValueChange={(value) => setFormData({ ...formData, type: value })}>
+                    <Select
+                      value={formData.type}
+                      onValueChange={(value) =>
+                        setFormData({ ...formData, type: value })
+                      }
+                    >
                       <SelectTrigger>
                         <SelectValue placeholder="Select test type" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="feature_flag">Feature Flag</SelectItem>
+                        <SelectItem value="feature_flag">
+                          Feature Flag
+                        </SelectItem>
                         <SelectItem value="ui_variant">UI Variant</SelectItem>
                         <SelectItem value="algorithm">Algorithm</SelectItem>
                         <SelectItem value="pricing">Pricing</SelectItem>
@@ -253,7 +276,9 @@ export default function CreateABTestPage() {
                   <Textarea
                     id="description"
                     value={formData.description}
-                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, description: e.target.value })
+                    }
                     placeholder="Describe what you're testing and why..."
                     rows={3}
                     required
@@ -263,17 +288,32 @@ export default function CreateABTestPage() {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="goal">Goal *</Label>
-                    <Select value={formData.goal} onValueChange={(value) => setFormData({ ...formData, goal: value })}>
+                    <Select
+                      value={formData.goal}
+                      onValueChange={(value) =>
+                        setFormData({ ...formData, goal: value })
+                      }
+                    >
                       <SelectTrigger>
                         <SelectValue placeholder="Select goal" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="conversion_rate">Conversion Rate</SelectItem>
-                        <SelectItem value="click_through_rate">Click Through Rate</SelectItem>
-                        <SelectItem value="time_on_page">Time on Page</SelectItem>
+                        <SelectItem value="conversion_rate">
+                          Conversion Rate
+                        </SelectItem>
+                        <SelectItem value="click_through_rate">
+                          Click Through Rate
+                        </SelectItem>
+                        <SelectItem value="time_on_page">
+                          Time on Page
+                        </SelectItem>
                         <SelectItem value="revenue">Revenue</SelectItem>
-                        <SelectItem value="user_engagement">User Engagement</SelectItem>
-                        <SelectItem value="report_generation">Report Generation</SelectItem>
+                        <SelectItem value="user_engagement">
+                          User Engagement
+                        </SelectItem>
+                        <SelectItem value="report_generation">
+                          Report Generation
+                        </SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -283,7 +323,12 @@ export default function CreateABTestPage() {
                       id="minSampleSize"
                       type="number"
                       value={formData.minSampleSize}
-                      onChange={(e) => setFormData({ ...formData, minSampleSize: parseInt(e.target.value) || 1000 })}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          minSampleSize: parseInt(e.target.value) || 1000,
+                        })
+                      }
                       min="100"
                       max="10000"
                     />
@@ -294,7 +339,9 @@ export default function CreateABTestPage() {
                       id="startDate"
                       type="date"
                       value={formData.startDate}
-                      onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, startDate: e.target.value })
+                      }
                     />
                   </div>
                 </div>
@@ -329,7 +376,9 @@ export default function CreateABTestPage() {
                       <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center space-x-2">
                           <FlaskConical className="h-4 w-4 text-blue-500" />
-                          <span className="font-medium">{variant.id.replace('_', ' ').toUpperCase()}</span>
+                          <span className="font-medium">
+                            {variant.id.replace("_", " ").toUpperCase()}
+                          </span>
                         </div>
                         {variants.length > 2 && (
                           <Button
@@ -348,7 +397,9 @@ export default function CreateABTestPage() {
                           <Label>Name *</Label>
                           <Input
                             value={variant.name}
-                            onChange={(e) => updateVariant(index, 'name', e.target.value)}
+                            onChange={(e) =>
+                              updateVariant(index, "name", e.target.value)
+                            }
                             placeholder="Variant name"
                             required
                           />
@@ -357,7 +408,13 @@ export default function CreateABTestPage() {
                           <Label>Description *</Label>
                           <Input
                             value={variant.description}
-                            onChange={(e) => updateVariant(index, 'description', e.target.value)}
+                            onChange={(e) =>
+                              updateVariant(
+                                index,
+                                "description",
+                                e.target.value
+                              )
+                            }
                             placeholder="Brief description"
                             required
                           />
@@ -368,7 +425,13 @@ export default function CreateABTestPage() {
                             <Input
                               type="number"
                               value={variant.weight}
-                              onChange={(e) => updateVariant(index, 'weight', parseInt(e.target.value) || 0)}
+                              onChange={(e) =>
+                                updateVariant(
+                                  index,
+                                  "weight",
+                                  parseInt(e.target.value) || 0
+                                )
+                              }
                               min="0"
                               max="100"
                               className="w-20"
@@ -382,7 +445,13 @@ export default function CreateABTestPage() {
 
                   <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                     <span className="font-medium">Total Weight:</span>
-                    <Badge variant={variants.reduce((sum, v) => sum + v.weight, 0) === 100 ? "default" : "destructive"}>
+                    <Badge
+                      variant={
+                        variants.reduce((sum, v) => sum + v.weight, 0) === 100
+                          ? "default"
+                          : "destructive"
+                      }
+                    >
                       {variants.reduce((sum, v) => sum + v.weight, 0)}%
                     </Badge>
                   </div>

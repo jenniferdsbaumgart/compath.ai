@@ -14,6 +14,7 @@ import {
   LogOut,
   CreditCard,
   HelpCircle,
+  BarChart,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CoinDisplay } from "@/components/ui/coin-display";
@@ -171,6 +172,16 @@ export function Navbar() {
                   }`}
                 >
                   Cursos
+                </Link>
+                <Link
+                  href="/analytics"
+                  className={`px-3 py-2 rounded-md text-sm font-medium ${
+                    pathname === "/analytics"
+                      ? "text-white bg-primary"
+                      : "text-foreground hover:bg-accent/10"
+                  }`}
+                >
+                  Analytics
                 </Link>
 
                 <div className="ml-4 flex items-center space-x-4">
@@ -353,6 +364,20 @@ export function Navbar() {
                     <div className="flex items-center">
                       <BookOpen size={18} className="mr-2" />
                       Cursos
+                    </div>
+                  </div>
+                </Link>
+                <Link href="/analytics">
+                  <div
+                    className={`block px-3 py-2 rounded-md text-base font-medium ${
+                      pathname === "/analytics"
+                        ? "text-white bg-primary"
+                        : "text-foreground hover:bg-accent/10"
+                    }`}
+                  >
+                    <div className="flex items-center">
+                      <BarChart size={18} className="mr-2" />
+                      Analytics
                     </div>
                   </div>
                 </Link>

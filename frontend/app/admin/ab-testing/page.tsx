@@ -54,7 +54,7 @@ interface ABTest {
   description: string;
   type: string;
   goal: string;
-  status: 'draft' | 'active' | 'paused' | 'completed' | 'cancelled';
+  status: "draft" | "active" | "paused" | "completed" | "cancelled";
   variants: { [key: string]: any };
   schedule: {
     startDate: Date;
@@ -115,7 +115,8 @@ export default function ABTestingPage() {
         {
           _id: "1",
           name: "Dashboard Layout Test",
-          description: "Testing different dashboard layouts for better user engagement",
+          description:
+            "Testing different dashboard layouts for better user engagement",
           type: "ui_variant",
           goal: "user_engagement",
           status: "active",
@@ -137,7 +138,8 @@ export default function ABTestingPage() {
         {
           _id: "2",
           name: "Pricing Page CTA",
-          description: "Testing different call-to-action buttons on pricing page",
+          description:
+            "Testing different call-to-action buttons on pricing page",
           type: "content",
           goal: "conversion_rate",
           status: "draft",
@@ -163,9 +165,14 @@ export default function ABTestingPage() {
 
   const calculateStats = (testList: ABTest[]) => {
     const totalTests = testList.length;
-    const activeTests = testList.filter(t => t.status === 'active').length;
-    const completedTests = testList.filter(t => t.status === 'completed').length;
-    const totalParticipants = testList.reduce((sum, t) => sum + (t.results?.totalParticipants || 0), 0);
+    const activeTests = testList.filter((t) => t.status === "active").length;
+    const completedTests = testList.filter(
+      (t) => t.status === "completed"
+    ).length;
+    const totalParticipants = testList.reduce(
+      (sum, t) => sum + (t.results?.totalParticipants || 0),
+      0
+    );
 
     setStats({
       totalTests,
@@ -175,7 +182,10 @@ export default function ABTestingPage() {
     });
   };
 
-  const handleStatusChange = async (testId: string, action: 'start' | 'stop') => {
+  const handleStatusChange = async (
+    testId: string,
+    action: "start" | "stop"
+  ) => {
     try {
       const response = await api.put(`/ab-testing/tests/${testId}/${action}`);
       if (response.data.success) {
@@ -188,15 +198,15 @@ export default function ABTestingPage() {
 
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case 'active':
+      case "active":
         return <Badge className="bg-green-100 text-green-800">Active</Badge>;
-      case 'draft':
+      case "draft":
         return <Badge variant="secondary">Draft</Badge>;
-      case 'paused':
+      case "paused":
         return <Badge className="bg-yellow-100 text-yellow-800">Paused</Badge>;
-      case 'completed':
+      case "completed":
         return <Badge className="bg-blue-100 text-blue-800">Completed</Badge>;
-      case 'cancelled':
+      case "cancelled":
         return <Badge variant="destructive">Cancelled</Badge>;
       default:
         return <Badge variant="outline">Unknown</Badge>;
@@ -211,7 +221,11 @@ export default function ABTestingPage() {
       pricing: "Pricing",
       content: "Content",
     };
-    return <Badge variant="outline">{typeLabels[type as keyof typeof typeLabels] || type}</Badge>;
+    return (
+      <Badge variant="outline">
+        {typeLabels[type as keyof typeof typeLabels] || type}
+      </Badge>
+    );
   };
 
   const getGoalBadge = (goal: string) => {
@@ -223,7 +237,11 @@ export default function ABTestingPage() {
       user_engagement: "Engagement",
       report_generation: "Reports",
     };
-    return <Badge variant="outline">{goalLabels[goal as keyof typeof goalLabels] || goal}</Badge>;
+    return (
+      <Badge variant="outline">
+        {goalLabels[goal as keyof typeof goalLabels] || goal}
+      </Badge>
+    );
   };
 
   if (isLoading) {
@@ -276,7 +294,9 @@ export default function ABTestingPage() {
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Active Tests</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                Active Tests
+              </CardTitle>
               <Play className="h-4 w-4 text-green-600" />
             </CardHeader>
             <CardContent>
@@ -286,7 +306,9 @@ export default function ABTestingPage() {
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Completed Tests</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                Completed Tests
+              </CardTitle>
               <BarChart className="h-4 w-4 text-blue-600" />
             </CardHeader>
             <CardContent>
@@ -296,11 +318,15 @@ export default function ABTestingPage() {
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Participants</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                Total Participants
+              </CardTitle>
               <Users className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats.totalParticipants.toLocaleString()}</div>
+              <div className="text-2xl font-bold">
+                {stats.totalParticipants.toLocaleString()}
+              </div>
             </CardContent>
           </Card>
         </div>
@@ -358,7 +384,11 @@ export default function ABTestingPage() {
                         <DropdownMenuContent align="end">
                           <DropdownMenuLabel>Actions</DropdownMenuLabel>
                           <DropdownMenuItem
-                            onClick={() => router.push(`/admin/ab-testing/results/${test._id}`)}
+                            onClick={() =>
+                              router.push(
+                                `/admin/ab-testing/results/${test._id}`
+                              )
+                            }
                           >
                             <Eye className="mr-2 h-4 w-4" />
                             View Results
@@ -368,26 +398,32 @@ export default function ABTestingPage() {
                             Edit Test
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
-                          {test.status === 'draft' && (
+                          {test.status === "draft" && (
                             <DropdownMenuItem
-                              onClick={() => handleStatusChange(test._id, 'start')}
+                              onClick={() =>
+                                handleStatusChange(test._id, "start")
+                              }
                               className="text-green-600"
                             >
                               <Play className="mr-2 h-4 w-4" />
                               Start Test
                             </DropdownMenuItem>
                           )}
-                          {test.status === 'active' && (
+                          {test.status === "active" && (
                             <>
                               <DropdownMenuItem
-                                onClick={() => handleStatusChange(test._id, 'stop')}
+                                onClick={() =>
+                                  handleStatusChange(test._id, "stop")
+                                }
                                 className="text-orange-600"
                               >
                                 <Pause className="mr-2 h-4 w-4" />
                                 Pause Test
                               </DropdownMenuItem>
                               <DropdownMenuItem
-                                onClick={() => handleStatusChange(test._id, 'stop')}
+                                onClick={() =>
+                                  handleStatusChange(test._id, "stop")
+                                }
                                 className="text-blue-600"
                               >
                                 <Square className="mr-2 h-4 w-4" />

@@ -68,7 +68,7 @@ interface AnalyticsData {
   };
 }
 
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8'];
+const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884D8"];
 
 export default function AdminAnalyticsPage() {
   const router = useRouter();
@@ -145,7 +145,7 @@ export default function AdminAnalyticsPage() {
         realtime: {
           activeUsers: 23,
           reportsGeneratedLastHour: 5,
-          revenueLastHour: 45.50,
+          revenueLastHour: 45.5,
         },
         charts: generateMockChartData(timeRange),
       });
@@ -166,18 +166,18 @@ export default function AdminAnalyticsPage() {
       date.setDate(date.getDate() - i);
 
       userGrowth.push({
-        date: date.toISOString().split('T')[0],
+        date: date.toISOString().split("T")[0],
         newUsers: Math.floor(Math.random() * 20) + 5,
         totalUsers: 1000 + (days - i) * 10 + Math.floor(Math.random() * 50),
       });
 
       revenueTrend.push({
-        date: date.toISOString().split('T')[0],
+        date: date.toISOString().split("T")[0],
         revenue: Math.floor(Math.random() * 200) + 100,
       });
 
       reportGeneration.push({
-        date: date.toISOString().split('T')[0],
+        date: date.toISOString().split("T")[0],
         reports: Math.floor(Math.random() * 30) + 10,
       });
     }
@@ -255,7 +255,9 @@ export default function AdminAnalyticsPage() {
                 onClick={handleRefresh}
                 disabled={refreshing}
               >
-                <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
+                <RefreshCw
+                  className={`h-4 w-4 mr-2 ${refreshing ? "animate-spin" : ""}`}
+                />
                 Refresh
               </Button>
               <Button onClick={exportData}>
@@ -270,24 +272,28 @@ export default function AdminAnalyticsPage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Active Users (Now)</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                Active Users (Now)
+              </CardTitle>
               <Users className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{realtime.activeUsers}</div>
-              <p className="text-xs text-muted-foreground">
-                Currently online
-              </p>
+              <p className="text-xs text-muted-foreground">Currently online</p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Reports (Last Hour)</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                Reports (Last Hour)
+              </CardTitle>
               <FileText className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{realtime.reportsGeneratedLastHour}</div>
+              <div className="text-2xl font-bold">
+                {realtime.reportsGeneratedLastHour}
+              </div>
               <p className="text-xs text-muted-foreground">
                 Generated in last hour
               </p>
@@ -296,11 +302,15 @@ export default function AdminAnalyticsPage() {
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Revenue (Last Hour)</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                Revenue (Last Hour)
+              </CardTitle>
               <DollarSign className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">${realtime.revenueLastHour.toFixed(2)}</div>
+              <div className="text-2xl font-bold">
+                ${realtime.revenueLastHour.toFixed(2)}
+              </div>
               <p className="text-xs text-muted-foreground">
                 Earned in last hour
               </p>
@@ -324,11 +334,15 @@ export default function AdminAnalyticsPage() {
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis
                     dataKey="date"
-                    tickFormatter={(value) => new Date(value).toLocaleDateString()}
+                    tickFormatter={(value) =>
+                      new Date(value).toLocaleDateString()
+                    }
                   />
                   <YAxis />
                   <Tooltip
-                    labelFormatter={(value) => new Date(value).toLocaleDateString()}
+                    labelFormatter={(value) =>
+                      new Date(value).toLocaleDateString()
+                    }
                   />
                   <Area
                     type="monotone"
@@ -356,11 +370,15 @@ export default function AdminAnalyticsPage() {
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis
                     dataKey="date"
-                    tickFormatter={(value) => new Date(value).toLocaleDateString()}
+                    tickFormatter={(value) =>
+                      new Date(value).toLocaleDateString()
+                    }
                   />
                   <YAxis />
                   <Tooltip
-                    labelFormatter={(value) => new Date(value).toLocaleDateString()}
+                    labelFormatter={(value) =>
+                      new Date(value).toLocaleDateString()
+                    }
                   />
                   <Line
                     type="monotone"
@@ -377,9 +395,7 @@ export default function AdminAnalyticsPage() {
           <Card>
             <CardHeader>
               <CardTitle>Report Generation</CardTitle>
-              <CardDescription>
-                Daily report generation volume
-              </CardDescription>
+              <CardDescription>Daily report generation volume</CardDescription>
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={300}>
@@ -387,11 +403,15 @@ export default function AdminAnalyticsPage() {
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis
                     dataKey="date"
-                    tickFormatter={(value) => new Date(value).toLocaleDateString()}
+                    tickFormatter={(value) =>
+                      new Date(value).toLocaleDateString()
+                    }
                   />
                   <YAxis />
                   <Tooltip
-                    labelFormatter={(value) => new Date(value).toLocaleDateString()}
+                    labelFormatter={(value) =>
+                      new Date(value).toLocaleDateString()
+                    }
                   />
                   <Bar dataKey="reports" fill="#ffc658" />
                 </BarChart>
@@ -403,9 +423,7 @@ export default function AdminAnalyticsPage() {
           <Card>
             <CardHeader>
               <CardTitle>Summary Statistics</CardTitle>
-              <CardDescription>
-                Key metrics overview
-              </CardDescription>
+              <CardDescription>Key metrics overview</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
@@ -430,7 +448,10 @@ export default function AdminAnalyticsPage() {
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium">User Retention</span>
                   <Badge variant="secondary">
-                    {Math.round((summary.userMetrics?.userRetentionRate || 0) * 100)}%
+                    {Math.round(
+                      (summary.userMetrics?.userRetentionRate || 0) * 100
+                    )}
+                    %
                   </Badge>
                 </div>
               </div>
