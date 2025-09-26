@@ -1,18 +1,20 @@
 import { Module, OnModuleInit } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
+import { CacheModule } from '@nestjs/cache-manager';
 import {
   User,
   UserSchema,
   Report,
   ReportSchema,
   DashboardReadModel,
-  DashboardReadModelSchema
+  DashboardReadModelSchema,
 } from '../models';
 
 // Services
 import { AiReportService } from '../services/ai-report.service';
 import { UserService } from '../services/user.service';
 import { DashboardReadService } from '../services/dashboard-read.service';
+import { AnalyticsModule } from '../analytics/analytics.module';
 
 // Command handlers
 import {
@@ -59,7 +61,13 @@ import { QueryBus } from './queries/query.bus';
     MongooseModule.forFeature([
       { name: User.name, schema: UserSchema },
       { name: Report.name, schema: ReportSchema },
+      { name: DashboardReadModel.name, schema: DashboardReadModelSchema },
     ]),
+    CacheModule.register({
+      ttl: 300,
+      max: 100,
+    }),
+    AnalyticsModule,
   ],
   providers: [
     // Services
