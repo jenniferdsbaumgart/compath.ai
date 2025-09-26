@@ -1,4 +1,4 @@
-import { jwtDecode } from 'jwt-decode';
+import { jwtDecode } from "jwt-decode";
 
 // Definição do tipo User
 interface User {
@@ -6,6 +6,7 @@ interface User {
   name: string;
   email: string;
   coins: number;
+  role?: "user" | "admin";
   createdAt: string;
   phone?: string;
   location?: string;
@@ -43,29 +44,29 @@ export type JwtPayload = {
 // GERENCIAMENTO TOKEN
 export function getToken(): string | null {
   try {
-    return localStorage.getItem('token');
+    return localStorage.getItem("token");
   } catch (error) {
-    console.error('Error accessing token from localStorage:', error);
+    console.error("Error accessing token from localStorage:", error);
     return null;
   }
 }
 
 export function setToken(token: string): void {
   try {
-    localStorage.setItem('token', token);
+    localStorage.setItem("token", token);
   } catch (error) {
-    console.error('Error setting token in localStorage:', error);
+    console.error("Error setting token in localStorage:", error);
   }
 }
 
 export function removeToken(): void {
   try {
-    localStorage.removeItem('token');
-    localStorage.removeItem('currentUser');
+    localStorage.removeItem("token");
+    localStorage.removeItem("currentUser");
   } catch (error) {
-    console.error('Error removing token from localStorage:', error);
+    console.error("Error removing token from localStorage:", error);
   }
-};
+}
 
 // USUÁRIO ATUAL
 export function getCurrentUser(): User | null {
@@ -74,13 +75,13 @@ export function getCurrentUser(): User | null {
   }
 
   try {
-    const user = localStorage.getItem('currentUser');
+    const user = localStorage.getItem("currentUser");
     if (user) {
       return JSON.parse(user) as User;
     }
     return null;
   } catch (error) {
-    console.error('Error getting current user:', error);
+    console.error("Error getting current user:", error);
     removeToken();
     return null;
   }
@@ -88,9 +89,9 @@ export function getCurrentUser(): User | null {
 
 export function setCurrentUser(user: User): void {
   try {
-    localStorage.setItem('currentUser', JSON.stringify(user));
+    localStorage.setItem("currentUser", JSON.stringify(user));
   } catch (error) {
-    console.error('Error setting current user in localStorage:', error);
+    console.error("Error setting current user in localStorage:", error);
   }
 }
 
@@ -111,7 +112,7 @@ export function isAuthenticated(): boolean {
     }
     return true;
   } catch (error) {
-    console.error('Error decoding token:', error);
+    console.error("Error decoding token:", error);
     removeToken();
     return false;
   }
@@ -120,8 +121,8 @@ export function isAuthenticated(): boolean {
 // LOGOUT
 export const logout = () => {
   removeToken();
-  if (typeof window !== 'undefined') {
-    window.location.href = '/';
+  if (typeof window !== "undefined") {
+    window.location.href = "/";
   }
 };
 
@@ -138,11 +139,15 @@ interface SignUpResponse {
 }
 
 // Função para criar uma nova conta
-export async function signUp(name: string, email: string, password: string): Promise<SignUpResponse> {
-  const response = await fetch('http://localhost:5000/api/users/register', {
-    method: 'POST',
+export async function signUp(
+  name: string,
+  email: string,
+  password: string
+): Promise<SignUpResponse> {
+  const response = await fetch("http://localhost:5000/api/users/register", {
+    method: "POST",
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     },
     body: JSON.stringify({ name, email, password }),
   });
@@ -150,11 +155,11 @@ export async function signUp(name: string, email: string, password: string): Pro
   const data: SignUpResponse = await response.json();
 
   if (!response.ok) {
-    throw new Error(data.message || 'Erro ao criar conta');
+    throw new Error(data.message || "Erro ao criar conta");
   }
 
   setToken(data.token);
-  localStorage.setItem('compath_user', JSON.stringify(data.user));
+  localStorage.setItem("compath_user", JSON.stringify(data.user));
 
   return data;
 }
@@ -176,11 +181,14 @@ interface SignInResponse {
 }
 
 // Função para fazer login
-export async function signIn(email: string, password: string): Promise<SignInResponse> {
-  const response = await fetch('http://localhost:5000/api/users/login', {
-    method: 'POST',
+export async function signIn(
+  email: string,
+  password: string
+): Promise<SignInResponse> {
+  const response = await fetch("http://localhost:5000/api/users/login", {
+    method: "POST",
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     },
     body: JSON.stringify({ email, password }),
   });
@@ -188,12 +196,15 @@ export async function signIn(email: string, password: string): Promise<SignInRes
   const data: SignInResponse = await response.json();
 
   if (!response.ok) {
-    throw new Error(data.message || 'Erro ao fazer login');
+    throw new Error(data.message || "Erro ao fazer login");
   }
 
-  console.log('signIn: Saving to localStorage:', { token: data.token, user: data.user });
+  console.log("signIn: Saving to localStorage:", {
+    token: data.token,
+    user: data.user,
+  });
   setToken(data.token);
-  localStorage.setItem('compath_user', JSON.stringify(data.user));
+  localStorage.setItem("compath_user", JSON.stringify(data.user));
 
   return data;
 }
