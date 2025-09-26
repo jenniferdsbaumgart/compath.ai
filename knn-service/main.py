@@ -7,12 +7,17 @@ from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 
-# CORS middleware
+# CORS middleware - Configuração segura
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # ou especifique seus domínios
+    allow_origins=[
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+        "https://compath.ai",
+        "https://www.compath.ai"
+    ],
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
 )
 
